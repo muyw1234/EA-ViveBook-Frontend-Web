@@ -1,11 +1,9 @@
 # React + TypeScript + Vite
 
 # Comandos
-Crear nuevo proyecto con Vite con última versión: 
-npm create vite@latest
+Crear nuevo proyecto con Vite con última versión: npm create vite@latest
 
-Comando para compilar
-npm run dev
+Comando para compilar: npm run dev
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
