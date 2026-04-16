@@ -1,6 +1,6 @@
 # React + TypeScript + Vite
 
-#Comandos
+# Comandos
 Crear nuevo proyecto con Vite con última versión: 
 npm create vite@latest
 
