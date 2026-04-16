@@ -20,7 +20,23 @@ const getLibroById = async (id: string) => {
     }
 };
 
+const addLibroListing = async (formData: FormData) => {
+    try {
+        // Revertir temporalmente: Enviar solo campos básicos para evitar el error 500
+        const payload = {
+            isbn: formData.get("isbn") as string,
+            title: formData.get("title") as string,
+        };
+        const response = await api.post("/libros", payload);
+        return response.data;
+    } catch (error) {
+        console.error("Error adding book listing:", error);
+        throw error;
+    }
+}
+
 export default {
     getAllLibros,
-    getLibroById
+    getLibroById,
+    addLibroListing
 };

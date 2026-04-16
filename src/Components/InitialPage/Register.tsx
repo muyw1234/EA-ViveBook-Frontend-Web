@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import UsuarioService from "../Services/Usuario";
+import { Link } from "react-router-dom";
+import "./Auth.css";
 
 const Register: React.FC = () => {
     const [formData, setFormData] = React.useState({
@@ -37,55 +39,66 @@ const Register: React.FC = () => {
     };
 
     return(
-    <div style={{ maxWidth: "400px", margin: "0 auto", padding: "20px" }}>
-            <h2>Crear Nuevo Usuario</h2>
-            <form onSubmit={handleSubmit}>
-                <div style={{ marginBottom: "10px" }}>
-                    <label>Nombre de Usuario:</label>
-                    <input
-                        type="text"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        required
-                        style={{ width: "100%", display: "block" }}
-                    />
-                </div>
+        <div className="auth-container">
+            <div className="auth-card">
+                <h2 className="auth-title">Únete a ViveBook</h2>
+                <p className="auth-subtitle">Crea tu cuenta y empieza a leer hoy.</p>
+                
+                <form className="auth-form" onSubmit={handleSubmit}>
+                    <div className="input-group">
+                        <label>Nombre de Usuario</label>
+                        <input
+                            type="text"
+                            name="name"
+                            value={formData.name}
+                            onChange={handleChange}
+                            required
+                            className="auth-input"
+                            placeholder="Ej: Laura Pérez"
+                        />
+                    </div>
 
-                <div style={{ marginBottom: "10px" }}>
-                    <label>Email:</label>
-                    <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        required
-                        style={{ width: "100%", display: "block" }}
-                    />
-                </div>
+                    <div className="input-group">
+                        <label>Email</label>
+                        <input
+                            type="email"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            required
+                            className="auth-input"
+                            placeholder="laura@ejemplo.com"
+                        />
+                    </div>
 
-                <div style={{ marginBottom: "10px" }}>
-                    <label>Contraseña:</label>
-                    <input
-                        type="password"
-                        name="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        required
-                        style={{ width: "100%", display: "block" }}
-                    />
-                </div>
+                    <div className="input-group">
+                        <label>Contraseña</label>
+                        <input
+                            type="password"
+                            name="password"
+                            value={formData.password}
+                            onChange={handleChange}
+                            required
+                            className="auth-input"
+                            placeholder="Mínimo 6 caracteres"
+                        />
+                    </div>
 
-                <button type="submit" disabled={loading}>
-                    {loading ? "Registrando..." : "Registrarse"}
-                </button>
-            </form>
+                    <button type="submit" className="auth-button" disabled={loading}>
+                        {loading ? "Registrando..." : "Crear cuenta"}
+                    </button>
+                    
+                    <div style={{ marginTop: "1rem", fontSize: "0.9rem", color: "#64748b" }}>
+                        ¿Ya tienes cuenta? <Link to="/" style={{ color: "#7c3aed", textDecoration: "none", fontWeight: "600" }}>Inicia sesión aquí</Link>
+                    </div>
+                </form>
 
-            {message && (
-                <p style={{ marginTop: "15px", color: message.includes("Error") ? "red" : "green" }}>
-                    {message}
-                </p>
-            )}
+                {message && (
+                    <div className={`auth-message ${message.includes("Error") ? "error" : "success"}`}>
+                        {message}
+                    </div>
+                )}
+            </div>
         </div>
     );
 };
