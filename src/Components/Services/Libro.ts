@@ -20,6 +20,17 @@ const getLibroById = async (id: string) => {
     }
 };
 
+async function addLibroByIsbn(isbn : string){
+    try{
+        const response = await api.get(`/libros/isbn/${isbn}`);
+        return response.data;
+    }
+    catch (error){
+         console.error("Error fetching book by id:", error);
+        throw error;
+    }
+}
+
 const addLibroListing = async (formData: FormData) => {
     try {
         // Revertir temporalmente: Enviar solo campos básicos para evitar el error 500
@@ -38,5 +49,6 @@ const addLibroListing = async (formData: FormData) => {
 export default {
     getAllLibros,
     getLibroById,
-    addLibroListing
+    addLibroListing,
+    addLibroByIsbn
 };
