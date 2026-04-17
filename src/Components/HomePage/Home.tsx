@@ -341,6 +341,19 @@ const Home: React.FC = () => {
                   
                 </div>
               </div>
+               <div className="form-group">
+                <label>Estado del libro</label>
+                <select
+                  value={newBookState}
+                  onChange={(e) => setNewBookState(e.target.value)}
+                >
+                  <option value="nuevo">Nuevo</option>
+                  <option value="como_nuevo">Como nuevo</option>
+                  <option value="buen_estado">Buen estado</option>
+                  <option value="usado">Usado con marcas</option>
+                </select>
+              </div>
+
               <div className="form-group">
                 <label>Precio (€)</label>
                 <input
