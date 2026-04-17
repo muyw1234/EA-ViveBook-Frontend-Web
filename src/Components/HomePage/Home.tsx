@@ -3,7 +3,6 @@ import "./Home.css";
 import UsuarioService from "../Services/Usuario";
 import LibroService from "../Services/Libro";
 import { useNavigate } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
 
 const Home: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -375,9 +374,9 @@ const Home: React.FC = () => {
                     const data = await LibroService.addLibroByIsbn(newBookIsbn);
                     //console.log(`Libro agregado: ${JSON.stringify(data)}`);
                     if(data){
-                        toast(`Libro agregado: ${JSON.stringify(data)}`);
+                        // toast(`Libro agregado: ${JSON.stringify(data)}`);
                     } else {
-                        toast.error(`Error happened!`);
+                        // toast.error(`Error happened!`);
                     }
                     setIsAddBookModalOpen(false);
                 }}
@@ -504,7 +503,6 @@ const Home: React.FC = () => {
           </div>
         </div>
       )}
-      <ToastContainer/>
     </div>
   );
 };
