@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import socket from "../../Services/socket";
 import api from "../../api";
-import UsuarioService from "../../Services/Usuario";
+import UsuarioService from "../Services/Usuario";
 import "./ChatGlobal.css";
 
 const CHAT_ID = "000000000000000000000001";
