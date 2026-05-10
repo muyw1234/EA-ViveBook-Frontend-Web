@@ -62,6 +62,21 @@
   box-sizing: border-box;
 }
 
+[data-theme="high-contrast"] {
+  --background-color: #000000;
+  --text-color: #ffffff;
+  --link-color: #ffff00; /* Bright yellow is highly visible on black */
+}
+
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+a {
+  color: var(--link-color);
+}
+
 body {
   margin: 0;
 }

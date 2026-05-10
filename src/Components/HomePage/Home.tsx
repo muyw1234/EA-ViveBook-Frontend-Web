@@ -6,7 +6,14 @@ import { useNavigate } from "react-router-dom";
 import type { IPost } from "../Services/Post";
 import PostService from "../Services/Post";
 
+import AccessibilityMenu from "../Accessibility/AccessibilityMenu";
+import { useTranslation } from "react-i18next";
+import Login from "../InitialPage/Login";
+
 const Home: React.FC = () => {
+  
+  const { t } = useTranslation();
+
   const [searchQuery, setSearchQuery] = useState("");
   const [user, setUser] = useState<{ name: string } | null>(null);
   const [books, setBooks] = useState<any[]>([]);
@@ -151,7 +158,7 @@ const Home: React.FC = () => {
               </div>
             ) : (
               <button onClick={() => navigate("/")} className="login-btn">
-                Iniciar Sesión
+                {t("login_btn")}
               </button>
             )}
           </div>
@@ -161,7 +168,7 @@ const Home: React.FC = () => {
           <input
             type="text"
             className="search-bar"
-            placeholder="Busca libros, autores o librerías..."
+            placeholder={t("search_placeholder")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -171,16 +178,16 @@ const Home: React.FC = () => {
       {/* Hero Banner */}
       <section className="hero-banner">
         <h1>
-          Tu próxima historia <br /> te está esperando.
+          {t("hero_title_line1")} <br /> {t("hero_title_line2")}
         </h1>
-        <p>Alquila, comparte y vive la lectura en tu comunidad.</p>
+        <p>{t("hero_subtitle")}</p>
       </section>
       {/* Aqui estan los posts */}
       <section className="content-section">
         <div className="section-header">
-          <h2 className="section-title">Posts</h2>
+          <h2 className="section-title">{t("section_posts")}</h2>
           <a href="#" className="see-all">
-            Ver todos
+            {t("see_all")}
           </a>
         </div>
         <div className="card-grid">
@@ -207,7 +214,7 @@ const Home: React.FC = () => {
             ))
           ) : (
             <p className="no-data-msg">
-              No hay libros de alquiler disponibles en este momento.
+              {t("no_rentals_available")}
             </p>
           )}
         </div>
@@ -216,9 +223,9 @@ const Home: React.FC = () => {
       {/* Books Section - Alquiler */}
       <section className="content-section">
         <div className="section-header">
-          <h2 className="section-title">Libros en Alquiler</h2>
+          <h2 className="section-title">{t("section_rentals")}</h2>
           <a href="#" className="see-all">
-            Ver todos
+            {t("see_all")}
           </a>
         </div>
         <div className="card-grid">
@@ -230,20 +237,20 @@ const Home: React.FC = () => {
                 </div>
                 <div className="card-info">
                   <span className="card-price">
-                    {book.price ? `${book.price} €` : "Consultar precio"}
+                    {book.price ? `${book.price} €` : t("consult_price")}
                   </span>
                   <span className="card-title" title={book.title}>
                     {book.title}
                   </span>
                   <span className="card-meta">
-                    {book.authors?.join(", ") || "Unknown Author"}
+                    {book.authors?.join(", ") || t("unknown_author")}
                   </span>
                 </div>
               </div>
             ))
           ) : (
             <p className="no-data-msg">
-              No hay libros de alquiler disponibles en este momento.
+              {t("no_rentals_available")}
             </p>
           )}
         </div>
@@ -252,9 +259,9 @@ const Home: React.FC = () => {
       {/* Books Section - Venta */}
       <section className="content-section">
         <div className="section-header">
-          <h2 className="section-title">Libros a la Venta</h2>
+          <h2 className="section-title">{t("section_sales")}</h2>
           <a href="#" className="see-all">
-            Ver todos
+            {t("see_all")}
           </a>
         </div>
         <div className="card-grid">
@@ -266,20 +273,20 @@ const Home: React.FC = () => {
                 </div>
                 <div className="card-info">
                   <span className="card-price">
-                    {book.price ? `${book.price} €` : "Consultar precio"}
+                    {book.price ? `${book.price} €` : t("consult_price")}
                   </span>
                   <span className="card-title" title={book.title}>
                     {book.title}
                   </span>
                   <span className="card-meta">
-                    {book.authors?.join(", ") || "Unknown Author"}
+                    {book.authors?.join(", ") || t("unknown_author")}
                   </span>
                 </div>
               </div>
             ))
           ) : (
             <p className="no-data-msg">
-              No hay libros a la venta disponibles en este momento.
+              {t("no_sales_available")}
             </p>
           )}
         </div>
@@ -288,9 +295,9 @@ const Home: React.FC = () => {
       {/* Events Section */}
       <section className="content-section">
         <div className="section-header">
-          <h2 className="section-title">Eventos Destacados</h2>
+          <h2 className="section-title">{t("section_events")}</h2>
           <a href="#" className="see-all">
-            Ver todos
+            {t("see_all")}
           </a>
         </div>
         <div className="events-grid">
@@ -317,7 +324,7 @@ const Home: React.FC = () => {
         >
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h2>Añadir un Libro</h2>
+              <h2>{t("modal_add_title")}</h2>
               <button
                 className="close-btn"
                 onClick={() => setIsAddBookModalOpen(false)}
@@ -333,12 +340,12 @@ const Home: React.FC = () => {
                 id="flexCheckDefault"
                 onChange={(e) => setOnlyISBN(e.target.checked)}
               />
-              <label className="form-check-label">Usar OpenLibrary</label>
+              <label className="form-check-label">{t("use_open_library")}</label>
             </div>
             {onlyISBN ? (
               <div className="add-book-form">
                 <div className="form-group">
-                  <label>Tipo de Operación</label>
+                  <label>{t("label_operation_type")}</label>
                   <div className="radio-group">
                     <label className="radio-label">
                       <input
@@ -347,7 +354,7 @@ const Home: React.FC = () => {
                         checked={newBookType === "VENTA"}
                         onChange={(e) => setNewBookType(e.target.value)}
                       />
-                      Para Vender
+                      {t("for_sale")}
                     </label>
                     <label className="radio-label">
                       <input
@@ -356,12 +363,12 @@ const Home: React.FC = () => {
                         checked={newBookType === "ALQUILER"}
                         onChange={(e) => setNewBookType(e.target.value)}
                       />
-                      Para Alquilar
+                      {t("for_rent")}
                     </label>
                   </div>
                 </div>
                 <div className="form-group">
-                  <label>Datos de identificación</label>
+                  <label>{t("label_id_data")}</label>
                   <div style={{ display: "flex", gap: "1rem" }}>
                     <div
                       style={{
@@ -383,20 +390,20 @@ const Home: React.FC = () => {
                   </div>
                 </div>
                 <div className="form-group">
-                  <label>Estado del libro</label>
+                  <label>{t("label_book_state")}</label>
                   <select
                     value={newBookState}
                     onChange={(e) => setNewBookState(e.target.value)}
                   >
-                    <option value="nuevo">Nuevo</option>
-                    <option value="como_nuevo">Como nuevo</option>
-                    <option value="buen_estado">Buen estado</option>
-                    <option value="usado">Usado con marcas</option>
+                    <option value="nuevo">{t("state_new")}</option>
+                    <option value="como_nuevo">{t("state_like_new")}</option>
+                    <option value="buen_estado">{t("state_good")}</option>
+                    <option value="usado">{t("state_used")}</option>
                   </select>
                 </div>
 
                 <div className="form-group">
-                  <label>Precio (€)</label>
+                  <label>{t("label_price")}</label>
                   <input
                     type="number"
                     step="0.01"
@@ -423,13 +430,13 @@ const Home: React.FC = () => {
                     setIsAddBookModalOpen(false);
                   }}
                 >
-                  Subir Libro
+                  {t("submit_book_btn")}
                 </button>
               </div>
             ) : (
               <form className="add-book-form" onSubmit={handleAddBookSubmit}>
                 <div className="form-group">
-                  <label>Tipo de Operación</label>
+                  <label>{t("label_operation_type")}</label>
                   <div className="radio-group">
                     <label className="radio-label">
                       <input
@@ -438,7 +445,7 @@ const Home: React.FC = () => {
                         checked={newBookType === "VENTA"}
                         onChange={(e) => setNewBookType(e.target.value)}
                       />
-                      Para Vender
+                      {t("for_sale")}
                     </label>
                     <label className="radio-label">
                       <input
@@ -447,13 +454,13 @@ const Home: React.FC = () => {
                         checked={newBookType === "ALQUILER"}
                         onChange={(e) => setNewBookType(e.target.value)}
                       />
-                      Para Alquilar
+                      {t("for_rent")}
                     </label>
                   </div>
                 </div>
 
                 <div className="form-group">
-                  <label>Título del libro</label>
+                  <label>{t("label_book_title")}</label>
                   <input
                     type="text"
                     placeholder="Ej: Cien años de soledad"
@@ -464,7 +471,7 @@ const Home: React.FC = () => {
                 </div>
 
                 <div className="form-group">
-                  <label>Datos de identificación</label>
+                  <label>{t("label_id_data")}</label>
                   <div style={{ display: "flex", gap: "1rem" }}>
                     <div
                       style={{
@@ -474,7 +481,7 @@ const Home: React.FC = () => {
                         gap: "0.5rem",
                       }}
                     >
-                      <label style={{ fontSize: "0.8rem" }}>ISBN</label>
+                      <label style={{ fontSize: "0.8rem" }}>{t("label_isbn")}</label>
                       <input
                         type="text"
                         placeholder="Ej: 978-3-16-148410-0"
@@ -491,7 +498,7 @@ const Home: React.FC = () => {
                         gap: "0.5rem",
                       }}
                     >
-                      <label style={{ fontSize: "0.8rem" }}>Autor</label>
+                      <label style={{ fontSize: "0.8rem" }}>{t("label_author")}</label>
                       <input
                         type="text"
                         placeholder="Ej: Gabriel García Márquez"
@@ -509,15 +516,15 @@ const Home: React.FC = () => {
                     value={newBookState}
                     onChange={(e) => setNewBookState(e.target.value)}
                   >
-                    <option value="nuevo">Nuevo</option>
-                    <option value="como_nuevo">Como nuevo</option>
-                    <option value="buen_estado">Buen estado</option>
-                    <option value="usado">Usado con marcas</option>
+                    <option value="nuevo">{t("state_new")}</option>
+                    <option value="como_nuevo">{t("state_like_new")}</option>
+                    <option value="buen_estado">{t("state_good")}</option>
+                    <option value="usado">{t("state_used")}</option>
                   </select>
                 </div>
 
                 <div className="form-group">
-                  <label>Precio (€)</label>
+                  <label>{t("label_price")}</label>
                   <input
                     type="number"
                     step="0.01"
@@ -541,6 +548,7 @@ const Home: React.FC = () => {
           </div>
         </div>
       )}
+      <AccessibilityMenu />
     </div>
   );
 };

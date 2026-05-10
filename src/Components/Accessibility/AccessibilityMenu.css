@@ -1,0 +1,76 @@
+/* Container positioned in the bottom right corner */
+.a11y-menu-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9999;
+  font-family: sans-serif;
+}
+
+/* Floating Action Button */
+.a11y-trigger-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: var(--primary, #0055cc);
+  color: white;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s ease;
+}
+
+.a11y-trigger-btn:hover {
+  transform: scale(1.05);
+}
+
+.a11y-trigger-btn:focus-visible {
+  outline: 3px solid #ffcc00;
+  outline-offset: 2px;
+}
+
+/* Settings Panel */
+.a11y-panel {
+  position: absolute;
+  bottom: 70px;
+  right: 0;
+  width: 280px;
+  background-color: var(--background-color, #ffffff);
+  color: var(--text-color, #1a1a1a);
+  border: 2px solid var(--text-color, #1a1a1a);
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.a11y-panel h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 18px;
+}
+
+.a11y-panel hr {
+  border: 0;
+  border-top: 1px solid #ccc;
+  margin-bottom: 15px;
+}
+
+.a11y-option {
+  margin-bottom: 15px;
+}
+
+/* Close Button styling */
+.a11y-close-btn {
+  width: 100%;
+  padding: 8px;
+  background-color: #f1f1f1;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.a11y-close-btn:hover {
+  background-color: #ddd;
+}
