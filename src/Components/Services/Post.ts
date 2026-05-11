@@ -1,4 +1,3 @@
-import type { AxiosResponse } from "axios";
 import api from "../../api";
 import type { Dispatch, SetStateAction } from "react";
 
