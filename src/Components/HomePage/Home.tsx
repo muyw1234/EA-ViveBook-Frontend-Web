@@ -120,6 +120,12 @@ const Home: React.FC = () => {
   const alquilerBooks = books.filter((b) => b.status === "ALQUILER");
   const ventaBooks = books.filter((b) => b.status === "VENTA");
 
+  const openBookDetail = (bookId?: string) => {
+    if (bookId) {
+      navigate(`/libros/${bookId}`);
+    }
+  };
+
   if (loading) {
     return <div className="home-container">Cargando ViveBook...</div>;
   }
@@ -180,7 +186,18 @@ const Home: React.FC = () => {
         <div className="card-grid">
           {alquilerBooks.length > 0 ? (
             alquilerBooks.map((book) => (
-              <div key={`alquiler-${book._id}`} className="book-card">
+              <div
+                key={`alquiler-${book._id}`}
+                className="book-card"
+                role="button"
+                tabIndex={0}
+                onClick={() => openBookDetail(book._id)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    openBookDetail(book._id);
+                  }
+                }}
+              >
                 <div className="card-image-placeholder">
                   📚 <br /> [Imagen]
                 </div>
@@ -216,7 +233,18 @@ const Home: React.FC = () => {
         <div className="card-grid">
           {ventaBooks.length > 0 ? (
             ventaBooks.map((book) => (
-              <div key={`venta-${book._id}`} className="book-card">
+              <div
+                key={`venta-${book._id}`}
+                className="book-card"
+                role="button"
+                tabIndex={0}
+                onClick={() => openBookDetail(book._id)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    openBookDetail(book._id);
+                  }
+                }}
+              >
                 <div className="card-image-placeholder">
                   📚 <br /> [Imagen]
                 </div>

@@ -170,6 +170,11 @@
   box-shadow: var(--shadow);
 }
 
+.book-card:focus-visible {
+  outline: 3px solid var(--accent-border);
+  outline-offset: 3px;
+}
+
 .card-image-placeholder {
   width: 100%;
   aspect-ratio: 2/3;
