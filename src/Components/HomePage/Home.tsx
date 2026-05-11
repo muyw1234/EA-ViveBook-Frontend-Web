@@ -3,11 +3,14 @@ import "./Home.css";
 import UsuarioService from "../Services/Usuario";
 import LibroService from "../Services/Libro";
 import { useNavigate } from "react-router-dom";
+import type { IPost } from "../Services/Post";
+import PostService from "../Services/Post";
 
 const Home: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [user, setUser] = useState<{ name: string } | null>(null);
   const [books, setBooks] = useState<any[]>([]);
+  const [posts, setPosts] = useState<Partial<IPost>[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAddBookModalOpen, setIsAddBookModalOpen] = useState(false);
 
@@ -22,6 +25,7 @@ const Home: React.FC = () => {
 
   const navigate = useNavigate();
 
+  // Inicializacion?
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -30,6 +34,7 @@ const Home: React.FC = () => {
         setUser(userData);
 
         // Fetch Books from DB
+        PostService.readAllPosts(setPosts);
         const booksData = await LibroService.getAllLibros();
         const processedBooks = booksData.map((b: any, index: number) => ({
           ...b,
@@ -42,6 +47,8 @@ const Home: React.FC = () => {
         if ((error as any).response?.status === 401) {
           navigate("/");
         }
+
+        
       } finally {
         setLoading(false);
       }
@@ -173,6 +180,43 @@ const Home: React.FC = () => {
           Tu próxima historia <br /> te está esperando.
         </h1>
         <p>Alquila, comparte y vive la lectura en tu comunidad.</p>
+      </section>
+      {/* Aqui estan los posts */}
+      <section className="content-section">
+        <div className="section-header">
+          <h2 className="section-title">Posts</h2>
+          <a href="#" className="see-all">
+            Ver todos
+          </a>
+        </div>
+        <div className="card-grid">
+          {posts.length > 0 ? (
+            posts.map((post) => (
+              <div key={`Post: ${post._id}`} className="book-card">
+                <div className="card-image-placeholder">
+                  📚 <br /> [Imagen]
+                </div>
+                <div className="card-info">
+                  <span>
+                    {/* <span className="card-price">
+                      {post.price ? `${post.price} €` : "Consultar precio"}
+                    </span> */}
+                    <span className="card-title" title={post.description}>
+                      {post.description}
+                    </span>
+                    <span className="card-meta">
+                      {post.status}
+                    </span>
+                  </span>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="no-data-msg">
+              No hay libros de alquiler disponibles en este momento.
+            </p>
+          )}
+        </div>
       </section>
 
       {/* Books Section - Alquiler */}
@@ -315,219 +359,213 @@ const Home: React.FC = () => {
                 type="checkbox"
                 value=""
                 id="flexCheckDefault"
-                onChange={(e) =>setOnlyISBN(e.target.checked)}
+                onChange={(e) => setOnlyISBN(e.target.checked)}
               />
               <label className="form-check-label">Usar OpenLibrary</label>
             </div>
-            {
-                onlyISBN  ? 
-                <div className="add-book-form">
-                    <div className="form-group">
-                <label>Tipo de Operación</label>
-                <div className="radio-group">
-                  <label className="radio-label">
-                    <input
-                      type="radio"
-                      value="VENTA"
-                      checked={newBookType === "VENTA"}
-                      onChange={(e) => setNewBookType(e.target.value)}
-                    />
-                    Para Vender
-                  </label>
-                  <label className="radio-label">
-                    <input
-                      type="radio"
-                      value="ALQUILER"
-                      checked={newBookType === "ALQUILER"}
-                      onChange={(e) => setNewBookType(e.target.value)}
-                    />
-                    Para Alquilar
-                  </label>
-                </div>
-              </div>
-              <div className="form-group">
-                <label>Datos de identificación</label>
-                <div style={{ display: "flex", gap: "1rem" }}>
-                  <div
-                    style={{
-                      flex: 1,
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "0.5rem",
-                    }}
-                  >
-                    <label style={{ fontSize: "0.8rem" }}>ISBN</label>
-                    <input
-                      type="text"
-                      placeholder="Ej: 978-3-16-148410-0"
-                      value={newBookIsbn}
-                      onChange={(e) => setNewBookIsbn(e.target.value)}
-                      required
-                    />
+            {onlyISBN ? (
+              <div className="add-book-form">
+                <div className="form-group">
+                  <label>Tipo de Operación</label>
+                  <div className="radio-group">
+                    <label className="radio-label">
+                      <input
+                        type="radio"
+                        value="VENTA"
+                        checked={newBookType === "VENTA"}
+                        onChange={(e) => setNewBookType(e.target.value)}
+                      />
+                      Para Vender
+                    </label>
+                    <label className="radio-label">
+                      <input
+                        type="radio"
+                        value="ALQUILER"
+                        checked={newBookType === "ALQUILER"}
+                        onChange={(e) => setNewBookType(e.target.value)}
+                      />
+                      Para Alquilar
+                    </label>
                   </div>
-                  
                 </div>
-              </div>
-               <div className="form-group">
-                <label>Estado del libro</label>
-                <select
-                  value={newBookState}
-                  onChange={(e) => setNewBookState(e.target.value)}
-                >
-                  <option value="nuevo">Nuevo</option>
-                  <option value="como_nuevo">Como nuevo</option>
-                  <option value="buen_estado">Buen estado</option>
-                  <option value="usado">Usado con marcas</option>
-                </select>
-              </div>
+                <div className="form-group">
+                  <label>Datos de identificación</label>
+                  <div style={{ display: "flex", gap: "1rem" }}>
+                    <div
+                      style={{
+                        flex: 1,
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "0.5rem",
+                      }}
+                    >
+                      <label style={{ fontSize: "0.8rem" }}>ISBN</label>
+                      <input
+                        type="text"
+                        placeholder="Ej: 978-3-16-148410-0"
+                        value={newBookIsbn}
+                        onChange={(e) => setNewBookIsbn(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label>Estado del libro</label>
+                  <select
+                    value={newBookState}
+                    onChange={(e) => setNewBookState(e.target.value)}
+                  >
+                    <option value="nuevo">Nuevo</option>
+                    <option value="como_nuevo">Como nuevo</option>
+                    <option value="buen_estado">Buen estado</option>
+                    <option value="usado">Usado con marcas</option>
+                  </select>
+                </div>
 
-              <div className="form-group">
-                <label>Precio (€)</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  placeholder="Ej: 15.50"
-                  value={newBookPrice}
-                  onChange={(e) => setNewBookPrice(e.target.value)}
-                  required
-                />
-              </div>
+                <div className="form-group">
+                  <label>Precio (€)</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    placeholder="Ej: 15.50"
+                    value={newBookPrice}
+                    onChange={(e) => setNewBookPrice(e.target.value)}
+                    required
+                  />
+                </div>
 
-              <button
-                className="submit-btn"
-                disabled={!newBookIsbn || !newBookPrice}
-                onClick={async () => {
+                <button
+                  className="submit-btn"
+                  disabled={!newBookIsbn || !newBookPrice}
+                  onClick={async () => {
                     setOnlyISBN(false);
                     const data = await LibroService.addLibroByIsbn(newBookIsbn);
                     //console.log(`Libro agregado: ${JSON.stringify(data)}`);
-                    if(data){
-                        // toast(`Libro agregado: ${JSON.stringify(data)}`);
+                    if (data) {
+                      // toast(`Libro agregado: ${JSON.stringify(data)}`);
                     } else {
-                        // toast.error(`Error happened!`);
+                      // toast.error(`Error happened!`);
                     }
                     setIsAddBookModalOpen(false);
-                }}
-              >
-                Subir Libro
-              </button>
-                    </div>
-
-                
-                : 
-            <form className="add-book-form" onSubmit={handleAddBookSubmit}>
-              <div className="form-group">
-                <label>Tipo de Operación</label>
-                <div className="radio-group">
-                  <label className="radio-label">
-                    <input
-                      type="radio"
-                      value="VENTA"
-                      checked={newBookType === "VENTA"}
-                      onChange={(e) => setNewBookType(e.target.value)}
-                    />
-                    Para Vender
-                  </label>
-                  <label className="radio-label">
-                    <input
-                      type="radio"
-                      value="ALQUILER"
-                      checked={newBookType === "ALQUILER"}
-                      onChange={(e) => setNewBookType(e.target.value)}
-                    />
-                    Para Alquilar
-                  </label>
-                  
-                </div>
-                
-              </div>
-
-              <div className="form-group">
-                <label>Título del libro</label>
-                <input
-                  type="text"
-                  placeholder="Ej: Cien años de soledad"
-                  value={newBookTitle}
-                  onChange={(e) => setNewBookTitle(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Datos de identificación</label>
-                <div style={{ display: "flex", gap: "1rem" }}>
-                  <div
-                    style={{
-                      flex: 1,
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "0.5rem",
-                    }}
-                  >
-                    <label style={{ fontSize: "0.8rem" }}>ISBN</label>
-                    <input
-                      type="text"
-                      placeholder="Ej: 978-3-16-148410-0"
-                      value={newBookIsbn}
-                      onChange={(e) => setNewBookIsbn(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div
-                    style={{
-                      flex: 1,
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "0.5rem",
-                    }}
-                  >
-                    <label style={{ fontSize: "0.8rem" }}>Autor</label>
-                    <input
-                      type="text"
-                      placeholder="Ej: Gabriel García Márquez"
-                      value={newBookAuthor}
-                      onChange={(e) => setNewBookAuthor(e.target.value)}
-                      required
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label>Estado del libro</label>
-                <select
-                  value={newBookState}
-                  onChange={(e) => setNewBookState(e.target.value)}
+                  }}
                 >
-                  <option value="nuevo">Nuevo</option>
-                  <option value="como_nuevo">Como nuevo</option>
-                  <option value="buen_estado">Buen estado</option>
-                  <option value="usado">Usado con marcas</option>
-                </select>
+                  Subir Libro
+                </button>
               </div>
+            ) : (
+              <form className="add-book-form" onSubmit={handleAddBookSubmit}>
+                <div className="form-group">
+                  <label>Tipo de Operación</label>
+                  <div className="radio-group">
+                    <label className="radio-label">
+                      <input
+                        type="radio"
+                        value="VENTA"
+                        checked={newBookType === "VENTA"}
+                        onChange={(e) => setNewBookType(e.target.value)}
+                      />
+                      Para Vender
+                    </label>
+                    <label className="radio-label">
+                      <input
+                        type="radio"
+                        value="ALQUILER"
+                        checked={newBookType === "ALQUILER"}
+                        onChange={(e) => setNewBookType(e.target.value)}
+                      />
+                      Para Alquilar
+                    </label>
+                  </div>
+                </div>
 
-              <div className="form-group">
-                <label>Precio (€)</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  placeholder="Ej: 15.50"
-                  value={newBookPrice}
-                  onChange={(e) => setNewBookPrice(e.target.value)}
-                  required
-                />
-              </div>
+                <div className="form-group">
+                  <label>Título del libro</label>
+                  <input
+                    type="text"
+                    placeholder="Ej: Cien años de soledad"
+                    value={newBookTitle}
+                    onChange={(e) => setNewBookTitle(e.target.value)}
+                    required
+                  />
+                </div>
 
-              <button
-                type="submit"
-                className="submit-btn"
-                disabled={!newBookTitle || !newBookIsbn || !newBookPrice}
-              >
-                Subir Libro
-              </button>
-            </form>
-            }
+                <div className="form-group">
+                  <label>Datos de identificación</label>
+                  <div style={{ display: "flex", gap: "1rem" }}>
+                    <div
+                      style={{
+                        flex: 1,
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "0.5rem",
+                      }}
+                    >
+                      <label style={{ fontSize: "0.8rem" }}>ISBN</label>
+                      <input
+                        type="text"
+                        placeholder="Ej: 978-3-16-148410-0"
+                        value={newBookIsbn}
+                        onChange={(e) => setNewBookIsbn(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div
+                      style={{
+                        flex: 1,
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "0.5rem",
+                      }}
+                    >
+                      <label style={{ fontSize: "0.8rem" }}>Autor</label>
+                      <input
+                        type="text"
+                        placeholder="Ej: Gabriel García Márquez"
+                        value={newBookAuthor}
+                        onChange={(e) => setNewBookAuthor(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label>Estado del libro</label>
+                  <select
+                    value={newBookState}
+                    onChange={(e) => setNewBookState(e.target.value)}
+                  >
+                    <option value="nuevo">Nuevo</option>
+                    <option value="como_nuevo">Como nuevo</option>
+                    <option value="buen_estado">Buen estado</option>
+                    <option value="usado">Usado con marcas</option>
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label>Precio (€)</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    placeholder="Ej: 15.50"
+                    value={newBookPrice}
+                    onChange={(e) => setNewBookPrice(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="submit-btn"
+                  disabled={!newBookTitle || !newBookIsbn || !newBookPrice}
+                >
+                  Subir Libro
+                </button>
+              </form>
+            )}
           </div>
         </div>
       )}
