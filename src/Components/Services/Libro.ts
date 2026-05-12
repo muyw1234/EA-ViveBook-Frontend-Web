@@ -33,10 +33,13 @@ async function addLibroByIsbn(isbn : string){
 
 const addLibroListing = async (formData: FormData) => {
     try {
-        // Revertir temporalmente: Enviar solo campos básicos para evitar el error 500
         const payload = {
             isbn: formData.get("isbn") as string,
             title: formData.get("title") as string,
+            author: formData.get("author") as string,
+            type: formData.get("status") as string,
+            price: Number(formData.get("price")),
+            estado: formData.get("state") as string,
         };
         const response = await api.post("/libros", payload);
         return response.data;
