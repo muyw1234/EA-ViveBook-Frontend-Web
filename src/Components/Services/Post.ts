@@ -1,4 +1,3 @@
-import type { AxiosResponse } from "axios";
 import api from "../../api";
 import type { Dispatch, SetStateAction } from "react";
 
@@ -18,7 +17,9 @@ export interface IPost {
 async function readAllPosts(setter: Dispatch<SetStateAction<Partial<IPost>[]>>) {
     api.get('/posts/')
       .then((response) => {
-        setter(response.data);
+        // Soporte tanto para array plano como para objeto paginado { data: [...] }
+        const data = Array.isArray(response.data) ? response.data : response.data.data;
+        setter(data);
       })
       .catch((error) => console.log(error));
 }

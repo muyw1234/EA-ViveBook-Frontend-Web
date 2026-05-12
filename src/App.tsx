@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import Login from "./Components/InitialPage/Login";
 import Register from "./Components/InitialPage/Register";
 import Home from "./Components/HomePage/Home";
+import BookDetail from "./Components/BookDetail/BookDetail";
 import ChatGlobal from "./Components/Chat/ChatGlobal";
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/home" element={<Home />} />
         <Route path="/chat" element={<ChatGlobal />} />
+        <Route path="/libros/:id" element={<BookDetail />} />
       </Routes>
     </Router>
   )

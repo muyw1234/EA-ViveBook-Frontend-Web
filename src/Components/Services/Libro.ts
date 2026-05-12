@@ -3,7 +3,8 @@ import api from "../../api";
 const getAllLibros = async () => {
     try {
         const response = await api.get("/libros");
-        return response.data;
+        // Soporte tanto para array plano como para objeto paginado { data: [...] }
+        return Array.isArray(response.data) ? response.data : response.data.data;
     } catch (error) {
         console.error("Error fetching books:", error);
         throw error;
@@ -44,8 +45,12 @@ const addLibroListing = async (bookData: {
         // Axios se encarga de transformarlo en JSON (application/json) automáticamente.
         const response = await api.post("/libros", bookData);
         return response.data;
-    } catch (error) {
-        console.error("Error adding book listing:", error);
+    } catch (error: any) {
+        if (error.response) {
+            console.error("Error adding book listing (Server Response):", error.response.data);
+        } else {
+            console.error("Error adding book listing:", error);
+        }
         throw error;
     }
 };
