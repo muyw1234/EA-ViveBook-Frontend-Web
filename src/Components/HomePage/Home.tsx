@@ -118,9 +118,12 @@ const Home: React.FC = () => {
       setNewBookIsbn("");
       setNewBookAuthor("");
       setNewBookPrice("");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error submitting book:", error);
-      alert("Error al añadir el libro. Revisa la consola.");
+      const serverMsg = error.response?.data?.error?.details?.[0]?.message || 
+                        error.response?.data?.message || 
+                        "Error desconocido";
+      alert(`Error al añadir el libro: ${serverMsg}`);
     }
   };
 
