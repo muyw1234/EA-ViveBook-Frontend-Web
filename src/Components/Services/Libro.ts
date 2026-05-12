@@ -5,6 +5,8 @@ const getAllLibros = async () => {
         const response = await api.get("/libros");
         // Soporte tanto para array plano como para objeto paginado { data: [...] }
         return Array.isArray(response.data) ? response.data : response.data.data;
+        // Soporte tanto para array plano como para objeto paginado { data: [...] }
+        return Array.isArray(response.data) ? response.data : response.data.data;
     } catch (error) {
         console.error("Error fetching books:", error);
         throw error;
@@ -51,7 +53,7 @@ const addLibroListing = async (bookData: {
         } else {
             console.error("Error adding book listing:", error);
         }
-        throw error;
+    
     }
 };
 
