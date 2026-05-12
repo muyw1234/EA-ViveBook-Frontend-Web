@@ -89,47 +89,50 @@ const Home: React.FC = () => {
   const handleAddBookSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const formData = new FormData();
-      formData.append("status", newBookType);
-      formData.append("title", newBookTitle);
-      formData.append("isbn", newBookIsbn);
-      formData.append("author", newBookAuthor);
-      formData.append("state", newBookState);
-      formData.append("price", newBookPrice);
+        // Creamos el objeto con la estructura que pide el nuevo servicio y Joi
+        const bookData = {
+            isbn: newBookIsbn,
+            title: newBookTitle,
+            authors: [newBookAuthor], // Metemos el string en un array porque Joi espera Joi.array()
+            type: newBookType,        // 'VENTA' o 'ALQUILER'
+            precio: Number(newBookPrice), // Aseguramos que viaje como número, no como string
+            estado: newBookState      // El estado seleccionado en el select
+        };
 
-      const newBookResponse = await LibroService.addLibroListing(formData);
+        // Llamamos al servicio pasándole el objeto. ¡TypeScript ya no se quejará!
+        const newBookResponse = await LibroService.addLibroListing(bookData);
 
-      // Si el backend no nos devuelve la info formateada, creamos una simulación local
-      const addedBook =
-        newBookResponse && newBookResponse._id
-          ? {
-              ...newBookResponse,
-              status: newBookType,
-              price: newBookPrice,
-              authors: [newBookAuthor],
-            }
-          : {
-              _id: Date.now().toString(),
-              title: newBookTitle,
-              authors: [newBookAuthor],
-              price: newBookPrice,
-              status: newBookType,
-            };
-      setBooks((prev) => [...prev, addedBook]);
+        // Lógica para actualizar tu estado local de React
+        const addedBook = newBookResponse && newBookResponse._id
+            ? {
+                ...newBookResponse,
+                status: newBookType,
+                price: newBookPrice,
+                authors: [newBookAuthor],
+              }
+            : {
+                _id: Date.now().toString(),
+                title: newBookTitle,
+                authors: [newBookAuthor],
+                price: newBookPrice,
+                status: newBookType,
+              };
+              
+        setBooks((prev) => [...prev, addedBook]);
 
-      alert("Libro añadido con éxito");
-      setIsAddBookModalOpen(false);
+        alert("Libro añadido con éxito");
+        setIsAddBookModalOpen(false);
 
-      // Limpiar formulario
-      setNewBookTitle("");
-      setNewBookIsbn("");
-      setNewBookAuthor("");
-      setNewBookPrice("");
+        // Limpiar formulario
+        setNewBookTitle("");
+        setNewBookIsbn("");
+        setNewBookAuthor("");
+        setNewBookPrice("");
     } catch (error) {
-      console.error("Error submitting book:", error);
-      alert("Error al añadir el libro. Revisa la consola.");
+        console.error("Error submitting book:", error);
+        alert("Error al añadir el libro. Revisa la consola del navegador y del backend.");
     }
-  };
+};
 
   const alquilerBooks = books.filter((b) => b.status === "ALQUILER");
   const ventaBooks = books.filter((b) => b.status === "VENTA");

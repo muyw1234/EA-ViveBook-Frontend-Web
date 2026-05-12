@@ -20,31 +20,35 @@ const getLibroById = async (id: string) => {
     }
 };
 
-async function addLibroByIsbn(isbn : string){
-    try{
+async function addLibroByIsbn(isbn: string) {
+    try {
         const response = await api.get(`/libros/isbn/${isbn}`);
         return response.data;
-    }
-    catch (error){
-         console.error("Error fetching book by id:", error);
+    } catch (error) {
+        console.error("Error fetching book by id:", error);
         throw error;
     }
 }
 
-const addLibroListing = async (formData: FormData) => {
+// CORRECCIÓN: Ahora recibe un objeto JSON con la estructura exacta de la base de datos
+const addLibroListing = async (bookData: {
+    isbn: string;
+    title: string;
+    authors: string[];
+    type: string;
+    precio: number;
+    estado: string;
+}) => {
     try {
-        // Revertir temporalmente: Enviar solo campos básicos para evitar el error 500
-        const payload = {
-            isbn: formData.get("isbn") as string,
-            title: formData.get("title") as string,
-        };
-        const response = await api.post("/libros", payload);
+        // Enviamos el objeto 'bookData' completo directamente. 
+        // Axios se encarga de transformarlo en JSON (application/json) automáticamente.
+        const response = await api.post("/libros", bookData);
         return response.data;
     } catch (error) {
         console.error("Error adding book listing:", error);
         throw error;
     }
-}
+};
 
 export default {
     getAllLibros,
