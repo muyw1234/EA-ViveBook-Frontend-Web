@@ -5,10 +5,39 @@ import LibroService from "../Services/Libro";
 import { useNavigate } from "react-router-dom";
 import type { IPost } from "../Services/Post";
 import PostService from "../Services/Post";
+import EventoService from "../Services/Evento";
 
 import AccessibilityMenu from "../Accessibility/AccessibilityMenu";
 import { useTranslation } from "react-i18next";
 import Login from "../InitialPage/Login";
+
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+
+// Icono para el Usuario (Azul)
+const UserIcon = L.icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+});
+
+// Icono para los Eventos (Rojo)
+const EventIcon = L.icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+});
+
+const RecenterMap = ({ coords }: { coords: [number, number] }) => {
+    const map = useMap();
+    useEffect(() => {
+        map.setView(coords, 14);
+    }, [coords, map]);
+    return null;
+};
 
 const Home: React.FC = () => {
   
@@ -18,6 +47,8 @@ const Home: React.FC = () => {
   const [user, setUser] = useState<{ name: string } | null>(null);
   const [books, setBooks] = useState<any[]>([]);
   const [posts, setPosts] = useState<Partial<IPost>[]>([]);
+  const [eventos, setEventos] = useState<any[]>([]);
+  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAddBookModalOpen, setIsAddBookModalOpen] = useState(false);
 
@@ -34,6 +65,19 @@ const Home: React.FC = () => {
 
   // Inicializacion?
   useEffect(() => {
+    
+    if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const { latitude, longitude } = position.coords;
+                    setUserLocation([latitude, longitude]);
+                },
+                () => {
+                    console.log("Acceso a ubicación denegado. Usando Barcelona por defecto.");
+                    setUserLocation([41.3851, 2.1734]); 
+                }
+            );
+        }
     const fetchData = async () => {
       try {
         // Fetch User Profile
@@ -48,6 +92,10 @@ const Home: React.FC = () => {
           status: b.status || (index % 2 === 0 ? "VENTA" : "ALQUILER"),
         }));
         setBooks(processedBooks);
+
+        // Fetch Eventos from DB
+        const eventosData = await EventoService.getAllEventos();
+                setEventos(eventosData);
       } catch (error) {
         console.error("Error fetching data:", error);
         // If unauthorized, redirect to login
@@ -62,7 +110,7 @@ const Home: React.FC = () => {
     };
 
     fetchData();
-  }, [navigate]);
+  }, []);
 
   // Mock data for bookstore events (keep mock for now as requested "everything from backend" applies to books first)
   const mockEvents = [
@@ -323,28 +371,60 @@ const Home: React.FC = () => {
         </div>
       </section>
 
+      {/* Sección del Mapa */}
+      <section className="content-section">
+        <h2 className="section-title">Eventos cerca de ti</h2>
+        <div style={{ height: "450px", width: "100%", borderRadius: "15px", overflow: "hidden" }}>
+          {userLocation && (
+          <MapContainer center={userLocation} zoom={13} style={{ height: "100%", width: "100%" }}>
+            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                      
+            {/* MARCADO DE USUARIO*/}
+            <Marker position={userLocation} icon={UserIcon}>
+              <Popup>Estás aquí</Popup>
+            </Marker>
+
+            {/*  USA EventIcon (Rojo) */}
+            {eventos.map((evt) => (
+              <Marker 
+                key={evt._id} 
+                position={[evt.location.coordinates[1], evt.location.coordinates[0]]}
+                icon={EventIcon} 
+                >
+                <Popup>
+                  <strong>{evt.title}</strong><br/>
+                    {evt.direccionExacta}
+                </Popup>
+              </Marker>
+            ))}
+
+            <RecenterMap coords={userLocation} />
+              </MapContainer>
+          )}
+        </div>
+      </section>
+
       {/* Events Section */}
       <section className="content-section">
-        <div className="section-header">
-          <h2 className="section-title">{t("section_events")}</h2>
-          <a href="#" className="see-all">
-            {t("see_all")}
-          </a>
-        </div>
-        <div className="events-grid">
-          {mockEvents.map((event) => (
-            <div key={event.id} className="event-card">
-              <div className="event-date">
-                <span className="day">{event.date.split(" ")[0]}</span>
-                <span className="month">{event.date.split(" ")[1]}</span>
-              </div>
-              <div className="event-details">
-                <span className="event-title">{event.title}</span>
-                <span className="event-location">📍 {event.location}</span>
-              </div>
-            </div>
-          ))}
-        </div>
+                <div className="section-header">
+                    <h2 className="section-title">{t("section_events")}</h2>
+                </div>
+                <div className="events-grid">
+                    {eventos.map((event) => (
+                        <div key={event._id} className="event-card">
+                            <div className="event-date">
+                                <span className="day">{new Date(event.date).getDate()}</span>
+                                <span className="month">
+                                    {new Date(event.date).toLocaleString('default', { month: 'short' })}
+                                </span>
+                            </div>
+                            <div className="event-details">
+                                <span className="event-title">{event.title}</span>
+                                <span className="event-location">📍 {event.direccionExacta}</span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
       </section>
 
       {/* Add Book Modal */}
