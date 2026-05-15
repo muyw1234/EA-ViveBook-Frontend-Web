@@ -89,7 +89,7 @@ const Home: React.FC = () => {
         const booksData = await LibroService.getAllLibros();
         const processedBooks = booksData.map((b: any, index: number) => ({
           ...b,
-          status: b.status || (index % 2 === 0 ? "VENTA" : "ALQUILER"),
+          type: b.type || (index % 2 === 0 ? "VENTA" : "ALQUILER"),
         }));
         setBooks(processedBooks);
 
@@ -99,7 +99,7 @@ const Home: React.FC = () => {
       } catch (error) {
         console.error("Error fetching data:", error);
         // If unauthorized, redirect to login
-        if ((error as any).response?.status === 401) {
+        if ((error as any).response?.type === 401) {
           navigate("/");
         }
 
@@ -154,7 +154,7 @@ const Home: React.FC = () => {
         const addedBook = newBookResponse && newBookResponse._id
             ? {
                 ...newBookResponse,
-                status: newBookType,
+                type: newBookType,
                 price: newBookPrice,
                 authors: [newBookAuthor],
               }
@@ -163,7 +163,7 @@ const Home: React.FC = () => {
                 title: newBookTitle,
                 authors: [newBookAuthor],
                 price: newBookPrice,
-                status: newBookType,
+                type: newBookType,
               };
               
         setBooks((prev) => [...prev, addedBook]);
@@ -182,8 +182,8 @@ const Home: React.FC = () => {
     }
 };
 
-  const alquilerBooks = books.filter((b) => b.status === "ALQUILER");
-  const ventaBooks = books.filter((b) => b.status === "VENTA");
+  const alquilerBooks = books.filter((b) => b.type === "ALQUILER");
+  const ventaBooks = books.filter((b) => b.type === "VENTA");
 
   const openBookDetail = (bookId?: string) => {
     if (bookId) {
@@ -239,6 +239,7 @@ const Home: React.FC = () => {
         </h1>
         <p>{t("hero_subtitle")}</p>
       </section>
+      
       {/* Aqui estan los posts */}
       <section className="content-section">
         <div className="section-header">
@@ -281,9 +282,13 @@ const Home: React.FC = () => {
       <section className="content-section">
         <div className="section-header">
           <h2 className="section-title">{t("section_rentals")}</h2>
-          <a href="#" className="see-all">
-            {t("see_all")}
-          </a>
+          <button className="see-all" 
+            onClick={() => navigate("/categorias/rentals")} 
+            style={{ background: "none", border: "none", color: "inherit", 
+            font: "inherit", cursor: "pointer", textDecoration: "underline" }} 
+            >
+             {t("see_all")} 
+          </button>
         </div>
         <div className="card-grid">
           {alquilerBooks.length > 0 ? (
@@ -328,9 +333,13 @@ const Home: React.FC = () => {
       <section className="content-section">
         <div className="section-header">
           <h2 className="section-title">{t("section_sales")}</h2>
-          <a href="#" className="see-all">
-            {t("see_all")}
-          </a>
+          <button className="see-all" 
+            onClick={() => navigate("/categorias/sales")} 
+            style={{ background: "none", border: "none", color: "inherit", 
+            font: "inherit", cursor: "pointer", textDecoration: "underline" }} 
+          > 
+            {t("see_all")} 
+          </button>
         </div>
         <div className="card-grid">
           {ventaBooks.length > 0 ? (
@@ -406,25 +415,32 @@ const Home: React.FC = () => {
 
       {/* Events Section */}
       <section className="content-section">
-                <div className="section-header">
-                    <h2 className="section-title">{t("section_events")}</h2>
-                </div>
-                <div className="events-grid">
-                    {eventos.map((event) => (
-                        <div key={event._id} className="event-card">
-                            <div className="event-date">
-                                <span className="day">{new Date(event.date).getDate()}</span>
-                                <span className="month">
-                                    {new Date(event.date).toLocaleString('default', { month: 'short' })}
-                                </span>
-                            </div>
-                            <div className="event-details">
-                                <span className="event-title">{event.title}</span>
-                                <span className="event-location">📍 {event.direccionExacta}</span>
-                            </div>
-                        </div>
-                    ))}
-                </div>
+        <div className="section-header">
+          <h2 className="section-title">{t("section_events")}</h2> 
+          <button className="see-all" 
+            onClick={() => navigate("/categorias/events")} 
+            style={{ background: "none", border: "none", color: "inherit", 
+                    font: "inherit", cursor: "pointer", textDecoration: "underline" }} 
+          > 
+            {t("see_all")} 
+          </button>
+        </div>
+        <div className="events-grid">
+          {eventos.map((event) => (
+            <div key={event._id} className="event-card">
+              <div className="event-date">
+                <span className="day">{new Date(event.date).getDate()}</span>
+                <span className="month">
+                  {new Date(event.date).toLocaleString('default', { month: 'short' })}
+                </span>
+              </div>
+              <div className="event-details">
+                <span className="event-title">{event.title}</span>
+                <span className="event-location">📍 {event.direccionExacta}</span>
+              </div>
+            </div>
+          ))}
+        </div>
       </section>
 
       {/* Add Book Modal */}

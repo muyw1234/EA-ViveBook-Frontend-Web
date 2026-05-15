@@ -33,7 +33,6 @@ async function addLibroByIsbn(isbn: string) {
     }
 }
 
-// CORRECCIÓN: Ahora recibe un objeto JSON con la estructura exacta de la base de datos
 const addLibroListing = async (bookData: {
     isbn: string;
     title: string;

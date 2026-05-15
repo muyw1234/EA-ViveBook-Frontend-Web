@@ -5,6 +5,7 @@ import Home from "./Components/HomePage/Home";
 import BookDetail from "./Components/BookDetail/BookDetail";
 import ChatGlobal from "./Components/Chat/ChatGlobal";
 import Evento from "./Components/EventoPage/Evento";
+import CategoryPage from "./Components/HomePage/CategoryPage";
 
 function App() {
   return (
@@ -13,7 +14,7 @@ function App() {
         <Link to="/" style={{ textDecoration: "none", color: "#64748b", fontWeight: "600" }}>Login</Link>
         <Link to="/register" style={{ textDecoration: "none", color: "#64748b", fontWeight: "600" }}>Crear Cuenta</Link>
         <Link to="/home" style={{ textDecoration: "none", color: "#64748b", fontWeight: "600" }}>Home</Link>
-        <Link to="/chat" style={{ textDecoration: "none", color: "#7c3aed", fontWeight: "bold" }}>Chat Global 🌍</Link>
+        <Link to="/chat" style={{ textDecoration: "none", color: "#7c3aed", fontWeight: "bold" }}>Chat Global </Link>
         <Link to="/eventos" style={{ textDecoration: "none", color: "#7c3aed", fontWeight: "bold" }}>Eventos</Link>
       </nav>
 
@@ -24,6 +25,7 @@ function App() {
         <Route path="/chat" element={<ChatGlobal />} />
         <Route path="/libros/:id" element={<BookDetail />} />
         <Route path="/eventos" element={<Evento />} />
+        <Route path="/categorias/:type" element={<CategoryPage />} />
       </Routes>
     </Router>
   )
