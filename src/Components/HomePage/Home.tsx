@@ -43,7 +43,7 @@ const Home: React.FC = () => {
   
   const { t } = useTranslation();
 
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(""); // Ya no es necesario
   const [user, setUser] = useState<{ name: string } | null>(null);
   const [books, setBooks] = useState<any[]>([]);
   const [posts, setPosts] = useState<Partial<IPost>[]>([]);
@@ -195,6 +195,14 @@ const Home: React.FC = () => {
     return <div className="home-container">Cargando ViveBook...</div>;
   }
 
+  //#region Search
+    
+  function search(){
+    navigate('/search', {state: {term: searchQuery}});
+  }
+    
+  //#endregion Search
+
   return (
     <div className="home-container">
       {/* Header & Search */}
@@ -227,8 +235,13 @@ const Home: React.FC = () => {
             className="search-bar"
             placeholder={t("search_placeholder")}
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              setSearchQuery(e.target.value)
+              // search(e.target.value);
+            }}
           />
+
+          <button className="add-book-btn" onClick={() => search()}>Buscar</button>
         </div>
       </header>
 

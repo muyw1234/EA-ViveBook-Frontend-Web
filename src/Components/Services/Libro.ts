@@ -1,4 +1,9 @@
+import type { AxiosResponse } from "axios";
 import api from "../../api";
+import type {ILibro} from "../../Models/Libro";
+import type { Dispatch, SetStateAction } from "react";
+import type { IPost } from "./Post";
+import { toast } from "react-toastify";
 
 const getAllLibros = async () => {
     try {
@@ -56,9 +61,24 @@ const addLibroListing = async (bookData: {
     }
 };
 
+async function searchLibro(term: string, setter: Dispatch<SetStateAction<Partial<ILibro>[]>>, page : number = 1, limit : number = 10)  /*: Promise<AxiosResponse<ILibro[]>>*/{
+    api.get('/libros/search', {params: {term: term, page: page, limit: limit}})
+        .then(
+            (res : AxiosResponse<Partial<ILibro>[]>) => {
+                const data: Partial<ILibro>[] = res.data;
+                //toast.success(`${data.length} items found`);
+                setter(data);
+            }
+        )
+        .catch((error) => {
+            toast.error(error);
+        })
+}
+
 export default {
     getAllLibros,
     getLibroById,
     addLibroListing,
-    addLibroByIsbn
+    addLibroByIsbn,
+    searchLibro
 };

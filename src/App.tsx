@@ -6,6 +6,7 @@ import BookDetail from "./Components/BookDetail/BookDetail";
 import ChatGlobal from "./Components/Chat/ChatGlobal";
 import Evento from "./Components/EventoPage/Evento";
 import CategoryPage from "./Components/HomePage/CategoryPage";
+import SearchPage from "./Components/SearchPage/searchPage";
 
 function App() {
   return (
@@ -26,6 +27,8 @@ function App() {
         <Route path="/libros/:id" element={<BookDetail />} />
         <Route path="/eventos" element={<Evento />} />
         <Route path="/categorias/:type" element={<CategoryPage />} />
+        {/* <Route path="/search/:term" element=<SearchPage/> /> // Esto era pasando como parametro */}
+        <Route path="/search" element=<SearchPage/> /> {/* Pero aqui lo pasamos como estado en la navegacion*/}
       </Routes>
     </Router>
   )
