@@ -10,7 +10,8 @@ export interface IEventoData {
     _id?: string; 
     title: string;
     description: string;
-    date: Date | string;
+    eventDate: Date;
+    createdDate: Date;
     location: IGeoJSONPoint;
     direccionExacta: string;
 }
@@ -34,7 +35,7 @@ const getAllEventos = async () => {
         throw error;
     }};
 
-const getEventoById = async (id: number) => {
+const getEventoById = async (id: string) => {
     try {
         const response = await api.get(`/eventos/${id}`);
         return response.data;

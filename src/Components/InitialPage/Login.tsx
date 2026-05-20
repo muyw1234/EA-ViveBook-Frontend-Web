@@ -22,8 +22,6 @@ const Login: React.FC = () => {
         } catch (err: any) {
             setError("Email o contraseña incorrectos");
             console.error(err);
-        } finally {
-            setLoading(false);
         }
     };
 

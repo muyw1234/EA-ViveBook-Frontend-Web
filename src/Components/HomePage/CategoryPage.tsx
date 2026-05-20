@@ -2,11 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import LibroService from "../Services/Libro";
 import EventService from "../Services/Evento";
-//import PostService from "../Services/Post";
+import { useTranslation } from "react-i18next";
 
 const CategoryPage: React.FC = () => {
     const { type } = useParams();
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
     const [items, setItems] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -18,37 +19,16 @@ const CategoryPage: React.FC = () => {
 
                 if (type === "rentals") {
                     const books = await LibroService.getAllLibros();
-                    console.log("Libros recibidos:", books); // Mira en la consola del navegador
-                    console.log("Tipo de categoría:", type);
-
-                    setItems(
-                        books.filter((b: any) => b.type === "ALQUILER")
-                    );
-                }
-
+                    setItems(books.filter((b: any) => b.type === "ALQUILER"));
+                } 
                 else if (type === "sales") {
                     const books = await LibroService.getAllLibros();
-
-                    setItems(
-                        books.filter((b: any) => b.type === "VENTA")
-                    );
-                }
-
+                    setItems(books.filter((b: any) => b.type === "VENTA"));
+                } 
                 else if (type === "events") {
                     const events = await EventService.getAllEventos();
                     setItems(events || []);
                 }
-
-                /*else if (type === "posts") {
-                    const postsData: any[] = [];
-
-                    await PostService.readAllPosts((data: any[]) => {
-                        postsData.push(...data);
-                    });
-
-                    setItems(postsData);
-                }
-            */
             } catch (error) {
                 console.error(error);
             } finally {
@@ -60,14 +40,8 @@ const CategoryPage: React.FC = () => {
     }, [type]);
 
     if (loading) {
-        return <div>Cargando...</div>;
+        return <div className="home-container">Cargando...</div>;
     }
-
-    const openBookDetail = (bookId?: string) => {
-        if (bookId) {
-        navigate(`/libros/${bookId}`);
-        }
-    };
 
     return (
         <div className="home-container">
@@ -78,62 +52,76 @@ const CategoryPage: React.FC = () => {
                 {type === "posts" && "Posts"}
             </h1>
 
-            <div className="card-grid">
-                {items.map((item: any) => (
-                    <div
-                        key={item._id}
-                        className="book-card"
-                        onClick={() => {
-                            if (type === "events") {
-                                navigate(`/eventos/${item._id}`);
-                            } else {
-                                navigate(`/libros/${item._id}`);
-                            }
-                        }}
-                        style={{ cursor: "pointer" }}
-                    >
-                        <div className="card-image-placeholder">
-                            📚
-                        </div>
-
-                        <div className="card-info">
-                            <span className="card-title">
-                                {item.title || item.description}
-                            </span>
-
-                            {item.price && (
-                                <span className="card-meta">
-                                    {item.price} €
-                                </span>
-                            )}
-
-                            {item.date && (
-                                <span className="card-meta">
-                                    {new Date(item.date).toLocaleDateString()}
-                                </span>
-                            )}
-
-                            {item.estado && (
-                                <span className="card-meta">
-                                    {item.estado}
-                                </span>
-                            )}
-
-                            {item.authors && (
-                                <span className="card-meta">
-                                    {item.authors.join(", ")}
-                                </span>
-                            )}
-
-                            {item.direccionExacta && (
-                                <span className="card-meta">
-                                    {item.direccionExacta}
-                                </span>
-                            )}
-                        </div>
+            {/* CONTROL DINÁMICO DE DISEÑO */}
+            {items.length > 0 ? (
+                type === "events" ? (
+                    /* --- DISEÑO PARA EVENTOS --- */
+                    <div className="events-grid">
+                        {items.map((event: any) => (
+                            <div 
+                                key={event._id} 
+                                className="event-card"
+                                onClick={() => navigate(`/eventos/${event._id}`)}
+                                style={{ cursor: "pointer" }}
+                            >
+                                <div className="event-date">
+                                    <span className="day">{new Date(event.date).getDate()}</span>
+                                    <span className="month">
+                                        {new Date(event.date).toLocaleString('default', { month: 'short' })}
+                                    </span>
+                                </div>
+                                <div className="event-details">
+                                    <span className="event-title">{event.title}</span>
+                                    <span className="event-location">📍 {event.direccionExacta}</span>
+                                </div>
+                            </div>
+                        ))}
                     </div>
-                ))}
-            </div>
+                ) : (
+                    /* --- DISEÑO PARA LIBROS --- */
+                    <div className="card-grid">
+                        {items.map((item: any) => (
+                            <div
+                                key={item._id}
+                                className="book-card"
+                                onClick={() => navigate(`/libros/${item._id}`)}
+                                style={{ cursor: "pointer" }}
+                            >
+                                <div className="card-image-placeholder">
+                                    📚
+                                </div>
+                                <div className="card-info">
+                                    <span className="card-title">
+                                        {item.title || item.description}
+                                    </span>
+
+                                    {item.price && (
+                                        <span className="card-price">
+                                            {item.price} €
+                                        </span>
+                                    )}
+
+                                    {item.estado && (
+                                        <span className="card-meta">
+                                            {item.estado}
+                                        </span>
+                                    )}
+
+                                    {item.authors && (
+                                        <span className="card-meta">
+                                            {item.authors.join(", ")}
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )
+            ) : (
+                <p className="no-data-msg">
+                    {type === "events" ? "No hay eventos disponibles" : t("no_sales_available")}
+                </p>
+            )}
         </div>
     );
 };
