@@ -4,7 +4,7 @@ import Register from "./Components/InitialPage/Register";
 import Home from "./Components/HomePage/Home";
 import BookDetail from "./Components/BookDetail/BookDetail";
 import ChatGlobal from "./Components/Chat/ChatGlobal";
-import Evento from "./Components/EventoPage/Evento";
+import EventoDetail from "./Components/EventoDetail/EventoDetail";
 import CategoryPage from "./Components/HomePage/CategoryPage";
 import SearchPage from "./Components/SearchPage/searchPage";
 
@@ -16,7 +16,6 @@ function App() {
         <Link to="/register" style={{ textDecoration: "none", color: "#64748b", fontWeight: "600" }}>Crear Cuenta</Link>
         <Link to="/home" style={{ textDecoration: "none", color: "#64748b", fontWeight: "600" }}>Home</Link>
         <Link to="/chat" style={{ textDecoration: "none", color: "#7c3aed", fontWeight: "bold" }}>Chat Global </Link>
-        <Link to="/eventos" style={{ textDecoration: "none", color: "#7c3aed", fontWeight: "bold" }}>Eventos</Link>
       </nav>
 
       <Routes>
@@ -25,7 +24,7 @@ function App() {
         <Route path="/home" element={<Home />} />
         <Route path="/chat" element={<ChatGlobal />} />
         <Route path="/libros/:id" element={<BookDetail />} />
-        <Route path="/eventos" element={<Evento />} />
+        <Route path="/eventos/:id" element={<EventoDetail />} />
         <Route path="/categorias/:type" element={<CategoryPage />} />
         {/* <Route path="/search/:term" element=<SearchPage/> /> // Esto era pasando como parametro */}
         <Route path="/search" element=<SearchPage/> /> {/* Pero aqui lo pasamos como estado en la navegacion*/}

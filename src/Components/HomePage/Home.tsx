@@ -39,6 +39,22 @@ const RecenterMap = ({ coords }: { coords: [number, number] }) => {
     return null;
 };
 
+const MapClickHandler = ({ onMapClick }: { onMapClick: (lat: number, lng: number) => void }) => {
+    const map = useMap();
+    useEffect(() => {
+        const handleLayoutClick = (e: L.LeafletMouseEvent) => {
+            onMapClick(e.latlng.lat, e.latlng.lng);
+        };
+        
+        map.on('click', handleLayoutClick);
+        return () => {
+            map.off('click', handleLayoutClick);
+        };
+    }, [map, onMapClick]);
+    
+    return null;
+};
+
 const Home: React.FC = () => {
   
   const { t } = useTranslation();
@@ -51,8 +67,10 @@ const Home: React.FC = () => {
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAddBookModalOpen, setIsAddBookModalOpen] = useState(false);
+  const [isAddEventModalOpen, setIsAddEventModalOpen] = useState(false);
+  const latestBooks = [...books].reverse();
 
-  // Form state corresponding to fields
+  // Form state corresponding to book fields 
   const [newBookType, setNewBookType] = useState("VENTA");
   const [newBookTitle, setNewBookTitle] = useState("");
   const [newBookIsbn, setNewBookIsbn] = useState("");
@@ -61,30 +79,33 @@ const Home: React.FC = () => {
   const [newBookPrice, setNewBookPrice] = useState("");
   const [onlyISBN, setOnlyISBN] = useState<boolean>(false);
 
+  // Form state corresponding to event fields
+  const [newEventTitle, setNewEventTitle] = useState("");
+  const [newEventDescription, setNewEventDescription] = useState("");
+  const [newEventDate, setNewEventDate]= useState("");
+  const [newEventLocation, setNewEventLocation] = useState<[number, number] | null>(null);
+  const [newEventDireccionExacta, setNewEventDireccionExacta] = useState("");
+
   const navigate = useNavigate();
 
-  // Inicializacion?
   useEffect(() => {
-    
     if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const { latitude, longitude } = position.coords;
-                    setUserLocation([latitude, longitude]);
-                },
-                () => {
-                    console.log("Acceso a ubicación denegado. Usando Barcelona por defecto.");
-                    setUserLocation([41.3851, 2.1734]); 
-                }
-            );
-        }
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const { latitude, longitude } = position.coords;
+                setUserLocation([latitude, longitude]);
+            },
+            () => {
+                console.log("Acceso a ubicación denegado. Usando Barcelona por defecto.");
+                setUserLocation([41.3851, 2.1734]); 
+            }
+        );
+    }
     const fetchData = async () => {
       try {
-        // Fetch User Profile
         const userData = await UsuarioService.getProfile();
         setUser(userData);
 
-        // Fetch Books from DB
         PostService.readAllPosts(setPosts);
         const booksData = await LibroService.getAllLibros();
         const processedBooks = booksData.map((b: any, index: number) => ({
@@ -93,17 +114,13 @@ const Home: React.FC = () => {
         }));
         setBooks(processedBooks);
 
-        // Fetch Eventos from DB
         const eventosData = await EventoService.getAllEventos();
-                setEventos(eventosData);
+        setEventos(eventosData);
       } catch (error) {
         console.error("Error fetching data:", error);
-        // If unauthorized, redirect to login
         if ((error as any).response?.type === 401) {
           navigate("/");
         }
-
-        
       } finally {
         setLoading(false);
       }
@@ -112,45 +129,20 @@ const Home: React.FC = () => {
     fetchData();
   }, []);
 
-  // Mock data for bookstore events (keep mock for now as requested "everything from backend" applies to books first)
-  const mockEvents = [
-    {
-      id: 1,
-      title: "Firma de Libros: Elvira Sastre",
-      location: "Librería Central",
-      date: "15 Oct",
-    },
-    {
-      id: 2,
-      title: "Club de Lectura Sci-Fi",
-      location: "La madriguera",
-      date: "20 Oct",
-    },
-    {
-      id: 3,
-      title: "Taller de Escritura Creativa",
-      location: "Ateneo",
-      date: "12 Nov",
-    },
-  ];
-
   const handleAddBookSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-        // Creamos el objeto con la estructura que pide el nuevo servicio y Joi
         const bookData = {
             isbn: newBookIsbn,
             title: newBookTitle,
-            authors: [newBookAuthor], // Metemos el string en un array porque Joi espera Joi.array()
-            type: newBookType,        // 'VENTA' o 'ALQUILER'
-            precio: Number(newBookPrice), // Aseguramos que viaje como número, no como string
-            estado: newBookState      // El estado seleccionado en el select
+            authors: [newBookAuthor], 
+            type: newBookType,        
+            precio: Number(newBookPrice), 
+            estado: newBookState      
         };
 
-        // Llamamos al servicio pasándole el objeto. ¡TypeScript ya no se quejará!
         const newBookResponse = await LibroService.addLibroListing(bookData);
 
-        // Lógica para actualizar tu estado local de React
         const addedBook = newBookResponse && newBookResponse._id
             ? {
                 ...newBookResponse,
@@ -171,7 +163,6 @@ const Home: React.FC = () => {
         alert("Libro añadido con éxito");
         setIsAddBookModalOpen(false);
 
-        // Limpiar formulario
         setNewBookTitle("");
         setNewBookIsbn("");
         setNewBookAuthor("");
@@ -180,10 +171,54 @@ const Home: React.FC = () => {
         console.error("Error submitting book:", error);
         alert("Error al añadir el libro. Revisa la consola del navegador y del backend.");
     }
-};
+  };
 
-  const alquilerBooks = books.filter((b) => b.type === "ALQUILER");
-  const ventaBooks = books.filter((b) => b.type === "VENTA");
+  const handleAddEventSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user || !user._id) {
+        alert("Debes estar autenticado para crear un evento.");
+        return;
+    }
+
+    if (!newEventLocation) {
+        alert("Por favor, selecciona una ubicación haciendo clic en el mapa.");
+        return;
+    }
+
+    try {
+        const eventData = {
+          title: newEventTitle,
+          description: newEventDescription,
+          creator: user._id,
+          eventDate: new Date(newEventDate),
+          createdDate: new Date(),
+          location: {
+            type: "Point" as const, 
+            coordinates: [newEventLocation[1], newEventLocation[0]] as [number, number],
+          },
+          direccionExacta: newEventDireccionExacta
+        };
+
+        const newEventResponse = await EventoService.createEvento(eventData);
+        
+        setEventos((prev) => [...prev, newEventResponse || { ...eventData, _id: Date.now().toString() }]);
+
+        alert("¡Evento creado con éxito!");
+        setIsAddEventModalOpen(false);
+
+        setNewEventTitle("");
+        setNewEventDescription("");
+        setNewEventDate("");
+        setNewEventDireccionExacta("");
+        setNewEventLocation(null); 
+    } catch (error) {
+        console.error("Error submitting event:", error);
+        alert("Error al añadir el evento.");
+    }
+  };
+
+  const alquilerBooks = latestBooks.filter((b) => b.type === "ALQUILER").slice(0, 5);
+  const ventaBooks = latestBooks.filter((b) => b.type === "VENTA").slice(0, 5);
 
   const openBookDetail = (bookId?: string) => {
     if (bookId) {
@@ -270,9 +305,6 @@ const Home: React.FC = () => {
                 </div>
                 <div className="card-info">
                   <span>
-                    {/* <span className="card-price">
-                      {post.price ? `${post.price} €` : "Consultar precio"}
-                    </span> */}
                     <span className="card-title" title={post.description}>
                       {post.description}
                     </span>
@@ -303,7 +335,7 @@ const Home: React.FC = () => {
              {t("see_all")} 
           </button>
         </div>
-        <div className="card-grid">
+        <div className="card-grid home-limit">
           {alquilerBooks.length > 0 ? (
             alquilerBooks.map((book) => (
               <div
@@ -354,7 +386,7 @@ const Home: React.FC = () => {
             {t("see_all")} 
           </button>
         </div>
-        <div className="card-grid">
+        <div className="card-grid home-limit">
           {ventaBooks.length > 0 ? (
             ventaBooks.map((book) => (
               <div
@@ -406,7 +438,7 @@ const Home: React.FC = () => {
               <Popup>Estás aquí</Popup>
             </Marker>
 
-            {/*  USA EventIcon (Rojo) */}
+            {/* USA EventIcon (Rojo) */}
             {eventos.map((evt) => (
               <Marker 
                 key={evt._id} 
@@ -430,6 +462,12 @@ const Home: React.FC = () => {
       <section className="content-section">
         <div className="section-header">
           <h2 className="section-title">{t("section_events")}</h2> 
+          <button
+              className="add-book-btn"
+              onClick={() => setIsAddEventModalOpen(true)}
+            >
+              + Añadir Evento
+            </button>
           <button className="see-all" 
             onClick={() => navigate("/categorias/events")} 
             style={{ background: "none", border: "none", color: "inherit", 
@@ -440,11 +478,16 @@ const Home: React.FC = () => {
         </div>
         <div className="events-grid">
           {eventos.map((event) => (
-            <div key={event._id} className="event-card">
+            <div
+                key={event._id} 
+                className="event-card"
+                onClick={() => navigate(`/eventos/${event._id}`)}
+                style={{ cursor: "pointer" }}
+              >
               <div className="event-date">
-                <span className="day">{new Date(event.date).getDate()}</span>
+                <span className="day">{event.date ? new Date(event.date).getDate() : "---"}</span>
                 <span className="month">
-                  {new Date(event.date).toLocaleString('default', { month: 'short' })}
+                  {event.date ? new Date(event.date).toLocaleString('default', { month: 'short' }) : "---"}
                 </span>
               </div>
               <div className="event-details">
@@ -561,12 +604,6 @@ const Home: React.FC = () => {
                   onClick={async () => {
                     setOnlyISBN(false);
                     const data = await LibroService.addLibroByIsbn(newBookIsbn);
-                    //console.log(`Libro agregado: ${JSON.stringify(data)}`);
-                    if (data) {
-                      // toast(`Libro agregado: ${JSON.stringify(data)}`);
-                    } else {
-                      // toast.error(`Error happened!`);
-                    }
                     setIsAddBookModalOpen(false);
                   }}
                 >
@@ -685,6 +722,75 @@ const Home: React.FC = () => {
                 </button>
               </form>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Add Event Modal */}
+      {isAddEventModalOpen && (
+        <div className="modal-overlay" onClick={() => setIsAddEventModalOpen(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px', width: '90%' }}>
+            <div className="modal-header">
+              <h2>Crear Nuevo Evento</h2>
+              <button className="close-btn" onClick={() => setIsAddEventModalOpen(false)}>×</button>
+            </div>
+            
+            <form className="add-book-form" onSubmit={handleAddEventSubmit}>
+              <div className="form-group">
+                <label>Título del Evento</label>
+                <input type="text" placeholder="Ej: Club de lectura" value={newEventTitle} onChange={(e) => setNewEventTitle(e.target.value)} required />
+              </div>
+              
+              <div className="form-group">
+                <label>Descripción</label>
+                <textarea className="auth-input" style={{ width: '100%', minHeight: '60px', padding: '10px', borderRadius: '5px' }} placeholder="¿De qué trata el evento?" value={newEventDescription} onChange={(e) => setNewEventDescription(e.target.value)} required />
+              </div>
+              
+              <div className="form-group">
+                <label>Fecha del Evento</label>
+                <input type="datetime-local" value={newEventDate} onChange={(e) => setNewEventDate(e.target.value)} required />
+              </div>
+              
+              <div className="form-group">
+                <label>Dirección Exacta (Texto)</label>
+                <input type="text" placeholder="Ej: Calle Gran Vía, 24, Planta 2" value={newEventDireccionExacta} onChange={(e) => setNewEventDireccionExacta(e.target.value)} required />
+              </div>
+
+              {/* SECCIÓN DEL MAPA INTERACTIVO DENTRO DEL MODAL */}
+              <div className="form-group">
+                <label style={{ display: 'block', marginBottom: '5px' }}>
+                  Ubicación en el Mapa <span style={{ color: '#e74c3c', fontSize: '0.85rem' }}>(Haz clic en el lugar exacto)</span>
+                </label>
+                <div style={{ height: "250px", width: "100%", borderRadius: "8px", overflow: "hidden", border: "1px solid #ccc" }}>
+                  <MapContainer 
+                    center={newEventLocation || userLocation || [41.3851, 2.1734]} 
+                    zoom={14} 
+                    style={{ height: "100%", width: "100%" }}
+                  >
+                    <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                    
+                    {newEventLocation && (
+                      <Marker position={newEventLocation} icon={EventIcon}>
+                        <Popup>El evento será aquí</Popup>
+                      </Marker>
+                    )}
+
+                    <MapClickHandler onMapClick={(lat, lng) => {
+                      setNewEventLocation([lat, lng]);
+                    }} />
+                  </MapContainer>
+                </div>
+                {newEventLocation && (
+                  <p style={{ fontSize: '0.8rem', color: '#2ecc71', marginTop: '5px' }}>
+                    📍 Coordenadas seleccionadas: {newEventLocation[0].toFixed(5)}, {newEventLocation[1].toFixed(5)}
+                  </p>
+                )}
+              </div>
+
+              <button type="submit" className="submit-btn" disabled={!newEventLocation}>
+                {!newEventLocation ? "Selecciona ubicación en el mapa" : "Publicar Evento"}
+              </button>
+            </form>
           </div>
         </div>
       )}

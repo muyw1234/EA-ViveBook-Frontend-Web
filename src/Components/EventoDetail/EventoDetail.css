@@ -1,0 +1,154 @@
+.event-detail-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1rem;
+  text-align: left;
+}
+
+.back-button {
+  align-self: flex-start;
+  background: var(--social-bg);
+  color: var(--text-h);
+  border: 1px solid var(--border);
+  padding: 0.6rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.back-button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.event-detail-layout {
+  display: grid;
+  grid-template-columns: minmax(220px, 320px) 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.event-detail-cover {
+  aspect-ratio: 1 / 1; /* Ajustado a formato cuadrado para eventos/calendarios */
+  border: 1px solid var(--border);
+  border-radius: 0.8rem;
+  background: var(--code-bg);
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem; /* Aumentado para que el emoji 📅 se vea genial */
+  font-weight: 600;
+  box-shadow: var(--shadow);
+}
+
+.event-detail-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.event-detail-info h1 {
+  margin: 0;
+  font-size: 2.4rem;
+  line-height: 1.1;
+  color: var(--text-h);
+}
+
+.event-detail-status {
+  align-self: flex-start;
+  background: var(--accent-bg);
+  color: var(--accent);
+  border: 1px solid var(--accent-border);
+  border-radius: 999px;
+  padding: 0.3rem 0.8rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.event-detail-author {
+  color: var(--text);
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.event-detail-meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 0;
+}
+
+.event-detail-meta div {
+  border: 1px solid var(--border);
+  border-radius: 0.6rem;
+  padding: 0.9rem;
+  background: var(--social-bg);
+}
+
+.event-detail-meta dt {
+  color: var(--text);
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.event-detail-meta dd {
+  color: var(--text-h);
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.event-detail-description {
+  border-top: 1px solid var(--border);
+  padding-top: 1rem;
+  margin-top: 0.5rem;
+}
+
+.event-detail-description h2 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-size: 1.5rem;
+  color: var(--text-h);
+}
+
+.event-detail-description p {
+  color: var(--text);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.event-detail-error {
+  background: var(--social-bg);
+  border: 1px solid var(--border);
+  border-radius: 0.8rem;
+  color: var(--text-h);
+  padding: 2rem;
+  text-align: center;
+}
+
+/* Responsivo para móviles y tablets */
+@media (max-width: 700px) {
+  .event-detail-layout {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .event-detail-cover {
+    max-width: 200px;
+    margin: 0 auto; /* Centra la portada en móviles */
+  }
+
+  .event-detail-info h1 {
+    font-size: 1.8rem;
+  }
+
+  .event-detail-meta {
+    grid-template-columns: 1fr;
+  }
+}
