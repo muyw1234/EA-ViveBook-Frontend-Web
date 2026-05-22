@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import ThemeToggle from './ThemeToggle/ThemeToggle';
 import LanguageSelector from './LanguageSelector/LanguageSelector';
-import './AccessibilityMenu.css'; 
+import "./AccessibilityMenu.css";
+
 import { useTranslation } from "react-i18next";
 
 

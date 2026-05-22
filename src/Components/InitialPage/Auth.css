@@ -1,11 +1,13 @@
+/* --- Auth.css --- */
 .auth-container {
     min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    background: linear-gradient(135deg, #FAF5F9 0%, #ebd9e8 50%, #D183BA 100%); /* Cambiado a paleta rosa-lavanda pastel suave */
     padding: 2rem;
     font-family: 'Inter', system-ui, sans-serif;
+    box-sizing: border-box;
 }
 
 .auth-card {
@@ -13,14 +15,16 @@
     backdrop-filter: blur(10px);
     padding: 3rem 2.5rem;
     border-radius: 1.5rem;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 20px 40px rgba(61, 26, 60, 0.15);
     width: 100%;
     max-width: 450px;
     text-align: center;
+    box-sizing: border-box;
+    border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .auth-title {
-    color: #1e1b4b;
+    color: var(--text-h);
     font-size: 2rem;
     font-weight: 700;
     margin-bottom: 0.5rem;
@@ -28,7 +32,7 @@
 }
 
 .auth-subtitle {
-    color: #64748b;
+    color: var(--text);
     font-size: 0.95rem;
     margin-bottom: 2rem;
 }
@@ -49,31 +53,31 @@
 .input-group label {
     font-size: 0.9rem;
     font-weight: 600;
-    color: #334155;
+    color: var(--text-h);
     margin-left: 0.2rem;
 }
 
 .auth-input {
     width: 100%;
     padding: 0.9rem 1.2rem;
-    border: 2px solid #e2e8f0;
+    border: 2px solid var(--border);
     border-radius: 0.8rem;
     font-size: 1rem;
     transition: all 0.3s ease;
-    background: #f8fafc;
-    color: #0f172a;
+    background: var(--bg);
+    color: var(--text-h);
     box-sizing: border-box;
 }
 
 .auth-input:focus {
     outline: none;
-    border-color: #7c3aed;
-    background: #ffffff;
-    box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1);
+    border-color: var(--primary);
+    background: var(--surface);
+    box-shadow: 0 0 0 4px rgba(209, 131, 186, 0.15); /* Sombra acentuada con rosa-violeta */
 }
 
 .auth-button {
-    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); /* Cambiado a paleta rosa-violeta */
     color: white;
     border: none;
     padding: 1rem;
@@ -83,12 +87,12 @@
     cursor: pointer;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     margin-top: 0.5rem;
-    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+    box-shadow: 0 4px 15px rgba(209, 131, 186, 0.3);
 }
 
 .auth-button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
+    box-shadow: 0 6px 20px rgba(209, 131, 186, 0.5);
 }
 
 .auth-button:disabled {

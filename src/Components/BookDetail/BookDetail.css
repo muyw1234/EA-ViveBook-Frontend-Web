@@ -1,9 +1,14 @@
+/* --- BookDetail.css --- */
 .book-detail-page {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  padding: 1rem;
+  padding: 2rem;
   text-align: left;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .back-button {
@@ -15,6 +20,7 @@
   border-radius: 0.5rem;
   font-weight: 600;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .back-button:hover {
@@ -53,6 +59,7 @@
   margin: 0;
   font-size: 2.4rem;
   line-height: 1.1;
+  color: var(--text-h);
 }
 
 .book-detail-status {
@@ -111,6 +118,7 @@
 
 .book-detail-description h2 {
   margin-bottom: 0.5rem;
+  color: var(--text-h);
 }
 
 .book-detail-error {

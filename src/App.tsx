@@ -11,11 +11,11 @@ import SearchPage from "./Components/SearchPage/searchPage";
 function App() {
   return (
     <Router>
-      <nav style={{ padding: "1rem", background: "#f8fafc", borderBottom: "1px solid #e2e8f0", display: "flex", gap: "1rem", justifyContent: "center" }}>
-        <Link to="/" style={{ textDecoration: "none", color: "#64748b", fontWeight: "600" }}>Login</Link>
-        <Link to="/register" style={{ textDecoration: "none", color: "#64748b", fontWeight: "600" }}>Crear Cuenta</Link>
-        <Link to="/home" style={{ textDecoration: "none", color: "#64748b", fontWeight: "600" }}>Home</Link>
-        <Link to="/chat" style={{ textDecoration: "none", color: "#7c3aed", fontWeight: "bold" }}>Chat Global </Link>
+      <nav className="main-nav">
+        <Link to="/" className="nav-link">Login</Link>
+        <Link to="/register" className="nav-link">Crear Cuenta</Link>
+        <Link to="/home" className="nav-link">Home</Link>
+        <Link to="/chat" className="nav-link highlight">Chat Global</Link>
       </nav>
 
       <Routes>

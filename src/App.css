@@ -1,0 +1,300 @@
+:root {
+  /* ViveBook Mobile App Brand Colors (Updated to match the latest commit) */
+  --primary: #D183BA;        /* Main Pink-Violet Accent Color */
+  --secondary: #a85890;      /* Darker Pink-Violet for hover/active states */
+  --bg: #FAF5F9;             /* Soft off-white pastel lavender-pink background */
+  --surface: #ffffff;        /* Pure white for cards and surface areas */
+  --error: #ef4444;          /* Red error color */
+  --outline: #ebd9e8;        /* Light lavender-pink border/outline */
+  
+  --text-h: #3d1a3c;         /* Titles - deep dark wine/plum purple */
+  --text: #6b5b6a;           /* Subtitles/body - soft mauve-gray */
+  
+  --border: #ebd9e8;         /* Soft lavender-pink borders */
+  --code-bg: #f5eef4;        /* Soft purple-grey background for code/badges */
+  --accent: #D183BA;         /* Primary Accent Color */
+  --accent-bg: #F5E4F0;      /* Light pastel pink-lavender background badge */
+  --accent-border: rgba(209, 131, 186, 0.5);
+  --social-bg: #ffffff;
+  --shadow: rgba(61, 26, 60, 0.08) 0 10px 15px -3px, rgba(61, 26, 60, 0.04) 0 4px 6px -2px;
+
+  --sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --heading: 'Inter', system-ui, -apple-system, sans-serif;
+  --mono: ui-monospace, Consolas, monospace;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+#root {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  text-align: center;
+  border-inline: none;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+/* High Contrast Mode Accessibility */
+[data-theme="high-contrast"] {
+  --bg: #000000;
+  --surface: #121212;
+  --text-h: #ffffff;
+  --text: #e0e0e0;
+  --border: #ffffff;
+  --primary: #ffff00; /* Bright yellow */
+  --secondary: #ffff55;
+  --accent: #ffff00;
+  --accent-bg: rgba(255, 255, 0, 0.2);
+  --accent-border: #ffffff;
+  --shadow: none;
+}
+
+a {
+  color: var(--primary);
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--secondary);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--heading);
+  font-weight: 600;
+  color: var(--text-h);
+  margin-top: 0;
+}
+
+h1 {
+  font-size: 2.5rem;
+  letter-spacing: -0.03em;
+  margin: 2rem 0;
+}
+
+h2 {
+  font-size: 1.75rem;
+  letter-spacing: -0.02em;
+  margin-bottom: 1rem;
+}
+
+p {
+  margin: 0 0 1rem;
+  line-height: 1.6;
+}
+
+code,
+.counter {
+  font-family: var(--mono);
+  display: inline-flex;
+  border-radius: 4px;
+  color: var(--text-h);
+}
+
+code {
+  font-size: 14px;
+  line-height: 135%;
+  padding: 4px 8px;
+  background: var(--code-bg);
+}
+
+/* --- Global Navbar Styles --- */
+.main-nav {
+  padding: 1rem 2rem;
+  background-color: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  align-items: center;
+  box-shadow: var(--shadow);
+  width: 100%;
+  box-sizing: border-box;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: var(--text);
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: color 0.2s, background-color 0.2s;
+  padding: 0.5rem 1rem;
+  border-radius: 99px;
+}
+
+.nav-link:hover {
+  color: var(--primary);
+  background-color: var(--bg);
+}
+
+.nav-link.highlight {
+  color: var(--primary);
+  font-weight: 700;
+  background-color: var(--accent-bg);
+  padding: 0.5rem 1.2rem;
+  border-radius: 99px;
+  border: 1px solid var(--accent-border);
+}
+
+.nav-link.highlight:hover {
+  background-color: var(--border);
+  color: var(--secondary);
+}
+
+/* --- Global Footer Styles --- */
+.bookshub-footer {
+  background-color: var(--surface);
+  padding: 0;
+  margin-top: auto; /* Empuja el footer hacia abajo si el contenido es corto */
+  border-top: 1px solid var(--border);
+  width: 100%;
+  box-shadow: 0 -10px 40px rgba(61, 26, 60, 0.03);
+}
+
+.footer-newsletter {
+  background-color: var(--text-h);
+  color: var(--bg);
+  padding: 3rem 2rem;
+  text-align: center;
+}
+
+.footer-newsletter h3 {
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+  color: var(--bg);
+}
+
+.newsletter-input-group {
+  display: flex;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.newsletter-input-group input {
+  flex: 1;
+  padding: 0.8rem 1rem;
+  border: none;
+  border-radius: 99px 0 0 99px;
+  outline: none;
+  background: var(--bg);
+  color: var(--text-h);
+}
+
+.newsletter-input-group button {
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  cursor: pointer;
+  border-radius: 0 99px 99px 0;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+}
+
+.newsletter-input-group button:hover {
+  background-color: var(--secondary);
+}
+
+.footer-links-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+  gap: 2rem;
+  padding: 4rem 2rem;
+  background-color: var(--surface);
+  text-align: left;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.footer-brand h2 {
+  color: var(--text-h);
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.footer-brand p {
+  color: var(--text);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.footer-logo {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--primary);
+  margin-bottom: 1rem;
+}
+
+.social-links-modern {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.social-links-modern a {
+  color: var(--text);
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 0.9rem;
+  padding: 0.5rem 1rem;
+  background: var(--bg);
+  border-radius: 99px;
+  border: 1px solid var(--border);
+  transition: all 0.3s;
+}
+
+.social-links-modern a:hover {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.footer-col h4 {
+  color: var(--text-h);
+  margin-bottom: 1.25rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.footer-col a, 
+.footer-col p {
+  display: block;
+  color: var(--text);
+  text-decoration: none;
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.footer-col a:hover {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .footer-links-grid {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+    padding: 3rem 2rem;
+  }
+}
