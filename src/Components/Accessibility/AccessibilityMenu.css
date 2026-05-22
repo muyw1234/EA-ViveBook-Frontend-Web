@@ -1,10 +1,12 @@
+/* --- AccessibilityMenu.css --- */
+
 /* Container positioned in the bottom right corner */
 .a11y-menu-container {
   position: fixed;
   bottom: 20px;
   right: 20px;
   z-index: 9999;
-  font-family: sans-serif;
+  font-family: var(--sans);
 }
 
 /* Floating Action Button */
@@ -12,21 +14,22 @@
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background-color: var(--primary, #0055cc);
+  background-color: var(--primary);
   color: white;
   border: none;
   font-size: 24px;
   cursor: pointer;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-  transition: transform 0.2s ease;
+  box-shadow: var(--shadow);
+  transition: transform 0.2s ease, background-color 0.2s ease;
 }
 
 .a11y-trigger-btn:hover {
   transform: scale(1.05);
+  background-color: var(--secondary);
 }
 
 .a11y-trigger-btn:focus-visible {
-  outline: 3px solid #ffcc00;
+  outline: 3px solid var(--primary);
   outline-offset: 2px;
 }
 
@@ -36,23 +39,24 @@
   bottom: 70px;
   right: 0;
   width: 280px;
-  background-color: var(--background-color, #ffffff);
-  color: var(--text-color, #1a1a1a);
-  border: 2px solid var(--text-color, #1a1a1a);
-  border-radius: 8px;
+  background-color: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 12px;
   padding: 16px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow);
 }
 
 .a11y-panel h3 {
   margin-top: 0;
   margin-bottom: 10px;
   font-size: 18px;
+  color: var(--text-h);
 }
 
 .a11y-panel hr {
   border: 0;
-  border-top: 1px solid #ccc;
+  border-top: 1px solid var(--border);
   margin-bottom: 15px;
 }
 
@@ -64,13 +68,13 @@
 .a11y-close-btn {
   width: 100%;
   padding: 8px;
-  background-color: #f1f1f1;
-  border: 1px solid #ccc;
+  background-color: var(--social-bg);
+  border: 1px solid var(--border);
   border-radius: 4px;
   cursor: pointer;
   font-weight: bold;
 }
 
 .a11y-close-btn:hover {
-  background-color: #ddd;
+  background-color: var(--border);
 }

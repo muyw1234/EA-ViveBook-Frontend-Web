@@ -1,9 +1,14 @@
+/* --- EventoDetail.css --- */
 .event-detail-page {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  padding: 1rem;
+  padding: 2rem;
   text-align: left;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .back-button {
@@ -31,7 +36,7 @@
 }
 
 .event-detail-cover {
-  aspect-ratio: 1 / 1; /* Ajustado a formato cuadrado para eventos/calendarios */
+  aspect-ratio: 1 / 1;
   border: 1px solid var(--border);
   border-radius: 0.8rem;
   background: var(--code-bg);
@@ -39,7 +44,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 3rem; /* Aumentado para que el emoji 📅 se vea genial */
+  font-size: 3rem;
   font-weight: 600;
   box-shadow: var(--shadow);
 }
@@ -132,7 +137,6 @@
   text-align: center;
 }
 
-/* Responsivo para móviles y tablets */
 @media (max-width: 700px) {
   .event-detail-layout {
     grid-template-columns: 1fr;
@@ -141,7 +145,7 @@
 
   .event-detail-cover {
     max-width: 200px;
-    margin: 0 auto; /* Centra la portada en móviles */
+    margin: 0 auto;
   }
 
   .event-detail-info h1 {

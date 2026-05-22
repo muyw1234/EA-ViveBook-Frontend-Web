@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import EventService from "../Services/Evento";
 import "./EventoDetail.css";
+
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 // Es importante asegurarse de importar los estilos CSS de Leaflet en tu index.js/main.tsx o aquí:
-import 'leaflet/dist/leaflet.css';
 
 export interface IGeoJSONPoint {
   type: 'Point';
