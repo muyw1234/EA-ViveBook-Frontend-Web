@@ -485,9 +485,13 @@ const Home: React.FC = () => {
                 style={{ cursor: "pointer" }}
               >
               <div className="event-date">
-                <span className="day">{event.date ? new Date(event.date).getDate() : "---"}</span>
+                <span className="day">
+                  {event.eventDate ? new Date(event.eventDate).getDate() : (event.date ? new Date(event.date).getDate() : "---")}
+                </span>
                 <span className="month">
-                  {event.date ? new Date(event.date).toLocaleString('default', { month: 'short' }) : "---"}
+                  {event.eventDate 
+                    ? new Date(event.eventDate).toLocaleString('default', { month: 'short' }) 
+                    : (event.date ? new Date(event.date).toLocaleString('default', { month: 'short' }) : "---")}
                 </span>
               </div>
               <div className="event-details">

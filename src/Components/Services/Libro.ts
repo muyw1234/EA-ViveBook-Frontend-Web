@@ -1,17 +1,26 @@
 import type { AxiosResponse } from "axios";
 import api from "../../api";
-import type {ILibro} from "../../Models/Libro";
+import type { ILibro } from "../../Models/Libro";
 import type { Dispatch, SetStateAction } from "react";
-import type { IPost } from "./Post";
 import { toast } from "react-toastify";
 
 const getAllLibros = async () => {
     try {
         const response = await api.get("/libros");
-        // Soporte tanto para array plano como para objeto paginado { data: [...] }
-        return Array.isArray(response.data) ? response.data : response.data.data;
-        // Soporte tanto para array plano como para objeto paginado { data: [...] }
-        return Array.isArray(response.data) ? response.data : response.data.data;
+        
+        if (response.data && response.data.success) {
+            const apiData = response.data.data;
+            
+            if (apiData && apiData.data && Array.isArray(apiData.data)) {
+                return apiData.data;
+            }
+            
+            if (Array.isArray(apiData)) {
+                return apiData;
+            }
+        }
+        
+        return Array.isArray(response.data) ? response.data : [];
     } catch (error) {
         console.error("Error fetching books:", error);
         throw error;
@@ -21,6 +30,10 @@ const getAllLibros = async () => {
 const getLibroById = async (id: string) => {
     try {
         const response = await api.get(`/libros/${id}`);
+        
+        if (response.data && response.data.success) {
+            return response.data.data; 
+        }
         return response.data;
     } catch (error) {
         console.error("Error fetching book by id:", error);
@@ -30,10 +43,14 @@ const getLibroById = async (id: string) => {
 
 async function addLibroByIsbn(isbn: string) {
     try {
-        const response = await api.get(`/libros/isbn/${isbn}`);
+        const response = await api.post(`/libros/isbn/${isbn}`);
+        
+        if (response.data && response.data.success) {
+            return response.data.data;
+        }
         return response.data;
     } catch (error) {
-        console.error("Error fetching book by id:", error);
+        console.error("Error adding book by ISBN:", error);
         throw error;
     }
 }
@@ -47,9 +64,11 @@ const addLibroListing = async (bookData: {
     estado: string;
 }) => {
     try {
-        // Enviamos el objeto 'bookData' completo directamente. 
-        // Axios se encarga de transformarlo en JSON (application/json) automáticamente.
         const response = await api.post("/libros", bookData);
+        
+        if (response.data && response.data.success) {
+            return response.data.data; 
+        }
         return response.data;
     } catch (error: any) {
         if (error.response) {
@@ -57,22 +76,28 @@ const addLibroListing = async (bookData: {
         } else {
             console.error("Error adding book listing:", error);
         }
-    
+        throw error; 
     }
 };
 
-async function searchLibro(term: string, setter: Dispatch<SetStateAction<Partial<ILibro>[]>>, page : number = 1, limit : number = 10)  /*: Promise<AxiosResponse<ILibro[]>>*/{
-    api.get('/libros/search', {params: {term: term, page: page, limit: limit}})
-        .then(
-            (res : AxiosResponse<Partial<ILibro>[]>) => {
-                const data: Partial<ILibro>[] = res.data;
-                //toast.success(`${data.length} items found`);
-                setter(data);
+async function searchLibro(
+    term: string, 
+    setter: Dispatch<SetStateAction<Partial<ILibro>[]>>, 
+    page: number = 1, 
+    limit: number = 10
+) {
+    api.get('/libros/search', { params: { term, page, limit } })
+        .then((res: AxiosResponse<any>) => {
+            if (res.data && res.data.success) {
+                setter(res.data.data); 
+            } else {
+                setter(Array.isArray(res.data) ? res.data : []);
             }
-        )
-        .catch((error) => {
-            toast.error(error);
         })
+        .catch((error) => {
+            const errorMsg = error.response?.data?.message || "Error en la búsqueda";
+            toast.error(errorMsg);
+        });
 }
 
 export default {
