@@ -61,7 +61,7 @@ const Login: React.FC = () => {
                     </button>
                     
                     <div style={{ marginTop: "1rem", fontSize: "0.9rem", color: "#64748b" }}>
-                        ¿No tienes cuenta? <Link to="/register" style={{ color: "#7c3aed", textDecoration: "none", fontWeight: "600" }}>Regístrate aquí</Link>
+                        ¿No tienes cuenta? <Link to="/register" style={{ color: "var(--primary)", textDecoration: "none", fontWeight: "600" }}>Regístrate aquí</Link>
                     </div>
                 </form>
 

@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import LibroService from "../Services/Libro";
 import EventService from "../Services/Evento";
 import { useTranslation } from "react-i18next";
+import "./Home.css";
 
 const CategoryPage: React.FC = () => {
     const { type } = useParams();

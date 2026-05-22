@@ -89,7 +89,7 @@ const Register: React.FC = () => {
                     </button>
                     
                     <div style={{ marginTop: "1rem", fontSize: "0.9rem", color: "#64748b" }}>
-                        ¿Ya tienes cuenta? <Link to="/" style={{ color: "#7c3aed", textDecoration: "none", fontWeight: "600" }}>Inicia sesión aquí</Link>
+                        ¿Ya tienes cuenta? <Link to="/" style={{ color: "var(--primary)", textDecoration: "none", fontWeight: "600" }}>Inicia sesión aquí</Link>
                     </div>
                 </form>
 

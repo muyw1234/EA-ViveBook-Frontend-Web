@@ -1,3 +1,4 @@
+/* --- ChatGlobal.css --- */
 .chat-global-container {
     display: flex;
     flex-direction: column;
@@ -15,7 +16,7 @@
 
 .chat-header {
     padding: 1.5rem;
-    background: linear-gradient(135deg, #7c3aed 0%, #d183ba 100%);
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
     color: white;
     display: flex;
     justify-content: space-between;
@@ -66,7 +67,7 @@
 .sender-name {
     font-size: 0.75rem;
     font-weight: 600;
-    color: #7c3aed;
+    color: var(--primary);
     margin-bottom: 4px;
     margin-left: 8px;
 }
@@ -79,7 +80,7 @@
 }
 
 .mine .message-bubble {
-    background: #7c3aed;
+    background: var(--primary);
     color: white;
     border-bottom-right-radius: 4px;
 }
@@ -123,12 +124,12 @@
 }
 
 .chat-input-area input:focus {
-    border-color: #7c3aed;
-    background: #f8fafc;
+    border-color: var(--primary);
+    background: var(--bg);
 }
 
 .chat-input-area button {
-    background: #7c3aed;
+    background: var(--primary);
     color: white;
     border: none;
     width: 48px;
@@ -139,12 +140,12 @@
     justify-content: center;
     cursor: pointer;
     transition: all 0.2s;
-    box-shadow: 0 4px 10px rgba(124, 58, 237, 0.3);
+    box-shadow: 0 4px 10px rgba(209, 131, 186, 0.3);
 }
 
 .chat-input-area button:hover:not(:disabled) {
     transform: scale(1.05);
-    background: #6d28d9;
+    background: var(--secondary);
 }
 
 .chat-input-area button:disabled {

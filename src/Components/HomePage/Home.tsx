@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from "react";
-import "./Home.css";
+
 import UsuarioService from "../Services/Usuario";
 import LibroService from "../Services/Libro";
 import { useNavigate } from "react-router-dom";
 import type { IPost } from "../Services/Post";
 import PostService from "../Services/Post";
 import EventoService from "../Services/Evento";
+import "./Home.css";
 
 import AccessibilityMenu from "../Accessibility/AccessibilityMenu";
 import { useTranslation } from "react-i18next";
-import Login from "../InitialPage/Login";
+
 
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
+
 import L from 'leaflet';
 
 // Icono para el Usuario (Azul)
@@ -60,7 +61,7 @@ const Home: React.FC = () => {
   const { t } = useTranslation();
 
   const [searchQuery, setSearchQuery] = useState(""); // Ya no es necesario
-  const [user, setUser] = useState<{ name: string } | null>(null);
+  const [user, setUser] = useState<{ name: string; _id?: string; id?: string } | null>(null);
   const [books, setBooks] = useState<any[]>([]);
   const [posts, setPosts] = useState<Partial<IPost>[]>([]);
   const [eventos, setEventos] = useState<any[]>([]);
@@ -280,12 +281,24 @@ const Home: React.FC = () => {
         </div>
       </header>
 
-      {/* Hero Banner */}
-      <section className="hero-banner">
-        <h1>
-          {t("hero_title_line1")} <br /> {t("hero_title_line2")}
-        </h1>
-        <p>{t("hero_subtitle")}</p>
+      {/* Hero Banner - BooksHub Style */}
+      <section className="hero-banner-bookshub">
+        <div className="hero-content">
+          <h1>This Month</h1>
+          <p>Descubre las recomendaciones más destacadas de este mes para sumergirte en nuevas aventuras literarias.</p>
+          <button className="read-more-btn">Read More</button>
+        </div>
+        <div className="hero-books-display">
+          <div className="hero-book-card left-book">
+            <div className="book-cover-placeholder modern-cover" style={{background: 'linear-gradient(135deg, #F5E4F0, #D183BA)'}}></div>
+          </div>
+          <div className="hero-book-card center-book">
+            <div className="book-cover-placeholder modern-cover" style={{background: 'linear-gradient(135deg, #D183BA, #a85890)'}}></div>
+          </div>
+          <div className="hero-book-card right-book">
+            <div className="book-cover-placeholder modern-cover" style={{background: 'linear-gradient(135deg, #fbcfe8, #e0a3cd)'}}></div>
+          </div>
+        </div>
       </section>
       
       {/* Aqui estan los posts */}
@@ -300,8 +313,8 @@ const Home: React.FC = () => {
           {posts.length > 0 ? (
             posts.map((post) => (
               <div key={`Post: ${post._id}`} className="book-card">
-                <div className="card-image-placeholder">
-                  📚 <br /> [Imagen]
+                <div className="card-image-placeholder modern-card-image">
+                  <span className="placeholder-text">Imagen no disponible</span>
                 </div>
                 <div className="card-info">
                   <span>
@@ -350,8 +363,8 @@ const Home: React.FC = () => {
                   }
                 }}
               >
-                <div className="card-image-placeholder">
-                  📚 <br /> [Imagen]
+                <div className="card-image-placeholder modern-card-image">
+                  <span className="placeholder-text">Imagen no disponible</span>
                 </div>
                 <div className="card-info">
                   <span className="card-price">
@@ -401,8 +414,8 @@ const Home: React.FC = () => {
                   }
                 }}
               >
-                <div className="card-image-placeholder">
-                  📚 <br /> [Imagen]
+                <div className="card-image-placeholder modern-card-image">
+                  <span className="placeholder-text">Imagen no disponible</span>
                 </div>
                 <div className="card-info">
                   <span className="card-price">
@@ -496,7 +509,7 @@ const Home: React.FC = () => {
               </div>
               <div className="event-details">
                 <span className="event-title">{event.title}</span>
-                <span className="event-location">📍 {event.direccionExacta}</span>
+                <span className="event-location">Ubicación: {event.direccionExacta}</span>
               </div>
             </div>
           ))}
@@ -607,7 +620,7 @@ const Home: React.FC = () => {
                   disabled={!newBookIsbn || !newBookPrice}
                   onClick={async () => {
                     setOnlyISBN(false);
-                    const data = await LibroService.addLibroByIsbn(newBookIsbn);
+                    await LibroService.addLibroByIsbn(newBookIsbn);
                     setIsAddBookModalOpen(false);
                   }}
                 >
@@ -785,8 +798,8 @@ const Home: React.FC = () => {
                   </MapContainer>
                 </div>
                 {newEventLocation && (
-                  <p style={{ fontSize: '0.8rem', color: '#2ecc71', marginTop: '5px' }}>
-                    📍 Coordenadas seleccionadas: {newEventLocation[0].toFixed(5)}, {newEventLocation[1].toFixed(5)}
+                  <p style={{ fontSize: '0.8rem', color: 'var(--primary)', marginTop: '5px', fontWeight: '500' }}>
+                    Coordenadas: {newEventLocation[0].toFixed(5)}, {newEventLocation[1].toFixed(5)}
                   </p>
                 )}
               </div>
@@ -798,6 +811,50 @@ const Home: React.FC = () => {
           </div>
         </div>
       )}
+      {/* Footer - BooksHub Style */}
+      <footer className="bookshub-footer">
+        <div className="footer-newsletter">
+          <h3>Subscribe our newsletter for newest books updates</h3>
+          <div className="newsletter-input-group">
+            <input type="email" placeholder="Type your email here" />
+            <button>Subscribe</button>
+          </div>
+        </div>
+        <div className="footer-links-grid">
+          <div className="footer-brand">
+            <h2 className="footer-logo">ViveBook</h2>
+            <p>Tu plataforma ideal para comprar, vender y compartir libros.</p>
+            <div className="social-links-modern">
+              <a href="#">Twitter</a>
+              <a href="#">Instagram</a>
+              <a href="#">LinkedIn</a>
+            </div>
+          </div>
+          <div className="footer-col">
+            <h4>About</h4>
+            <a href="#">About Us</a>
+            <a href="#">Contact Us</a>
+            <a href="#">FAQ</a>
+          </div>
+          <div className="footer-col">
+            <h4>Services</h4>
+            <a href="#">Products</a>
+            <a href="#">Offers</a>
+            <a href="#">Rentals</a>
+          </div>
+          <div className="footer-col">
+            <h4>Help</h4>
+            <a href="#">FAQ's</a>
+            <a href="#">Store Locator</a>
+          </div>
+          <div className="footer-col">
+            <h4>Get in Touch</h4>
+            <p>Calle Falsa 123</p>
+            <p>Barcelona, 08001</p>
+          </div>
+        </div>
+      </footer>
+
       <AccessibilityMenu />
     </div>
   );
