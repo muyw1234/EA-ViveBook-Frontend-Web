@@ -7,6 +7,7 @@ import ChatGlobal from "./Components/Chat/ChatGlobal";
 import EventoDetail from "./Components/EventoDetail/EventoDetail";
 import CategoryPage from "./Components/HomePage/CategoryPage";
 import SearchPage from "./Components/SearchPage/searchPage";
+import {ProfilePage} from "./Components/ProfilePage/UserProfile";
 
 function App() {
   return (
@@ -27,7 +28,8 @@ function App() {
         <Route path="/eventos/:id" element={<EventoDetail />} />
         <Route path="/categorias/:type" element={<CategoryPage />} />
         {/* <Route path="/search/:term" element=<SearchPage/> /> // Esto era pasando como parametro */}
-        <Route path="/search" element=<SearchPage/> /> {/* Pero aqui lo pasamos como estado en la navegacion*/}
+        <Route path="/search" element={<SearchPage />} /> {/* Pero aqui lo pasamos como estado en la navegacion*/}
+        <Route path="/profile" element={<ProfilePage />} />
       </Routes>
     </Router>
   )
