@@ -9,4 +9,5 @@ export interface ILibro {
     IsDeleted?: boolean;
     rentalStartDate?: Date;
     rentalEndDate?: Date;
+    imageUrl?: string;
 }

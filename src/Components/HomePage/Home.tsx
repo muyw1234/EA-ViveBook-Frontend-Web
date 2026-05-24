@@ -7,6 +7,7 @@ import type { IPost } from "../Services/Post";
 import PostService from "../Services/Post";
 import EventoService from "../Services/Evento";
 import "./Home.css";
+import ImageService from "../Services/Image";
 
 import AccessibilityMenu from "../Accessibility/AccessibilityMenu";
 import { useTranslation } from "react-i18next";
@@ -93,7 +94,7 @@ const Home: React.FC = () => {
   const [newBookPrice, setNewBookPrice] = useState("");
   const [onlyISBN, setOnlyISBN] = useState<boolean>(false);
 
-  const [image]
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
 
   // Form state corresponding to event fields
   const [newEventTitle, setNewEventTitle] = useState("");
@@ -159,7 +160,7 @@ const Home: React.FC = () => {
         type: newBookType,
         precio: Number(newBookPrice),
         estado: newBookState,
-          
+        imageUrl: imageUrl
       };
 
       const newBookResponse = await LibroService.addLibroListing(bookData);
@@ -758,17 +759,25 @@ const Home: React.FC = () => {
                 </div>
                 <div className="form-group">
                   <label> Subir Foto</label>
-                  {/* <input
+                  <input
                     type="file"
                     src="./"
                     id="imageSelector"
                     alt="Subir foto"
                     onChange={(e) => {
-                      const path = e.target.files![0];
+                      const file = e.target.files![0];
                       //toast(JSON.stringify(path)); // aqui no aparece
-                      console.log(path);
+                      //console.log(path);
+                      const formData: FormData = new FormData();
+                      formData.append('file',file);
+                      // no es lo mejor ponerlo asi, la subida de la imagen tendria que hacerlo al Subir el Libro
+                      ImageService.upload(formData)
+                        .then((url) => setImageUrl(url!))
+                        .catch((error) => {toast.error(JSON.stringify(error))});
+                        
+                      
                     }}
-                  /> */}
+                  />
                 </div>
                 <div className="form-group">
                   <label>{t("label_id_data")}</label>

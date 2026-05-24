@@ -1,4 +1,5 @@
 import api from "../../api";
+import type { IUsuario } from "../../Models/Usuario";
 
 const createUser = async (userData: {
   name: string;
@@ -41,7 +42,7 @@ const getUserByEmail = async (userData: {
 
 const getProfile = async () => {
     const response = await api.get("/auth/profile");
-    return response.data.data;
+    return response.data.data as Partial<IUsuario>;
 };
 
 export default {
