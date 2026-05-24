@@ -88,11 +88,14 @@ async function searchLibro(
 ) {
     api.get('/libros/search', { params: { term, page, limit } })
         .then((res: AxiosResponse<any>) => {
-            if (res.data && res.data.success) {
-                setter(res.data.data); 
-            } else {
-                setter(Array.isArray(res.data) ? res.data : []);
-            }
+            // ? No lo compliques, el componente ya se da cuenta de que el array esta vacio
+            // if (res.data && res.data.success) {
+            //     setter(res.data.data); 
+            // } else {
+            //     setter(Array.isArray(res.data) ? res.data : []);
+            // } 
+            toast.success(`${res.data.data} items has been found.`)
+            setter(res.data.data);
         })
         .catch((error) => {
             const errorMsg = error.response?.data?.message || "Error en la búsqueda";

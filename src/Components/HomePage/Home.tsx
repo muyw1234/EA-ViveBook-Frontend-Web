@@ -11,67 +11,80 @@ import "./Home.css";
 import AccessibilityMenu from "../Accessibility/AccessibilityMenu";
 import { useTranslation } from "react-i18next";
 
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
-
-import L from 'leaflet';
+import L from "leaflet";
+import { toast, ToastContainer } from "react-toastify";
 
 // Icono para el Usuario (Azul)
 const UserIcon = L.icon({
-    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
-    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
+  iconUrl:
+    "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png",
+  shadowUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
 });
 
 // Icono para los Eventos (Rojo)
 const EventIcon = L.icon({
-    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
-    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
+  iconUrl:
+    "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png",
+  shadowUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
 });
 
 const RecenterMap = ({ coords }: { coords: [number, number] }) => {
-    const map = useMap();
-    useEffect(() => {
-        map.setView(coords, 14);
-    }, [coords, map]);
-    return null;
+  const map = useMap();
+  useEffect(() => {
+    map.setView(coords, 14);
+  }, [coords, map]);
+  return null;
 };
 
-const MapClickHandler = ({ onMapClick }: { onMapClick: (lat: number, lng: number) => void }) => {
-    const map = useMap();
-    useEffect(() => {
-        const handleLayoutClick = (e: L.LeafletMouseEvent) => {
-            onMapClick(e.latlng.lat, e.latlng.lng);
-        };
-        
-        map.on('click', handleLayoutClick);
-        return () => {
-            map.off('click', handleLayoutClick);
-        };
-    }, [map, onMapClick]);
-    
-    return null;
+const MapClickHandler = ({
+  onMapClick,
+}: {
+  onMapClick: (lat: number, lng: number) => void;
+}) => {
+  const map = useMap();
+  useEffect(() => {
+    const handleLayoutClick = (e: L.LeafletMouseEvent) => {
+      onMapClick(e.latlng.lat, e.latlng.lng);
+    };
+
+    map.on("click", handleLayoutClick);
+    return () => {
+      map.off("click", handleLayoutClick);
+    };
+  }, [map, onMapClick]);
+
+  return null;
 };
 
 const Home: React.FC = () => {
-  
   const { t } = useTranslation();
 
   const [searchQuery, setSearchQuery] = useState(""); // Ya no es necesario
-  const [user, setUser] = useState<{ name: string; _id?: string; id?: string } | null>(null);
+  const [user, setUser] = useState<{
+    name: string;
+    _id?: string;
+    id?: string;
+  } | null>(null);
   const [books, setBooks] = useState<any[]>([]);
   const [posts, setPosts] = useState<Partial<IPost>[]>([]);
   const [eventos, setEventos] = useState<any[]>([]);
-  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+  const [userLocation, setUserLocation] = useState<[number, number] | null>(
+    null,
+  );
   const [loading, setLoading] = useState(true);
   const [isAddBookModalOpen, setIsAddBookModalOpen] = useState(false);
   const [isAddEventModalOpen, setIsAddEventModalOpen] = useState(false);
   const latestBooks = [...books].reverse();
 
-  // Form state corresponding to book fields 
+  // Form state corresponding to book fields
   const [newBookType, setNewBookType] = useState("VENTA");
   const [newBookTitle, setNewBookTitle] = useState("");
   const [newBookIsbn, setNewBookIsbn] = useState("");
@@ -80,27 +93,33 @@ const Home: React.FC = () => {
   const [newBookPrice, setNewBookPrice] = useState("");
   const [onlyISBN, setOnlyISBN] = useState<boolean>(false);
 
+  const [image]
+
   // Form state corresponding to event fields
   const [newEventTitle, setNewEventTitle] = useState("");
   const [newEventDescription, setNewEventDescription] = useState("");
-  const [newEventDate, setNewEventDate]= useState("");
-  const [newEventLocation, setNewEventLocation] = useState<[number, number] | null>(null);
+  const [newEventDate, setNewEventDate] = useState("");
+  const [newEventLocation, setNewEventLocation] = useState<
+    [number, number] | null
+  >(null);
   const [newEventDireccionExacta, setNewEventDireccionExacta] = useState("");
 
   const navigate = useNavigate();
 
   useEffect(() => {
     if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                const { latitude, longitude } = position.coords;
-                setUserLocation([latitude, longitude]);
-            },
-            () => {
-                console.log("Acceso a ubicación denegado. Usando Barcelona por defecto.");
-                setUserLocation([41.3851, 2.1734]); 
-            }
-        );
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setUserLocation([latitude, longitude]);
+        },
+        () => {
+          console.log(
+            "Acceso a ubicación denegado. Usando Barcelona por defecto.",
+          );
+          setUserLocation([41.3851, 2.1734]);
+        },
+      );
     }
     const fetchData = async () => {
       try {
@@ -133,92 +152,104 @@ const Home: React.FC = () => {
   const handleAddBookSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-        const bookData = {
-            isbn: newBookIsbn,
-            title: newBookTitle,
-            authors: [newBookAuthor], 
-            type: newBookType,        
-            precio: Number(newBookPrice), 
-            estado: newBookState      
-        };
+      const bookData = {
+        isbn: newBookIsbn,
+        title: newBookTitle,
+        authors: [newBookAuthor],
+        type: newBookType,
+        precio: Number(newBookPrice),
+        estado: newBookState,
+          
+      };
 
-        const newBookResponse = await LibroService.addLibroListing(bookData);
+      const newBookResponse = await LibroService.addLibroListing(bookData);
 
-        const addedBook = newBookResponse && newBookResponse._id
-            ? {
-                ...newBookResponse,
-                type: newBookType,
-                price: newBookPrice,
-                authors: [newBookAuthor],
-              }
-            : {
-                _id: Date.now().toString(),
-                title: newBookTitle,
-                authors: [newBookAuthor],
-                price: newBookPrice,
-                type: newBookType,
-              };
-              
-        setBooks((prev) => [...prev, addedBook]);
+      const addedBook =
+        newBookResponse && newBookResponse._id
+          ? {
+              ...newBookResponse,
+              type: newBookType,
+              price: newBookPrice,
+              authors: [newBookAuthor],
+            }
+          : {
+              _id: Date.now().toString(),
+              title: newBookTitle,
+              authors: [newBookAuthor],
+              price: newBookPrice,
+              type: newBookType,
+            };
 
-        alert("Libro añadido con éxito");
-        setIsAddBookModalOpen(false);
+      setBooks((prev) => [...prev, addedBook]);
 
-        setNewBookTitle("");
-        setNewBookIsbn("");
-        setNewBookAuthor("");
-        setNewBookPrice("");
+      alert("Libro añadido con éxito");
+      setIsAddBookModalOpen(false);
+
+      setNewBookTitle("");
+      setNewBookIsbn("");
+      setNewBookAuthor("");
+      setNewBookPrice("");
     } catch (error) {
-        console.error("Error submitting book:", error);
-        alert("Error al añadir el libro. Revisa la consola del navegador y del backend.");
+      console.error("Error submitting book:", error);
+      alert(
+        "Error al añadir el libro. Revisa la consola del navegador y del backend.",
+      );
     }
   };
 
   const handleAddEventSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !user._id) {
-        alert("Debes estar autenticado para crear un evento.");
-        return;
+      alert("Debes estar autenticado para crear un evento.");
+      return;
     }
 
     if (!newEventLocation) {
-        alert("Por favor, selecciona una ubicación haciendo clic en el mapa.");
-        return;
+      alert("Por favor, selecciona una ubicación haciendo clic en el mapa.");
+      return;
     }
 
     try {
-        const eventData = {
-          title: newEventTitle,
-          description: newEventDescription,
-          creator: user._id,
-          eventDate: new Date(newEventDate),
-          createdDate: new Date(),
-          location: {
-            type: "Point" as const, 
-            coordinates: [newEventLocation[1], newEventLocation[0]] as [number, number],
-          },
-          direccionExacta: newEventDireccionExacta
-        };
+      const eventData = {
+        title: newEventTitle,
+        description: newEventDescription,
+        creator: user._id,
+        eventDate: new Date(newEventDate),
+        createdDate: new Date(),
+        location: {
+          type: "Point" as const,
+          coordinates: [newEventLocation[1], newEventLocation[0]] as [
+            number,
+            number,
+          ],
+        },
+        direccionExacta: newEventDireccionExacta,
+      };
 
-        const newEventResponse = await EventoService.createEvento(eventData);
-        
-        setEventos((prev) => [...prev, newEventResponse || { ...eventData, _id: Date.now().toString() }]);
+      const newEventResponse = await EventoService.createEvento(eventData);
 
-        alert("¡Evento creado con éxito!");
-        setIsAddEventModalOpen(false);
+      setEventos((prev) => [
+        ...prev,
+        newEventResponse || { ...eventData, _id: Date.now().toString() },
+      ]);
 
-        setNewEventTitle("");
-        setNewEventDescription("");
-        setNewEventDate("");
-        setNewEventDireccionExacta("");
-        setNewEventLocation(null); 
+      alert("¡Evento creado con éxito!");
+      setIsAddEventModalOpen(false);
+
+      setNewEventTitle("");
+      setNewEventDescription("");
+      setNewEventDate("");
+      setNewEventDireccionExacta("");
+      setNewEventLocation(null);
     } catch (error) {
-        console.error("Error submitting event:", error);
-        alert("Error al añadir el evento.");
+      console.error("Error submitting event:", error);
+      alert("Error al añadir el evento.");
     }
   };
 
-  const alquilerBooks = latestBooks.filter((b) => b.type === "ALQUILER").slice(0, 5);
+  const alquilerBooks = latestBooks
+    .filter((b) => b.type === "ALQUILER")
+    .slice(0, 5);
   const ventaBooks = latestBooks.filter((b) => b.type === "VENTA").slice(0, 5);
 
   const openBookDetail = (bookId?: string) => {
@@ -232,11 +263,11 @@ const Home: React.FC = () => {
   }
 
   //#region Search
-    
-  function search(){
-    navigate('/search', {state: {term: searchQuery}});
+
+  function search() {
+    navigate("/search", { state: { term: searchQuery } });
   }
-    
+
   //#endregion Search
 
   return (
@@ -272,12 +303,14 @@ const Home: React.FC = () => {
             placeholder={t("search_placeholder")}
             value={searchQuery}
             onChange={(e) => {
-              setSearchQuery(e.target.value)
+              setSearchQuery(e.target.value);
               // search(e.target.value);
             }}
           />
 
-          <button className="add-book-btn" onClick={() => search()}>Buscar</button>
+          <button className="add-book-btn" onClick={() => search()}>
+            Buscar
+          </button>
         </div>
       </header>
 
@@ -285,22 +318,40 @@ const Home: React.FC = () => {
       <section className="hero-banner-bookshub">
         <div className="hero-content">
           <h1>This Month</h1>
-          <p>Descubre las recomendaciones más destacadas de este mes para sumergirte en nuevas aventuras literarias.</p>
+          <p>
+            Descubre las recomendaciones más destacadas de este mes para
+            sumergirte en nuevas aventuras literarias.
+          </p>
           <button className="read-more-btn">Read More</button>
         </div>
         <div className="hero-books-display">
           <div className="hero-book-card left-book">
-            <div className="book-cover-placeholder modern-cover" style={{background: 'linear-gradient(135deg, #F5E4F0, #D183BA)'}}></div>
+            <div
+              className="book-cover-placeholder modern-cover"
+              style={{
+                background: "linear-gradient(135deg, #F5E4F0, #D183BA)",
+              }}
+            ></div>
           </div>
           <div className="hero-book-card center-book">
-            <div className="book-cover-placeholder modern-cover" style={{background: 'linear-gradient(135deg, #D183BA, #a85890)'}}></div>
+            <div
+              className="book-cover-placeholder modern-cover"
+              style={{
+                background: "linear-gradient(135deg, #D183BA, #a85890)",
+              }}
+            ></div>
           </div>
           <div className="hero-book-card right-book">
-            <div className="book-cover-placeholder modern-cover" style={{background: 'linear-gradient(135deg, #fbcfe8, #e0a3cd)'}}></div>
+            <div
+              className="book-cover-placeholder modern-cover"
+              style={{
+                background: "linear-gradient(135deg, #fbcfe8, #e0a3cd)",
+              }}
+            ></div>
           </div>
         </div>
       </section>
-      
+
       {/* Aqui estan los posts */}
       <section className="content-section">
         <div className="section-header">
@@ -321,17 +372,13 @@ const Home: React.FC = () => {
                     <span className="card-title" title={post.description}>
                       {post.description}
                     </span>
-                    <span className="card-meta">
-                      {post.status}
-                    </span>
+                    <span className="card-meta">{post.status}</span>
                   </span>
                 </div>
               </div>
             ))
           ) : (
-            <p className="no-data-msg">
-              {t("no_rentals_available")}
-            </p>
+            <p className="no-data-msg">{t("no_rentals_available")}</p>
           )}
         </div>
       </section>
@@ -340,12 +387,19 @@ const Home: React.FC = () => {
       <section className="content-section">
         <div className="section-header">
           <h2 className="section-title">{t("section_rentals")}</h2>
-          <button className="see-all" 
-            onClick={() => navigate("/categorias/rentals")} 
-            style={{ background: "none", border: "none", color: "inherit", 
-            font: "inherit", cursor: "pointer", textDecoration: "underline" }} 
-            >
-             {t("see_all")} 
+          <button
+            className="see-all"
+            onClick={() => navigate("/categorias/rentals")}
+            style={{
+              background: "none",
+              border: "none",
+              color: "inherit",
+              font: "inherit",
+              cursor: "pointer",
+              textDecoration: "underline",
+            }}
+          >
+            {t("see_all")}
           </button>
         </div>
         <div className="card-grid home-limit">
@@ -380,9 +434,7 @@ const Home: React.FC = () => {
               </div>
             ))
           ) : (
-            <p className="no-data-msg">
-              {t("no_rentals_available")}
-            </p>
+            <p className="no-data-msg">{t("no_rentals_available")}</p>
           )}
         </div>
       </section>
@@ -391,12 +443,19 @@ const Home: React.FC = () => {
       <section className="content-section">
         <div className="section-header">
           <h2 className="section-title">{t("section_sales")}</h2>
-          <button className="see-all" 
-            onClick={() => navigate("/categorias/sales")} 
-            style={{ background: "none", border: "none", color: "inherit", 
-            font: "inherit", cursor: "pointer", textDecoration: "underline" }} 
-          > 
-            {t("see_all")} 
+          <button
+            className="see-all"
+            onClick={() => navigate("/categorias/sales")}
+            style={{
+              background: "none",
+              border: "none",
+              color: "inherit",
+              font: "inherit",
+              cursor: "pointer",
+              textDecoration: "underline",
+            }}
+          >
+            {t("see_all")}
           </button>
         </div>
         <div className="card-grid home-limit">
@@ -431,9 +490,7 @@ const Home: React.FC = () => {
               </div>
             ))
           ) : (
-            <p className="no-data-msg">
-              {t("no_sales_available")}
-            </p>
+            <p className="no-data-msg">{t("no_sales_available")}</p>
           )}
         </div>
       </section>
@@ -441,32 +498,47 @@ const Home: React.FC = () => {
       {/* Sección del Mapa */}
       <section className="content-section">
         <h2 className="section-title">Eventos cerca de ti</h2>
-        <div style={{ height: "450px", width: "100%", borderRadius: "15px", overflow: "hidden" }}>
+        <div
+          style={{
+            height: "450px",
+            width: "100%",
+            borderRadius: "15px",
+            overflow: "hidden",
+          }}
+        >
           {userLocation && (
-          <MapContainer center={userLocation} zoom={13} style={{ height: "100%", width: "100%" }}>
-            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                      
-            {/* MARCADO DE USUARIO*/}
-            <Marker position={userLocation} icon={UserIcon}>
-              <Popup>Estás aquí</Popup>
-            </Marker>
+            <MapContainer
+              center={userLocation}
+              zoom={13}
+              style={{ height: "100%", width: "100%" }}
+            >
+              <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
-            {/* USA EventIcon (Rojo) */}
-            {eventos.map((evt) => (
-              <Marker 
-                key={evt._id} 
-                position={[evt.location.coordinates[1], evt.location.coordinates[0]]}
-                icon={EventIcon} 
-                >
-                <Popup>
-                  <strong>{evt.title}</strong><br/>
-                    {evt.direccionExacta}
-                </Popup>
+              {/* MARCADO DE USUARIO*/}
+              <Marker position={userLocation} icon={UserIcon}>
+                <Popup>Estás aquí</Popup>
               </Marker>
-            ))}
 
-            <RecenterMap coords={userLocation} />
-              </MapContainer>
+              {/* USA EventIcon (Rojo) */}
+              {eventos.map((evt) => (
+                <Marker
+                  key={evt._id}
+                  position={[
+                    evt.location.coordinates[1],
+                    evt.location.coordinates[0],
+                  ]}
+                  icon={EventIcon}
+                >
+                  <Popup>
+                    <strong>{evt.title}</strong>
+                    <br />
+                    {evt.direccionExacta}
+                  </Popup>
+                </Marker>
+              ))}
+
+              <RecenterMap coords={userLocation} />
+            </MapContainer>
           )}
         </div>
       </section>
@@ -474,48 +546,68 @@ const Home: React.FC = () => {
       {/* Events Section */}
       <section className="content-section">
         <div className="section-header">
-          <h2 className="section-title">{t("section_events")}</h2> 
+          <h2 className="section-title">{t("section_events")}</h2>
           <button
-              className="add-book-btn"
-              onClick={() => setIsAddEventModalOpen(true)}
-            >
-              + Añadir Evento
-            </button>
-          <button className="see-all" 
-            onClick={() => navigate("/categorias/events")} 
-            style={{ background: "none", border: "none", color: "inherit", 
-                    font: "inherit", cursor: "pointer", textDecoration: "underline" }} 
-          > 
-            {t("see_all")} 
+            className="add-book-btn"
+            onClick={() => setIsAddEventModalOpen(true)}
+          >
+            + Añadir Evento
+          </button>
+          <button
+            className="see-all"
+            onClick={() => navigate("/categorias/events")}
+            style={{
+              background: "none",
+              border: "none",
+              color: "inherit",
+              font: "inherit",
+              cursor: "pointer",
+              textDecoration: "underline",
+            }}
+          >
+            {t("see_all")}
           </button>
         </div>
         <div className="events-grid">
           {eventos.map((event) => (
             <div
-                key={event._id} 
-                className="event-card"
-                onClick={() => navigate(`/eventos/${event._id}`)}
-                style={{ cursor: "pointer" }}
-              >
+              key={event._id}
+              className="event-card"
+              onClick={() => navigate(`/eventos/${event._id}`)}
+              style={{ cursor: "pointer" }}
+            >
               <div className="event-date">
                 <span className="day">
-                  {event.eventDate ? new Date(event.eventDate).getDate() : (event.date ? new Date(event.date).getDate() : "---")}
+                  {event.eventDate
+                    ? new Date(event.eventDate).getDate()
+                    : event.date
+                      ? new Date(event.date).getDate()
+                      : "---"}
                 </span>
                 <span className="month">
-                  {event.eventDate 
-                    ? new Date(event.eventDate).toLocaleString('default', { month: 'short' }) 
-                    : (event.date ? new Date(event.date).toLocaleString('default', { month: 'short' }) : "---")}
+                  {event.eventDate
+                    ? new Date(event.eventDate).toLocaleString("default", {
+                        month: "short",
+                      })
+                    : event.date
+                      ? new Date(event.date).toLocaleString("default", {
+                          month: "short",
+                        })
+                      : "---"}
                 </span>
               </div>
               <div className="event-details">
                 <span className="event-title">{event.title}</span>
-                <span className="event-location">Ubicación: {event.direccionExacta}</span>
+                <span className="event-location">
+                  Ubicación: {event.direccionExacta}
+                </span>
               </div>
             </div>
           ))}
         </div>
       </section>
 
+      {/* Sugeriria ponerlo en un componente a parte para asi dividir mejor las responsabilidades. */}
       {/* Add Book Modal */}
       {isAddBookModalOpen && (
         <div
@@ -540,7 +632,8 @@ const Home: React.FC = () => {
                 id="flexCheckDefault"
                 onChange={(e) => setOnlyISBN(e.target.checked)}
               />
-              <label className="form-check-label">{t("use_open_library")}</label>
+              {/* Open Lirbary no debe estar separado */}
+              <label className="form-check-label">{t("use_openlibrary")}</label>
             </div>
             {onlyISBN ? (
               <div className="add-book-form">
@@ -663,7 +756,20 @@ const Home: React.FC = () => {
                     required
                   />
                 </div>
-
+                <div className="form-group">
+                  <label> Subir Foto</label>
+                  {/* <input
+                    type="file"
+                    src="./"
+                    id="imageSelector"
+                    alt="Subir foto"
+                    onChange={(e) => {
+                      const path = e.target.files![0];
+                      //toast(JSON.stringify(path)); // aqui no aparece
+                      console.log(path);
+                    }}
+                  /> */}
+                </div>
                 <div className="form-group">
                   <label>{t("label_id_data")}</label>
                   <div style={{ display: "flex", gap: "1rem" }}>
@@ -675,7 +781,9 @@ const Home: React.FC = () => {
                         gap: "0.5rem",
                       }}
                     >
-                      <label style={{ fontSize: "0.8rem" }}>{t("label_isbn")}</label>
+                      <label style={{ fontSize: "0.8rem" }}>
+                        {t("label_isbn")}
+                      </label>
                       <input
                         type="text"
                         placeholder="Ej: 978-3-16-148410-0"
@@ -692,7 +800,9 @@ const Home: React.FC = () => {
                         gap: "0.5rem",
                       }}
                     >
-                      <label style={{ fontSize: "0.8rem" }}>{t("label_author")}</label>
+                      <label style={{ fontSize: "0.8rem" }}>
+                        {t("label_author")}
+                      </label>
                       <input
                         type="text"
                         placeholder="Ej: Gabriel García Márquez"
@@ -703,7 +813,6 @@ const Home: React.FC = () => {
                     </div>
                   </div>
                 </div>
-
                 <div className="form-group">
                   <label>Estado del libro</label>
                   <select
@@ -745,67 +854,137 @@ const Home: React.FC = () => {
 
       {/* Add Event Modal */}
       {isAddEventModalOpen && (
-        <div className="modal-overlay" onClick={() => setIsAddEventModalOpen(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px', width: '90%' }}>
+        <div
+          className="modal-overlay"
+          onClick={() => setIsAddEventModalOpen(false)}
+        >
+          <div
+            className="modal-content"
+            onClick={(e) => e.stopPropagation()}
+            style={{ maxWidth: "600px", width: "90%" }}
+          >
             <div className="modal-header">
               <h2>Crear Nuevo Evento</h2>
-              <button className="close-btn" onClick={() => setIsAddEventModalOpen(false)}>×</button>
+              <button
+                className="close-btn"
+                onClick={() => setIsAddEventModalOpen(false)}
+              >
+                ×
+              </button>
             </div>
-            
+
             <form className="add-book-form" onSubmit={handleAddEventSubmit}>
               <div className="form-group">
                 <label>Título del Evento</label>
-                <input type="text" placeholder="Ej: Club de lectura" value={newEventTitle} onChange={(e) => setNewEventTitle(e.target.value)} required />
+                <input
+                  type="text"
+                  placeholder="Ej: Club de lectura"
+                  value={newEventTitle}
+                  onChange={(e) => setNewEventTitle(e.target.value)}
+                  required
+                />
               </div>
-              
+
               <div className="form-group">
                 <label>Descripción</label>
-                <textarea className="auth-input" style={{ width: '100%', minHeight: '60px', padding: '10px', borderRadius: '5px' }} placeholder="¿De qué trata el evento?" value={newEventDescription} onChange={(e) => setNewEventDescription(e.target.value)} required />
+                <textarea
+                  className="auth-input"
+                  style={{
+                    width: "100%",
+                    minHeight: "60px",
+                    padding: "10px",
+                    borderRadius: "5px",
+                  }}
+                  placeholder="¿De qué trata el evento?"
+                  value={newEventDescription}
+                  onChange={(e) => setNewEventDescription(e.target.value)}
+                  required
+                />
               </div>
-              
+
               <div className="form-group">
                 <label>Fecha del Evento</label>
-                <input type="datetime-local" value={newEventDate} onChange={(e) => setNewEventDate(e.target.value)} required />
+                <input
+                  type="datetime-local"
+                  value={newEventDate}
+                  onChange={(e) => setNewEventDate(e.target.value)}
+                  required
+                />
               </div>
-              
+
               <div className="form-group">
                 <label>Dirección Exacta (Texto)</label>
-                <input type="text" placeholder="Ej: Calle Gran Vía, 24, Planta 2" value={newEventDireccionExacta} onChange={(e) => setNewEventDireccionExacta(e.target.value)} required />
+                <input
+                  type="text"
+                  placeholder="Ej: Calle Gran Vía, 24, Planta 2"
+                  value={newEventDireccionExacta}
+                  onChange={(e) => setNewEventDireccionExacta(e.target.value)}
+                  required
+                />
               </div>
 
               {/* SECCIÓN DEL MAPA INTERACTIVO DENTRO DEL MODAL */}
               <div className="form-group">
-                <label style={{ display: 'block', marginBottom: '5px' }}>
-                  Ubicación en el Mapa <span style={{ color: '#e74c3c', fontSize: '0.85rem' }}>(Haz clic en el lugar exacto)</span>
+                <label style={{ display: "block", marginBottom: "5px" }}>
+                  Ubicación en el Mapa{" "}
+                  <span style={{ color: "#e74c3c", fontSize: "0.85rem" }}>
+                    (Haz clic en el lugar exacto)
+                  </span>
                 </label>
-                <div style={{ height: "250px", width: "100%", borderRadius: "8px", overflow: "hidden", border: "1px solid #ccc" }}>
-                  <MapContainer 
-                    center={newEventLocation || userLocation || [41.3851, 2.1734]} 
-                    zoom={14} 
+                <div
+                  style={{
+                    height: "250px",
+                    width: "100%",
+                    borderRadius: "8px",
+                    overflow: "hidden",
+                    border: "1px solid #ccc",
+                  }}
+                >
+                  <MapContainer
+                    center={
+                      newEventLocation || userLocation || [41.3851, 2.1734]
+                    }
+                    zoom={14}
                     style={{ height: "100%", width: "100%" }}
                   >
                     <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                    
+
                     {newEventLocation && (
                       <Marker position={newEventLocation} icon={EventIcon}>
                         <Popup>El evento será aquí</Popup>
                       </Marker>
                     )}
 
-                    <MapClickHandler onMapClick={(lat, lng) => {
-                      setNewEventLocation([lat, lng]);
-                    }} />
+                    <MapClickHandler
+                      onMapClick={(lat, lng) => {
+                        setNewEventLocation([lat, lng]);
+                      }}
+                    />
                   </MapContainer>
                 </div>
                 {newEventLocation && (
-                  <p style={{ fontSize: '0.8rem', color: 'var(--primary)', marginTop: '5px', fontWeight: '500' }}>
-                    Coordenadas: {newEventLocation[0].toFixed(5)}, {newEventLocation[1].toFixed(5)}
+                  <p
+                    style={{
+                      fontSize: "0.8rem",
+                      color: "var(--primary)",
+                      marginTop: "5px",
+                      fontWeight: "500",
+                    }}
+                  >
+                    Coordenadas: {newEventLocation[0].toFixed(5)},{" "}
+                    {newEventLocation[1].toFixed(5)}
                   </p>
                 )}
               </div>
 
-              <button type="submit" className="submit-btn" disabled={!newEventLocation}>
-                {!newEventLocation ? "Selecciona ubicación en el mapa" : "Publicar Evento"}
+              <button
+                type="submit"
+                className="submit-btn"
+                disabled={!newEventLocation}
+              >
+                {!newEventLocation
+                  ? "Selecciona ubicación en el mapa"
+                  : "Publicar Evento"}
               </button>
             </form>
           </div>
@@ -854,7 +1033,7 @@ const Home: React.FC = () => {
           </div>
         </div>
       </footer>
-
+      <ToastContainer />
       <AccessibilityMenu />
     </div>
   );
