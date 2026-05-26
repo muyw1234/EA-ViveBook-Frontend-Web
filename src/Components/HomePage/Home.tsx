@@ -286,8 +286,10 @@ const Home: React.FC = () => {
             </button>
             {user ? (
               <div className="user-profile-badge">
-                <span className="username-display">{user.name}</span>
-                <div className="user-avatar-placeholder"></div>
+                <button onClick={() => navigate("/profile")} className="profile-btn">
+                  <span className="username-display">{user.name}</span>
+                  <div className="user-avatar-placeholder"></div>
+                </button>
               </div>
             ) : (
               <button onClick={() => navigate("/")} className="login-btn">

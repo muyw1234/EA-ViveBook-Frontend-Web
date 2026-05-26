@@ -28,7 +28,6 @@ const getUserByEmail = async (userData: {
         const response = await api.post("/auth/signin", userData);
         const  token  = response.data.data.token;
         if (token) {
-            console.log("Token recibido y guardado:", token);
             localStorage.setItem("token", token);
         } else {
             console.warn("No se recibió el token en la respuesta del backend:", response.data);
