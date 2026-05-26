@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:9000";
+const API_URL = "http://localhost:1337";
 //const API_URL = "https://ea3-api.upc.edu";
 const api = axios.create({
   baseURL: API_URL,
