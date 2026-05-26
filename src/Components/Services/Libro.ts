@@ -2,7 +2,6 @@ import type { AxiosResponse } from "axios";
 import api from "../../api";
 import type {ILibro} from "../../Models/Libro";
 import type { Dispatch, SetStateAction } from "react";
-import type { IPost } from "./Post";
 import { toast } from "react-toastify";
 
 const getAllLibros = async () => {
