@@ -7,20 +7,17 @@ import { toast } from "react-toastify";
 const getAllLibros = async () => {
     try {
         const response = await api.get("/libros");
-        
-        if (response.data && response.data.success) {
-            const apiData = response.data.data;
-            
-            if (apiData && apiData.data && Array.isArray(apiData.data)) {
-                return apiData.data;
-            }
-            
-            if (Array.isArray(apiData)) {
-                return apiData;
-            }
+        const data = response.data;
+
+        if (Array.isArray(data)) {
+            return data;
         }
-        
-        return Array.isArray(response.data) ? response.data : [];
+
+        if (data && Array.isArray(data.data)) {
+            return data.data;
+        }
+
+        return [];
     } catch (error) {
         console.error("Error fetching books:", error);
         throw error;

@@ -42,8 +42,15 @@ const getUserByEmail = async (userData: {
 };
 
 const getProfile = async () => {
-    const response = await api.get("/auth/profile");
-    return (response.data.data || response.data) as Partial<IUsuario>;
+
+  const token = localStorage.getItem("token");
+  const response = await api.get("/auth/profile", {
+    headers: {
+      Authorization: token ? `Bearer ${token}` : "",
+    },
+  });
+
+  return (response.data.data || response.data) as Partial<IUsuario>;
 };
 
 export default {
