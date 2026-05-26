@@ -309,7 +309,7 @@ export default function Profile() {
                   ✏️ Editar Perfil
                 </button>
               )}
-              <button className="logout-profile-btn" onClick={logout}>
+              <button className="edit-profile-btn" onClick={logout}>
                 🚪 Cerrar Sesión
               </button>
             </div>

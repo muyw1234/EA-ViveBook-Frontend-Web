@@ -9,6 +9,7 @@ export interface IEventoData {
     _id?: string; 
     title: string;
     description: string;
+    participant?: string[];
     eventDate: Date;
     createdDate: Date;
     location: IGeoJSONPoint;
@@ -79,9 +80,28 @@ const getEventsAtExactLocation = async (lng: number, lat: number) => {
     }
 };
 
+const participateInEvento = async (eventoId: string, usuarioId: string) => {
+    try {
+        const response = await api.put(`/eventos/${eventoId}/participate`, { usuarioId });
+        
+        if (response.data && response.data.success) {
+            return response.data.data; 
+        }
+        return response.data;
+    } catch (error) {
+        console.error("Error registering participation in evento:", error);
+        throw error;
+    }
+};
+const leaveEvento = async (eventoId: string, usuarioId: string) => {
+  const response = await api.put(`/eventos/${eventoId}/leave`, { usuarioId });
+  return response.data.data; 
+}
 export default {
     createEvento,
     getAllEventos,
     getEventoById,
-    getEventsAtExactLocation
+    getEventsAtExactLocation,
+    participateInEvento,
+    leaveEvento
 };

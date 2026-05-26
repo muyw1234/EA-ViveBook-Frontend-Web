@@ -156,3 +156,103 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* --- Estilos unificados para Botón y Participantes --- */
+
+.event-detail-actions {
+  margin-top: 2rem;
+}
+
+.participate-button {
+  padding: 0.8rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 99px; /* Siguiendo la estética de tus botones nav-link */
+  border: 1px solid var(--primary);
+  background-color: var(--primary);
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: var(--sans);
+}
+
+.participate-button:hover:not(:disabled) {
+  background-color: var(--secondary);
+  border-color: var(--secondary);
+  box-shadow: var(--shadow);
+}
+
+.participate-button:disabled {
+  cursor: not-allowed;
+}
+
+/* Estado cuando ya estás inscrito */
+.participate-button.joined {
+  background-color: var(--accent-bg);
+  color: var(--text-h);
+  border-color: var(--accent);
+}
+
+/* Lista de Participantes */
+.event-detail-participants {
+  margin-top: 2rem;
+  border-top: 1px solid var(--border);
+  padding-top: 1.5rem;
+}
+
+.participants-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.participant-tag {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--surface);
+  padding: 6px 14px;
+  border-radius: 99px;
+  font-size: 0.9rem;
+  color: var(--text);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+.participant-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background-color: var(--primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.no-participants {
+  font-style: italic;
+  color: var(--text);
+  margin-top: 0.5rem;
+}
+
+/* Sección del Mapa Unificada */
+.map-section {
+  margin-top: 2.5rem;
+  border-top: 1px solid var(--border);
+  padding-top: 1.5rem;
+}
+
+.map-wrapper {
+  height: 450px;
+  width: 100%;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
