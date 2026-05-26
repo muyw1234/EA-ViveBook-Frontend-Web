@@ -18,7 +18,7 @@ const Login: React.FC = () => {
         try {
             const data = await UsuarioService.getUserByEmail({ email, password });
             console.log("Login exitoso", data);
-            navigate("/Home"); 
+            navigate("/"); 
         } catch (err: any) {
             setError("Email o contraseña incorrectos");
             console.error(err);

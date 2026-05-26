@@ -8,7 +8,7 @@ import PostService from "../Services/Post";
 import EventoService from "../Services/Evento";
 import "./Home.css";
 import ImageService from "../Services/Image";
-
+import 'leaflet/dist/leaflet.css';
 import AccessibilityMenu from "../Accessibility/AccessibilityMenu";
 import { useTranslation } from "react-i18next";
 
@@ -288,7 +288,7 @@ const Home: React.FC = () => {
                 </button>
               </div>
             ) : (
-              <button onClick={() => navigate("/")} className="login-btn">
+              <button onClick={() => navigate("/login")} className="login-btn">
                 {t("login_btn")}
               </button>
             )}

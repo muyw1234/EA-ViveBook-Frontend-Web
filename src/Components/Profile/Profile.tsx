@@ -303,11 +303,16 @@ export default function Profile() {
         {/* Action Button: Follow or Edit */}
         <div className="profile-header-actions">
           {isMyProfile ? (
-            !isEditing && (
-              <button className="edit-profile-btn" onClick={() => setIsEditing(true)}>
-                ✏️ Editar Perfil
+            <div className="profile-my-actions">
+              {!isEditing && (
+                <button className="edit-profile-btn" onClick={() => setIsEditing(true)}>
+                  ✏️ Editar Perfil
+                </button>
+              )}
+              <button className="logout-profile-btn" onClick={logout}>
+                🚪 Cerrar Sesión
               </button>
-            )
+            </div>
           ) : (
             <button
               className={`follow-profile-btn ${isFollowing ? "following" : ""}`}
