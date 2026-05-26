@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import UsuarioService from "../Services/Usuario";
 import { toast } from "react-toastify";
@@ -32,7 +32,7 @@ export const ProfilePage = () => {
         const fetchProfileData = async () => {
             try {
                 const data = await UsuarioService.getProfile();
-                setProfile(data);
+                setProfile(data as any);
             } catch (error: any) {
                 console.error("Error cargando el perfil:", error);
                 toast.error("No se pudo cargar la información del perfil");
