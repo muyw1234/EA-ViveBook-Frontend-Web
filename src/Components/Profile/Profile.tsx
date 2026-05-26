@@ -52,7 +52,7 @@ export default function Profile() {
       // 1. Get logged-in user profile
       try {
         const profileRes = await api.get("/auth/profile");
-        loggedInUser = profileRes.data;
+        loggedInUser = profileRes.data.data || profileRes.data;
         setCurrentUser(loggedInUser);
       } catch (err) {
         console.error("Error reading current user profile:", err);
@@ -77,7 +77,7 @@ export default function Profile() {
         response = await api.get(`/usuarios/${activeUserId}`);
       }
 
-      const u = response.data;
+      const u = response.data.data || response.data;
       setProfileUser(u);
       setName(u.name);
       setEmail(u.email);

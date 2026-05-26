@@ -8,8 +8,9 @@ const createUser = async (userData: {
 }) => {
     try {
         const response = await api.post("/auth/signup", userData);
-        const  token = response.data;
-        const user = response.data.data; 
+        const resData = response.data.data || response.data;
+        const token = resData.token;
+        const user = resData.user; 
         if (token) {
             localStorage.setItem("token", token);
         }
@@ -26,13 +27,14 @@ const getUserByEmail = async (userData: {
 }) => {
     try {
         const response = await api.post("/auth/signin", userData);
-        const token = response.data.token;
+        const resData = response.data.data || response.data;
+        const token = resData.token;
         if (token) {
             localStorage.setItem("token", token);
         } else {
             console.warn("No se recibió el token en la respuesta del backend:", response.data);
         }
-        return response.data;
+        return resData.user || resData;
     } catch (error) {
         console.error("Error authenticating user:", error);
         throw error;
@@ -41,7 +43,7 @@ const getUserByEmail = async (userData: {
 
 const getProfile = async () => {
     const response = await api.get("/auth/profile");
-    return response.data as Partial<IUsuario>;
+    return (response.data.data || response.data) as Partial<IUsuario>;
 };
 
 export default {

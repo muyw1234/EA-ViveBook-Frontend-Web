@@ -9,24 +9,24 @@ import CategoryPage from "./Components/HomePage/CategoryPage";
 import SearchPage from "./Components/SearchPage/searchPage";
 import MyBooks from "./Components/MyBooks/MyBooks";
 import Profile from "./Components/Profile/Profile";
-import {ProfilePage} from "./Components/ProfilePage/UserProfile";
+import { ProfilePage } from "./Components/ProfilePage/UserProfile";
 
 function App() {
   return (
     <Router>
       <nav className="main-nav">
-        <Link to="/" className="nav-link">Login</Link>
+        <Link to="/" className="nav-link">Home</Link>
         <Link to="/register" className="nav-link">Crear Cuenta</Link>
-        <Link to="/home" className="nav-link">Home</Link>
+        <Link to="/login" className="nav-link">Login</Link>
         <Link to="/my-books" className="nav-link">Mis Libros</Link>
         <Link to="/profile" className="nav-link">Mi Perfil</Link>
         <Link to="/chat" className="nav-link highlight">Chat Global</Link>
       </nav>
 
       <Routes>
-        <Route path="/" element={<Login />} />
+        <Route path="/" element={<Home />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/home" element={<Home />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/chat" element={<ChatGlobal />} />
         <Route path="/my-books" element={<MyBooks />} />
         <Route path="/profile" element={<Profile />} />
@@ -40,6 +40,6 @@ function App() {
       </Routes>
     </Router>
   )
-  
+
 }
 export default App;

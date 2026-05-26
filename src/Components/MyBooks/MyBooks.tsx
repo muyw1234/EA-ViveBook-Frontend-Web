@@ -40,10 +40,11 @@ export default function MyBooks() {
   const fetchMyBooks = async () => {
     try {
       const response = await api.get("/auth/profile");
-      if (response.data) {
-        setUploadedBooks(response.data.libros || []);
-        setBoughtBooks(response.data.boughtLibros || []);
-        setRentedBooks(response.data.rentedLibros || []);
+      const userObj = response.data.data || response.data;
+      if (userObj) {
+        setUploadedBooks(userObj.libros || []);
+        setBoughtBooks(userObj.boughtLibros || []);
+        setRentedBooks(userObj.rentedLibros || []);
       }
     } catch (error: any) {
       console.error("Error fetching my books:", error);

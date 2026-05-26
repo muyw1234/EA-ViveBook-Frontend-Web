@@ -19,6 +19,15 @@ api.interceptors.request.use((config) => {
   return Promise.reject(error);
 });
 
+api.interceptors.response.use((response) => {
+  if (response.data && typeof response.data === "object" && "success" in response.data && "data" in response.data) {
+    response.data = response.data.data;
+  }
+  return response;
+}, (error) => {
+  return Promise.reject(error);
+});
+
 export const cloudinary_api : string = '991611377853644'; // clave publica
 
 export default api;
