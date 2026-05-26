@@ -26,13 +26,13 @@ const getUserByEmail = async (userData: {
 }) => {
     try {
         const response = await api.post("/auth/signin", userData);
-        const  token  = response.data.data.token;
+        const token = response.data.token;
         if (token) {
             localStorage.setItem("token", token);
         } else {
             console.warn("No se recibió el token en la respuesta del backend:", response.data);
         }
-        return response.data.data;
+        return response.data;
     } catch (error) {
         console.error("Error authenticating user:", error);
         throw error;
@@ -41,7 +41,7 @@ const getUserByEmail = async (userData: {
 
 const getProfile = async () => {
     const response = await api.get("/auth/profile");
-    return response.data.data as Partial<IUsuario>;
+    return response.data as Partial<IUsuario>;
 };
 
 export default {
