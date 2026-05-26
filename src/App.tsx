@@ -7,6 +7,8 @@ import ChatGlobal from "./Components/Chat/ChatGlobal";
 import EventoDetail from "./Components/EventoDetail/EventoDetail";
 import CategoryPage from "./Components/HomePage/CategoryPage";
 import SearchPage from "./Components/SearchPage/searchPage";
+import MyBooks from "./Components/MyBooks/MyBooks";
+import Profile from "./Components/Profile/Profile";
 import {ProfilePage} from "./Components/ProfilePage/UserProfile";
 
 function App() {
@@ -16,6 +18,8 @@ function App() {
         <Link to="/" className="nav-link">Login</Link>
         <Link to="/register" className="nav-link">Crear Cuenta</Link>
         <Link to="/home" className="nav-link">Home</Link>
+        <Link to="/my-books" className="nav-link">Mis Libros</Link>
+        <Link to="/profile" className="nav-link">Mi Perfil</Link>
         <Link to="/chat" className="nav-link highlight">Chat Global</Link>
       </nav>
 
@@ -24,12 +28,15 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/home" element={<Home />} />
         <Route path="/chat" element={<ChatGlobal />} />
+        <Route path="/my-books" element={<MyBooks />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/profile/:userId" element={<Profile />} />
+        <Route path="/profile-old" element={<ProfilePage />} />
         <Route path="/libros/:id" element={<BookDetail />} />
         <Route path="/eventos/:id" element={<EventoDetail />} />
         <Route path="/categorias/:type" element={<CategoryPage />} />
         {/* <Route path="/search/:term" element=<SearchPage/> /> // Esto era pasando como parametro */}
         <Route path="/search" element={<SearchPage />} /> {/* Pero aqui lo pasamos como estado en la navegacion*/}
-        <Route path="/profile" element={<ProfilePage />} />
       </Routes>
     </Router>
   )

@@ -69,11 +69,7 @@ const Home: React.FC = () => {
   const { t } = useTranslation();
 
   const [searchQuery, setSearchQuery] = useState(""); // Ya no es necesario
-  const [user, setUser] = useState<{
-    name: string;
-    _id?: string;
-    id?: string;
-  } | null>(null);
+  const [user, setUser] = useState<any | null>(null);
   const [books, setBooks] = useState<any[]>([]);
   const [posts, setPosts] = useState<Partial<IPost>[]>([]);
   const [eventos, setEventos] = useState<any[]>([]);
@@ -355,6 +351,89 @@ const Home: React.FC = () => {
         </div>
       </section>
 
+      {/* Dashboard Section */}
+      {user && (
+        <section className="content-section dashboard-section">
+          <h2 className="section-title">Mi Panel de Control</h2>
+          <div className="dashboard-grid">
+            <div className="dashboard-card" onClick={() => navigate("/categorias/sales")}>
+              <div className="dash-icon">🛍️</div>
+              <h3>Libros en Venta</h3>
+              <p>Explora el catálogo de libros disponibles para compra directa.</p>
+              <span className="dash-action-link">Ver catálogo →</span>
+            </div>
+            
+            <div className="dashboard-card" onClick={() => navigate("/categorias/rentals")}>
+              <div className="dash-icon">🔑</div>
+              <h3>Libros en Alquiler</h3>
+              <p>Encuentra lecturas para alquilar por periodos de tiempo flexibles.</p>
+              <span className="dash-action-link">Explorar alquileres →</span>
+            </div>
+
+            <div className="dashboard-card" onClick={() => setIsAddBookModalOpen(true)}>
+              <div className="dash-icon">➕</div>
+              <h3>Subir Libro</h3>
+              <p>Comparte tus libros con otros usuarios vendiéndolos o alquilándolos.</p>
+              <span className="dash-action-link">Añadir ahora →</span>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Following Section */}
+      {user && (
+        <section className="content-section following-section">
+          <h2 className="section-title">Mi Red & Preferencias</h2>
+          <div className="following-container-box">
+            {(!user.followingUsers?.length && !user.favoriteAuthors?.length && !user.favoriteCategories?.length) ? (
+              <p className="no-following-msg">Aún no sigues a ningún lector ni has añadido favoritos. ¡Ve a tu perfil para configurar tus gustos!</p>
+            ) : (
+              <div className="following-subgrid">
+                {user.followingUsers && user.followingUsers.length > 0 && (
+                  <div className="following-group">
+                    <h3>👥 Lectores que sigues</h3>
+                    <div className="following-list">
+                      {user.followingUsers.map((followedUser: any) => (
+                        <div key={followedUser._id || followedUser} className="followed-user-row">
+                          <span className="followed-user-name">{followedUser.name || "Lector"}</span>
+                          <button 
+                            className="view-followed-btn"
+                            onClick={() => navigate(`/profile/${followedUser._id || followedUser}`)}
+                          >
+                            Ver Perfil
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {user.favoriteAuthors && user.favoriteAuthors.length > 0 && (
+                  <div className="following-group">
+                    <h3>✍️ Autores Favoritos</h3>
+                    <div className="fav-items-list">
+                      {user.favoriteAuthors.map((author: string, idx: number) => (
+                        <span key={idx} className="fav-item-badge author">{author}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {user.favoriteCategories && user.favoriteCategories.length > 0 && (
+                  <div className="following-group">
+                    <h3>🏷️ Géneros Favoritos</h3>
+                    <div className="fav-items-list">
+                      {user.favoriteCategories.map((cat: string, idx: number) => (
+                        <span key={idx} className="fav-item-badge category">{cat}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </section>
+      )}
       {/* Aqui estan los posts */}
       <section className="content-section">
         <div className="section-header">

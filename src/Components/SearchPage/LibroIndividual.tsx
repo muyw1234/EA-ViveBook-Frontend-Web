@@ -1,5 +1,4 @@
-import React from "react";
-import type ILibro from "../../Models/Libro";
+import type { ILibro } from "../../Models/Libro";
 
 /**
  * Una entrada de resultado de libro

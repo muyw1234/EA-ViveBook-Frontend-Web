@@ -1,0 +1,489 @@
+/* --- MyBooks.css --- */
+.mybooks-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 2rem 4% 4rem;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  text-align: left;
+}
+
+.mybooks-loading {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 50vh;
+  gap: 1rem;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid var(--outline);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.mybooks-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mybooks-icon {
+  font-size: 3rem;
+  align-self: flex-start;
+}
+
+.mybooks-header h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin: 0;
+  color: var(--text-h);
+}
+
+.mybooks-header p {
+  color: var(--text);
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+/* Tabs */
+.mybooks-tabs {
+  display: flex;
+  gap: 1rem;
+  border-bottom: 2px solid var(--outline);
+  padding-bottom: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text);
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  border-radius: 8px 8px 0 0;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.tab-btn:hover {
+  color: var(--primary);
+  background-color: var(--accent-bg);
+}
+
+.tab-btn.active {
+  color: var(--primary);
+}
+
+.tab-btn.active::after {
+  content: "";
+  position: absolute;
+  bottom: -0.6rem;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background-color: var(--primary);
+  border-radius: 99px;
+}
+
+/* Empty State */
+.empty-books-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  background: var(--surface);
+  border-radius: 1rem;
+  border: 1px solid var(--outline);
+  box-shadow: var(--shadow);
+  text-align: center;
+  gap: 1rem;
+}
+
+.empty-emoji {
+  font-size: 3.5rem;
+}
+
+.empty-books-card h3 {
+  margin: 0;
+  color: var(--text-h);
+  font-size: 1.5rem;
+}
+
+.empty-books-card p {
+  color: var(--text);
+  margin: 0 0 1rem;
+  max-width: 400px;
+}
+
+.tab-action-btn {
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 99px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(209, 131, 186, 0.3);
+  transition: all 0.3s ease;
+}
+
+.tab-action-btn:hover {
+  background-color: var(--secondary);
+  transform: translateY(-2px);
+}
+
+/* Grid Layout */
+.mybooks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2rem;
+}
+
+.mybooks-card {
+  background: var(--surface);
+  border: 1px solid var(--outline);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1.25rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.mybooks-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(61, 26, 60, 0.1);
+}
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.book-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 0.3rem 0.8rem;
+  border-radius: 99px;
+  background-color: var(--accent-bg);
+  color: var(--primary);
+  border: 1px solid var(--accent-border);
+}
+
+.book-badge[data-type="ALQUILER"] {
+  background-color: #e0f2fe;
+  color: #0369a1;
+  border: 1px solid rgba(3, 105, 161, 0.2);
+}
+
+.book-price {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--text-h);
+}
+
+.card-mid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.book-title {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-h);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.book-meta {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.book-state {
+  font-weight: 600;
+  text-transform: capitalize;
+  color: var(--primary);
+}
+
+.book-owner-tag {
+  font-size: 0.85rem;
+  color: #7c727a;
+  background-color: #fcf6fa;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  display: inline-block;
+  margin: 0.4rem 0 0;
+  align-self: flex-start;
+  border: 1px solid rgba(209, 131, 186, 0.1);
+}
+
+/* Actions in Card */
+.card-bottom-actions {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.action-edit-btn,
+.action-rate-btn {
+  width: 100%;
+  padding: 0.8rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.action-edit-btn {
+  background: none;
+  border: 1px solid var(--outline);
+  color: var(--primary);
+}
+
+.action-edit-btn:hover {
+  background: var(--accent-bg);
+  border-color: var(--primary);
+}
+
+.action-rate-btn {
+  background-color: #f59e0b;
+  color: white;
+  border: none;
+}
+
+.action-rate-btn:hover {
+  background-color: #d97706;
+  box-shadow: 0 4px 10px rgba(217, 119, 6, 0.2);
+}
+
+/* Rental Status Box */
+.rental-status-box {
+  background-color: #FAF6FA;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border: 1px solid var(--outline);
+}
+
+.rental-dates {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.rental-progress-bg {
+  width: 100%;
+  height: 6px;
+  background-color: var(--outline);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.rental-progress-bar {
+  height: 100%;
+  background-color: var(--primary);
+  border-radius: 99px;
+  transition: width 0.3s ease;
+}
+
+.rental-status-text {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-h);
+}
+
+/* Pagination */
+.mybooks-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+  margin-top: 3rem;
+}
+
+.pag-btn {
+  background: var(--surface);
+  border: 1px solid var(--outline);
+  color: var(--text);
+  padding: 0.5rem 1.25rem;
+  border-radius: 99px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.pag-btn:hover:not(:disabled) {
+  border-color: var(--primary);
+  color: var(--primary);
+  background-color: var(--accent-bg);
+}
+
+.pag-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pag-info {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+/* Modales */
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  text-align: left;
+}
+
+.modal-form textarea {
+  padding: 0.8rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--outline);
+  background: var(--bg);
+  color: var(--text-h);
+  font-family: inherit;
+  font-size: 0.95rem;
+  resize: vertical;
+}
+
+.modal-actions-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1.5rem;
+  gap: 1rem;
+}
+
+.modal-actions-row.justify-end {
+  justify-content: flex-end;
+}
+
+.modal-delete-btn {
+  background: none;
+  border: 1px solid #fca5a5;
+  color: var(--error);
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.modal-delete-btn:hover {
+  background-color: #fee2e2;
+  border-color: var(--error);
+}
+
+.right-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.modal-cancel-btn {
+  background: none;
+  border: 1px solid var(--outline);
+  color: var(--text);
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.modal-cancel-btn:hover {
+  background-color: #f1f5f9;
+}
+
+.modal-save-btn,
+.modal-submit-rating-btn {
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.modal-save-btn:hover {
+  background-color: var(--secondary);
+}
+
+.modal-submit-rating-btn {
+  background-color: #f59e0b;
+}
+
+.modal-submit-rating-btn:hover {
+  background-color: #d97706;
+}
+
+/* Rating Panel in Modal */
+.rating-subtitle {
+  color: var(--text);
+  font-size: 1rem;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.stars-rating-container {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+.star-select-btn {
+  background: none;
+  border: none;
+  font-size: 2.5rem;
+  cursor: pointer;
+  color: #e2e8f0;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.star-select-btn.selected {
+  color: #f59e0b;
+}
+
+.star-select-btn:hover {
+  transform: scale(1.15);
+}
