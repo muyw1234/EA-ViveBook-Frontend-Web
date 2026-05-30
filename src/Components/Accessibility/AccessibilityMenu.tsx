@@ -1,13 +1,12 @@
-import { useState, useEffect, useRef } from 'react';
-import ThemeToggle from './ThemeToggle/ThemeToggle';
-import LanguageSelector from './LanguageSelector/LanguageSelector';
+import { useState, useEffect, useRef } from "react";
+import ThemeToggle from "./ThemeToggle/ThemeToggle";
+import LanguageSelector from "./LanguageSelector/LanguageSelector";
 import "./AccessibilityMenu.css";
 
 import { useTranslation } from "react-i18next";
-
+import FontSize from "./FontSize/FontSize";
 
 export default function AccessibilityMenu() {
-  
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -18,20 +17,20 @@ export default function AccessibilityMenu() {
         setIsOpen(false);
       }
     }
-    
+
     function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') {
+      if (event.key === "Escape") {
         setIsOpen(false);
       }
     }
 
     if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      document.addEventListener('keydown', handleKeyDown);
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("keydown", handleKeyDown);
     }
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
     };
   }, [isOpen]);
 
@@ -50,10 +49,22 @@ export default function AccessibilityMenu() {
 
       {/* Accessible Dropdown Panel */}
       {isOpen && (
-        <div className="a11y-panel" role="dialog" aria-label="Accessibility Menu">
+        <div
+          className="a11y-panel"
+          role="dialog"
+          aria-label="Accessibility Menu"
+        >
           <h3>{t("accessibility_settings")}</h3>
           <hr />
-          
+
+          <div className="a11y-option">
+            <label>
+              Font Size
+            </label>
+            <br />
+            <FontSize/>
+          </div>
+
           <div className="a11y-option">
             <label>{t("contrast")}:</label>
             <ThemeToggle />
@@ -62,7 +73,6 @@ export default function AccessibilityMenu() {
           <div className="a11y-option">
             <LanguageSelector />
           </div>
-          
         </div>
       )}
     </div>
