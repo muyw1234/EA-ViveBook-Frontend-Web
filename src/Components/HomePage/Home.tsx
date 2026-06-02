@@ -12,6 +12,8 @@ import "leaflet/dist/leaflet.css";
 import AccessibilityMenu from "../Accessibility/AccessibilityMenu";
 import { useTranslation } from "react-i18next";
 
+import { solicitarPermisosYObtenerToken, escucharNotificacionesActivas } from "../Services/NotificacionService";
+
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 
 import L from "leaflet";
@@ -112,19 +114,28 @@ const Home: React.FC = () => {
           setUserLocation([latitude, longitude]);
         },
         () => {
-          console.log(
-            "Acceso a ubicación denegado. Usando Barcelona por defecto.",
-          );
+          console.log("Acceso a ubicación denegado. Usando Barcelona por defecto.");
           setUserLocation([41.3851, 2.1734]);
-        },
+        }
       );
     }
+
     const fetchData = async () => {
       try {
         const userData = await UsuarioService.getProfile();
         setUser(userData);
 
+        if (userData) {
+          try {
+            await solicitarPermisosYObtenerToken();
+            escucharNotificacionesActivas();
+          } catch (fcmError) {
+            console.error("Firebase no pudo inicializarse:", fcmError);
+          }
+        }
+
         PostService.readAllPosts(setPosts);
+        
         const booksData = await LibroService.getAllLibros();
         const processedBooks = booksData.map((b: any, index: number) => ({
           ...b,
@@ -136,7 +147,7 @@ const Home: React.FC = () => {
         setEventos(eventosData);
       } catch (error) {
         console.error("Error fetching data:", error);
-        if ((error as any).response?.type === 401) {
+        if ((error as any).response?.status === 401) {
           navigate("/");
         }
       } finally {
@@ -145,6 +156,7 @@ const Home: React.FC = () => {
     };
 
     fetchData();
+    
   }, []);
 
   const handleAddBookSubmit = async (e: React.FormEvent) => {
@@ -171,6 +183,7 @@ const Home: React.FC = () => {
               authors: [newBookAuthor],
             }
           : {
+              ...newBookResponse,  
               _id: Date.now().toString(),
               title: newBookTitle,
               authors: [newBookAuthor],
@@ -180,7 +193,7 @@ const Home: React.FC = () => {
 
       setBooks((prev) => [...prev, addedBook]);
 
-      alert("Libro añadido con éxito");
+      toast.success(`📚 ¡"${newBookTitle}" añadido con éxito!`);
       setIsAddBookModalOpen(false);
 
       setNewBookTitle("");
@@ -189,21 +202,19 @@ const Home: React.FC = () => {
       setNewBookPrice("");
     } catch (error) {
       console.error("Error submitting book:", error);
-      alert(
-        "Error al añadir el libro. Revisa la consola del navegador y del backend.",
-      );
+      toast.error("Error al añadir el libro. Revisa la consola.");
     }
   };
 
   const handleAddEventSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !user._id) {
-      alert("Debes estar autenticado para crear un evento.");
+      toast.warn("Debes estar autenticado para crear un evento.");
       return;
     }
 
     if (!newEventLocation) {
-      alert("Por favor, selecciona una ubicación haciendo clic en el mapa.");
+      toast.warn("Por favor, selecciona una ubicación haciendo clic en el mapa.");
       return;
     }
 
@@ -216,10 +227,7 @@ const Home: React.FC = () => {
         createdDate: new Date(),
         location: {
           type: "Point" as const,
-          coordinates: [newEventLocation[1], newEventLocation[0]] as [
-            number,
-            number,
-          ],
+          coordinates: [newEventLocation[1], newEventLocation[0]] as [number, number],
         },
         direccionExacta: newEventDireccionExacta,
       };
@@ -231,7 +239,7 @@ const Home: React.FC = () => {
         newEventResponse || { ...eventData, _id: Date.now().toString() },
       ]);
 
-      alert("¡Evento creado con éxito!");
+      toast.success("¡Evento creado con éxito! 🎉");
       setIsAddEventModalOpen(false);
 
       setNewEventTitle("");
@@ -241,7 +249,7 @@ const Home: React.FC = () => {
       setNewEventLocation(null);
     } catch (error) {
       console.error("Error submitting event:", error);
-      alert("Error al añadir el evento.");
+      toast.error("Error al añadir el evento.");
     }
   };
 

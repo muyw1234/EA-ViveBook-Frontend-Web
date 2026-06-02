@@ -1,4 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import Login from "./Components/InitialPage/Login";
 import Register from "./Components/InitialPage/Register";
 import Home from "./Components/HomePage/Home";
@@ -23,6 +26,19 @@ function App() {
         <Link to="/chat" className="nav-link highlight">Chat Global</Link>
       </nav>
 
+      <ToastContainer 
+        position="top-right" 
+        autoClose={5000} 
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored" 
+      />
+
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/register" element={<Register />} />
@@ -35,11 +51,10 @@ function App() {
         <Route path="/libros/:id" element={<BookDetail />} />
         <Route path="/eventos/:id" element={<EventoDetail />} />
         <Route path="/categorias/:type" element={<CategoryPage />} />
-        {/* <Route path="/search/:term" element=<SearchPage/> /> // Esto era pasando como parametro */}
-        <Route path="/search" element={<SearchPage />} /> {/* Pero aqui lo pasamos como estado en la navegacion*/}
+        <Route path="/search" element={<SearchPage />} />
       </Routes>
     </Router>
   )
-
 }
+
 export default App;
