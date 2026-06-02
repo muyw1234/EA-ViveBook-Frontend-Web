@@ -27,7 +27,7 @@ export default function Profile() {
 
   // Favorites state
   const [favoriteAuthors, setFavoriteAuthors] = useState<string[]>([]);
-  const [favoriteBooks, setFavoriteBooks] = useState<string[]>([]);
+  const [favoriteBooks, setFavoriteBooks] = useState<any[]>([]);
   const [favoriteCategories, setFavoriteCategories] = useState<string[]>([]);
   
   const [newAuthor, setNewAuthor] = useState("");
@@ -131,7 +131,9 @@ export default function Profile() {
         email,
         description,
         favoriteAuthors,
-        favoriteBooks,
+        favoriteBooks: favoriteBooks
+          .map((b: any) => (typeof b === "object" && b !== null ? b._id : b))
+          .filter((id: any) => typeof id === "string" && /^[0-9a-fA-F]{24}$/.test(id)),
         favoriteCategories
       };
 
@@ -393,29 +395,26 @@ export default function Profile() {
               </div>
 
               <div className="form-group">
-                <label>Libros Favoritos (Máx 5)</label>
-                <div className="input-with-btn">
-                  <input
-                    type="text"
-                    placeholder="Añadir un libro..."
-                    value={newBook}
-                    onChange={(e) => setNewBook(e.target.value)}
-                  />
-                  <button type="button" onClick={handleAddBook}>+</button>
-                </div>
+                <label>Libros Favoritos (Gestionables desde el detalle del libro)</label>
+                <p className="favorites-helper-text" style={{ fontSize: "0.85rem", color: "var(--text)", opacity: 0.8, margin: "0 0 0.5rem 0" }}>
+                  Añade libros a tus favoritos visitando la página de detalles de cada libro. Puedes eliminar favoritos actuales pulsando en la "×" a continuación.
+                </p>
                 <div className="chips-row">
-                  {favoriteBooks.map((book, index) => (
-                    <span key={`book-${index}`} className="tag-chip">
-                      {book}
-                      <button
-                        type="button"
-                        className="chip-remove"
-                        onClick={() => setFavoriteBooks(favoriteBooks.filter((_, i) => i !== index))}
-                      >
-                        ×
-                      </button>
-                    </span>
-                  ))}
+                  {favoriteBooks.map((book, index) => {
+                    const bookTitle = typeof book === "object" && book !== null ? book.title : book;
+                    return (
+                      <span key={`book-${index}`} className="tag-chip static favorite-chip">
+                        ⭐ {bookTitle}
+                        <button
+                          type="button"
+                          className="chip-remove"
+                          onClick={() => setFavoriteBooks(favoriteBooks.filter((_, i) => i !== index))}
+                        >
+                          ×
+                        </button>
+                      </span>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -523,7 +522,23 @@ export default function Profile() {
                   {Array.isArray(profileUser.favoriteBooks) && profileUser.favoriteBooks.length > 0 && (
                     <div className="fav-subset">
                       <span className="fav-label">📚 Libros favoritos</span>
-                      <p className="fav-value">{profileUser.favoriteBooks.join(", ")}</p>
+                      <div className="chips-row" style={{ marginTop: "0.5rem" }}>
+                        {profileUser.favoriteBooks.map((book: any) => {
+                          const bookTitle = typeof book === "object" && book !== null ? book.title : "Libro";
+                          const bookId = typeof book === "object" && book !== null ? book._id : book;
+                          return (
+                            <span
+                              key={bookId}
+                              className="tag-chip static favorite-chip"
+                              onClick={() => navigate(`/libros/${bookId}`)}
+                              style={{ cursor: "pointer" }}
+                              title="Haga clic para ver el detalle del libro"
+                            >
+                              ⭐ {bookTitle}
+                            </span>
+                          );
+                        })}
+                      </div>
                     </div>
                   )}
 
@@ -541,6 +556,33 @@ export default function Profile() {
               ) : (
                 <p className="no-favs-yet">Este lector aún no ha seleccionado favoritos.</p>
               )}
+
+              {/* Wishlist Section */}
+              <hr />
+              <div className="details-section">
+                <h3>Lista de Deseos</h3>
+                {Array.isArray(profileUser.wishlist) && profileUser.wishlist.length > 0 ? (
+                  <div className="chips-row">
+                    {profileUser.wishlist.map((book: any) => {
+                      const bookTitle = typeof book === "object" ? book.title : "Libro";
+                      const bookId = typeof book === "object" ? book._id : book;
+                      return (
+                        <span
+                          key={bookId}
+                          className="tag-chip static wishlist-chip"
+                          onClick={() => navigate(`/libros/${bookId}`)}
+                          style={{ cursor: "pointer" }}
+                          title="Haga clic para ver el detalle del libro"
+                        >
+                          📖 {bookTitle}
+                        </span>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="no-favs-yet">No hay libros en la lista de deseos.</p>
+                )}
+              </div>
             </div>
           )}
         </div>

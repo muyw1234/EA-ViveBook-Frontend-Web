@@ -487,3 +487,53 @@
 .star-select-btn:hover {
   transform: scale(1.15);
 }
+
+/* Wishlist Actions style */
+.wishlist-actions {
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.action-view-btn {
+  flex: 2;
+  padding: 0.8rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  background-color: var(--primary);
+  color: white;
+  border: none;
+}
+
+.action-view-btn:hover {
+  background-color: var(--secondary);
+}
+
+.action-remove-wishlist-btn {
+  flex: 1;
+  padding: 0.8rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  background: none;
+  border: 1px solid #fca5a5;
+  color: var(--error);
+}
+
+.action-remove-wishlist-btn:hover {
+  background-color: #fee2e2;
+  border-color: var(--error);
+}

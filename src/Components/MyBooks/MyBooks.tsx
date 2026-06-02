@@ -8,12 +8,17 @@ import "./MyBooks.css";
 export default function MyBooks() {
   const navigate = useNavigate();
   
-  const [uploadedBooks, setUploadedBooks] = useState<any[]>([]);
-  const [boughtBooks, setBoughtBooks] = useState<any[]>([]);
-  const [rentedBooks, setRentedBooks] = useState<any[]>([]);
+  const [books, setBooks] = useState<any[]>([]);
+  const [counts, setCounts] = useState<{
+    uploaded: number;
+    bought: number;
+    rented: number;
+    wishlist: number;
+  }>({ uploaded: 0, bought: 0, rented: 0, wishlist: 0 });
   const [loading, setLoading] = useState(true);
-  const [category, setCategory] = useState("uploaded"); // 'uploaded', 'bought', 'rented'
+  const [category, setCategory] = useState("uploaded"); // 'uploaded', 'bought', 'rented', 'wishlist'
   const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const ITEMS_PER_PAGE = 6;
 
   // Edit Modal State
@@ -33,18 +38,26 @@ export default function MyBooks() {
   const [targetBook, setTargetBook] = useState<any>(null);
   const [submittingRating, setSubmittingRating] = useState(false);
 
-  useEffect(() => {
-    setPage(1);
-  }, [category]);
-
   const fetchMyBooks = async () => {
     try {
-      const response = await api.get("/auth/profile");
-      const userObj = response.data.data || response.data;
-      if (userObj) {
-        setUploadedBooks(userObj.libros || []);
-        setBoughtBooks(userObj.boughtLibros || []);
-        setRentedBooks(userObj.rentedLibros || []);
+      setLoading(true);
+      const response = await api.get("/auth/profile/libros", {
+        params: {
+          category,
+          page,
+          limit: ITEMS_PER_PAGE
+        }
+      });
+      const resData = response.data.data || response.data;
+      if (resData) {
+        setBooks(resData.libros || []);
+        const newTotalPages = resData.totalPages || 1;
+        setTotalPages(newTotalPages);
+        setCounts(resData.counts || { uploaded: 0, bought: 0, rented: 0, wishlist: 0 });
+        
+        if (page > newTotalPages && newTotalPages > 0) {
+          setPage(newTotalPages);
+        }
       }
     } catch (error: any) {
       console.error("Error fetching my books:", error);
@@ -54,6 +67,25 @@ export default function MyBooks() {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    setPage(1);
+  }, [category]);
+
+  useEffect(() => {
+    fetchMyBooks();
+  }, [category, page]);
+
+  const handleRemoveFromWishlist = async (bookId: string) => {
+    try {
+      await api.post(`/usuarios/wishlist/${bookId}`);
+      toast.success("Libro eliminado de la lista de deseos");
+      fetchMyBooks();
+    } catch (error) {
+      console.error("Error removing from wishlist:", error);
+      toast.error("No se pudo eliminar el libro de la lista de deseos");
     }
   };
 
@@ -162,12 +194,7 @@ export default function MyBooks() {
     }
   };
 
-  const getBooksByCategory = () => {
-    if (category === "uploaded") return uploadedBooks;
-    if (category === "bought") return boughtBooks;
-    if (category === "rented") return rentedBooks;
-    return [];
-  };
+
 
   const renderRentalStatus = (book: any) => {
     if (!book.rentalStartDate || !book.rentalEndDate) return null;
@@ -208,10 +235,6 @@ export default function MyBooks() {
     );
   };
 
-  const currentBooks = getBooksByCategory();
-  const totalPages = Math.ceil(currentBooks.length / ITEMS_PER_PAGE);
-  const paginatedBooks = currentBooks.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
-
   if (loading) {
     return (
       <div className="mybooks-loading">
@@ -234,37 +257,57 @@ export default function MyBooks() {
           className={`tab-btn ${category === "uploaded" ? "active" : ""}`}
           onClick={() => setCategory("uploaded")}
         >
-          📤 Subidos ({uploadedBooks.length})
+          📤 Subidos ({counts.uploaded})
         </button>
         <button
           className={`tab-btn ${category === "bought" ? "active" : ""}`}
           onClick={() => setCategory("bought")}
         >
-          🛍️ Comprados ({boughtBooks.length})
+          🛍️ Comprados ({counts.bought})
         </button>
         <button
           className={`tab-btn ${category === "rented" ? "active" : ""}`}
           onClick={() => setCategory("rented")}
         >
-          🔑 Alquilados ({rentedBooks.length})
+          🔑 Alquilados ({counts.rented})
+        </button>
+        <button
+          className={`tab-btn ${category === "wishlist" ? "active" : ""}`}
+          onClick={() => setCategory("wishlist")}
+        >
+          ❤️ Lista de Deseos ({counts.wishlist})
         </button>
       </div>
 
-      {currentBooks.length === 0 ? (
+      {books.length === 0 ? (
         <div className="empty-books-card">
-          <span className="empty-emoji">📖</span>
-          <h3>No hay libros en esta categoría</h3>
-          <p>Explora ViveBook para encontrar y alquilar o comprar tu próxima lectura.</p>
-          {category === "uploaded" && (
+          <span className="empty-emoji">
+            {category === "wishlist" ? "💖" : "📖"}
+          </span>
+          <h3>
+            {category === "wishlist" 
+              ? "Tu lista de deseos está vacía" 
+              : "No hay libros en esta categoría"}
+          </h3>
+          <p>
+            {category === "wishlist"
+              ? "Navega por la tienda y añade los libros que te gustaría leer a tu lista de deseos."
+              : "Explora ViveBook para encontrar y alquilar o comprar tu próxima lectura."}
+          </p>
+          {category === "uploaded" ? (
             <button className="tab-action-btn" onClick={() => navigate("/home")}>
               Subir mi primer libro
             </button>
-          )}
+          ) : category === "wishlist" ? (
+            <button className="tab-action-btn" onClick={() => navigate("/home")}>
+              Explorar Libros
+            </button>
+          ) : null}
         </div>
       ) : (
         <>
           <div className="mybooks-grid">
-            {paginatedBooks.map((book) => (
+            {books.map((book) => (
               <div key={book._id} className="mybooks-card">
                 <div className="card-top">
                   <div className="book-badge" data-type={book.type}>
@@ -289,6 +332,15 @@ export default function MyBooks() {
                     <button className="action-edit-btn" onClick={() => handleEditPress(book)}>
                       ✏️ Editar o Borrar
                     </button>
+                  ) : category === "wishlist" ? (
+                    <div className="wishlist-actions">
+                      <button className="action-view-btn" onClick={() => navigate(`/libros/${book._id}`)}>
+                        👁️ Ver Detalle
+                      </button>
+                      <button className="action-remove-wishlist-btn" onClick={() => handleRemoveFromWishlist(book._id)}>
+                        💔 Quitar
+                      </button>
+                    </div>
                   ) : (
                     <button className="action-rate-btn" onClick={() => handleRateSeller(book)}>
                       ⭐ Valorar Vendedor

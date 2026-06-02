@@ -148,3 +148,110 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* --- Wishlist Button --- */
+.book-detail-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.wishlist-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-h);
+  padding: 0.65rem 1.4rem;
+  border-radius: 99px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow);
+}
+
+.wishlist-toggle-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background-color: var(--accent-bg);
+  transform: translateY(-1px);
+}
+
+.wishlist-toggle-btn.active {
+  background-color: var(--accent-bg);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.wishlist-toggle-btn.active:hover {
+  background-color: #fee2e2;
+  border-color: var(--error);
+  color: var(--error);
+}
+
+.wishlist-toggle-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.heart-icon {
+  font-size: 1.1rem;
+  transition: transform 0.2s ease;
+}
+
+.wishlist-toggle-btn:hover .heart-icon {
+  transform: scale(1.15);
+}
+
+/* --- Favorites Button --- */
+.favorite-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-h);
+  padding: 0.65rem 1.4rem;
+  border-radius: 99px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow);
+}
+
+.favorite-toggle-btn:hover {
+  border-color: #f59e0b;
+  color: #d97706;
+  background-color: #fef3c7;
+  transform: translateY(-1px);
+}
+
+.favorite-toggle-btn.active {
+  background-color: #fef3c7;
+  border-color: #f59e0b;
+  color: #d97706;
+}
+
+.favorite-toggle-btn.active:hover {
+  background-color: #fee2e2;
+  border-color: var(--error);
+  color: var(--error);
+}
+
+.favorite-toggle-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.star-icon {
+  font-size: 1.15rem;
+  transition: transform 0.2s ease;
+}
+
+.favorite-toggle-btn:hover .star-icon {
+  transform: scale(1.15);
+}
