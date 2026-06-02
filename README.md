@@ -1,5 +1,27 @@
 # React + TypeScript + Vite
 
+## Minimo 2
+
+En este minimo se ha continuado el desarrollo del frontend web de ViveBook, integrando la parte visual de la aplicacion con los servicios disponibles en el backend. El proyecto esta construido con React, TypeScript y Vite, y utiliza `axios` para centralizar las llamadas HTTP contra la API configurada en `src/api.ts`.
+
+El cambio principal incorporado en esta fase ha sido la creacion de una nueva seccion de IA accesible desde el menu superior mediante la pestaña `IA`. Esta pestaña abre un chatbox propio, implementado en `src/Components/AIChatBox`, que permite al usuario escribir una consulta en lenguaje natural para pedir recomendaciones de libros. El componente llama al endpoint del backend `POST /recomendaciones`, enviando la consulta como `query` junto con un limite de resultados, y muestra la respuesta generada por el servicio de IA.
+
+Tambien se ha creado un servicio frontend especifico en `src/Components/Services/Recomendacion.ts` para encapsular las llamadas al backend relacionadas con recomendaciones. De esta forma, el componente de interfaz no depende directamente de los detalles de `axios` ni de la ruta exacta del endpoint.
+
+Actualmente el proyecto se encuentra en un estado funcional para desarrollo local. La aplicacion compila correctamente con:
+
+```bash
+npm run build
+```
+
+Para ejecutar el frontend en local se puede usar:
+
+```bash
+npm run dev
+```
+
+El frontend espera que el backend este disponible en `http://localhost:1337`, tal como esta definido en `src/api.ts`. Para que la pestaña `IA` funcione completamente, el backend debe estar levantado y el servicio de recomendaciones debe tener acceso al servicio de IA configurado previamente.
+
 # Comandos
 Crear nuevo proyecto con Vite con última versión: npm create vite@latest
 

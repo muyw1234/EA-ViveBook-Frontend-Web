@@ -7,23 +7,76 @@
 
 ---
 
-## Entrada 1 [11:05]
+## Entrada 1 [12:28]
 
 **Pregunta**  
-Adaptar text per a que el readme quedi més elegant.
+Registrar cada consulta en el fichero AI_LOG.md siguiendo el formato ya existente.
 
 **Prompt**
 
 ```text
-Tengo el siguiente txt en el que se especifican las decisiones tomadas a la hora de llevar a cabo un proyecto de programación. Corrigelo, espacialo y adaptalo para que quede elegante y entregable en un contexto universitario:
+Cada vez que te haga una consulta, quiero que añadas una nueva entrada al fichero AI_LOG.md siguiendo la estructura especificada.
 
-Per fer més senzilla qualsevol incorporación dintre del backend he anat seguint l'evolució natural d'una sol·licitud en arribar al meu sistema pero en sentit contrari. És a dir, després de crear el nou model amb el seu pertinent esquema, he seguit els seguents pasos sequencialment: 1. Service: Creació d'un nou service per a que el nou model pugui accedir a la base de dades. 2. Controller: Creació del controlador pertinent que gestioni les peticions HTTP i faci la crida al service. 3. Middleware: En aquest cas simplemente el JOI, on s'han especificat els criteris de verifiació seguint l'esquema dels apartats anteriors. 4. Routes: Creació del nou endpoint ja propiament dit amb la seva ruta per fer les peticions CRUD per HTTP.
+Tiene que incluir:
+Entrada X (hora a la que se efectua la pregunta)
+
+Pregunta: Resumen de que quiero preguntar.
+
+Promt: Promt exacto que he introducido.
+
+Incoherencias y Solución dejalo solo idicado.
+
+Sige el mismo especificado del que ya existe.
 ```
 
 **Incoherències**
 
-- Cap, m'ha semblat que la veersió proporcionada era correcte.
+- Funciona bastante bien.
 
 **Solució**
 
-- No ha fet falta.
+- Funciona, lo que a veces he tenido que cambiar el orden. Luego se ha tenido que especificar los apartados de incoherecnias y soluciones manualmente.
+
+---
+
+## Entrada 3 [12:35]
+
+**Pregunta**  
+Implementar una nueva pestaña en el menú superior para abrir un chatbox frontend conectado al servicio de IA del backend.
+
+**Prompt**
+
+```text
+Ahora en esta app web vamos a implementar un servicio frontend estilo chatbox para hacer llamadas al servicio de IA implementado anteriormente en el backend. Puedes encontrar el backend en este ordenador en la siguiente direccion C:\UPC\Curso QP2526\EA\Minimos\Minimo 2\EA-ViveBook-Backend. Adicionalmente puedes encontrar que se ha estado haciendo en el codex de dicho repositorio. Me gustaria hacer una nueva pestaña en el menu de la parte superior que abra directamente esto, que deberia hacer?
+```
+
+**Incoherències**
+
+- Me ha especificado exactamente que ficheros tenia que crear teniendo en cuenta lo que ya estaba creado.
+
+**Solució**
+
+- Para llevarlo a cabo he copiado lo que habia esencialmente en la carpeta de chat global y he ido modificando para alinearlo a lo que pedia este ejercicio.
+
+---
+
+## Entrada 3 [12:48]
+
+**Pregunta**  
+Añadir en el README una sección titulada Minimo 2 explicando qué se ha hecho y el estado actual del proyecto.
+
+**Prompt**
+
+```text
+Añade una seccion en el readme con el titulo de Minimo 2 que explice que se ha hecho y en que estado se encuentra actualmente el proyecto.
+```
+
+**Incoherències**
+
+- Lo ha redactado bien.
+
+**Solució**
+
+- Nada.
+
+---
