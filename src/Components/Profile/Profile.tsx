@@ -4,6 +4,8 @@ import api from "../../api";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./Profile.css";
+import RetoService from "../Services/Reto";
+import { calculateUserLevel, type UserLevelInfo } from "../../utils/levelHelper";
 
 export default function Profile() {
   const { userId } = useParams();
@@ -18,6 +20,7 @@ export default function Profile() {
   const [description, setDescription] = useState("");
   const [updating, setUpdating] = useState(false);
   const [isMyProfile, setIsMyProfile] = useState(true);
+  const [userLevel, setUserLevel] = useState<UserLevelInfo | null>(null);
   const [reviews, setReviews] = useState<any[]>([]);
   const [stats, setStats] = useState({ averageRating: 0, totalReviews: 0 });
   const [followers, setFollowers] = useState<any[]>([]);
@@ -73,8 +76,16 @@ export default function Profile() {
       let response;
       if (myProfile) {
         response = { data: loggedInUser };
+        try {
+          const retosRes = await RetoService.getMisRetos();
+          const computedLevel = calculateUserLevel(retosRes);
+          setUserLevel(computedLevel);
+        } catch (err) {
+          console.error("Error fetching user retos for profile:", err);
+        }
       } else {
         response = await api.get(`/usuarios/${activeUserId}`);
+        setUserLevel(null);
       }
 
       const u = response.data.data || response.data;
@@ -295,6 +306,14 @@ export default function Profile() {
                   {"★".repeat(Math.max(0, Math.round(stats.averageRating)))}{"☆".repeat(Math.max(0, 5 - Math.round(stats.averageRating)))} {stats.averageRating}
                 </span>
                 <span className="stat-label">({stats.totalReviews} Valoraciones)</span>
+              </div>
+            )}
+            {isMyProfile && userLevel && (
+              <div className="stat-box level-badge-box">
+                <span className="stat-num">
+                  {userLevel.medal || "❔"} {userLevel.levelName}
+                </span>
+                <span className="stat-label">Nivel ({userLevel.completedCount} / {userLevel.totalCount} Retos)</span>
               </div>
             )}
           </div>

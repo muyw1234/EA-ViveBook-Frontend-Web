@@ -578,3 +578,9 @@
 .text-center {
   text-align: center;
 }
+
+/* User Level Badge Box */
+.level-badge-box .stat-num {
+  color: var(--primary);
+}
+

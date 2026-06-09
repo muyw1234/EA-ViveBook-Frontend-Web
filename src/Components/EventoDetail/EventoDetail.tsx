@@ -126,6 +126,11 @@ const EventDetail: React.FC = () => {
   }, [id]);
 
   const handleParticipate = async () => {
+    if (!localStorage.getItem("token")) {
+      toast.warn("Inicia sesión para usar esta función");
+      navigate("/login");
+      return;
+    }
     if (!event || !event._id) return;
     
     setJoining(true);
@@ -142,6 +147,11 @@ const EventDetail: React.FC = () => {
   };
 
   const handleLeave = async () => {
+    if (!localStorage.getItem("token")) {
+      toast.warn("Inicia sesión para usar esta función");
+      navigate("/login");
+      return;
+    }
     if (!event || !event._id) return;
     
     setJoining(true);

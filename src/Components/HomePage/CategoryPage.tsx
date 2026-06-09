@@ -66,9 +66,15 @@ const CategoryPage: React.FC = () => {
                                 style={{ cursor: "pointer" }}
                             >
                                 <div className="event-date">
-                                    <span className="day">{new Date(event.date).getDate()}</span>
+                                    <span className="day">
+                                        {event.eventDate || event.date 
+                                            ? new Date(event.eventDate || event.date).getDate() 
+                                            : "---"}
+                                    </span>
                                     <span className="month">
-                                        {new Date(event.date).toLocaleString('default', { month: 'short' })}
+                                        {event.eventDate || event.date 
+                                            ? new Date(event.eventDate || event.date).toLocaleString('default', { month: 'short' }) 
+                                            : "---"}
                                     </span>
                                 </div>
                                 <div className="event-details">

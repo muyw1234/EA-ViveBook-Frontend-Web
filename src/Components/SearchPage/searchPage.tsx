@@ -1,9 +1,9 @@
-import React, { useEffect, useState, type JSX } from "react";
+import { useEffect, useState, type JSX } from "react";
 import type ILibro from "../../Models/Libro";
 import LibroIndividual from "./LibroIndividual";
 import Libro from "../Services/Libro";
 import { useLocation } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 
 // export interface Props {
 //   resultado: ILibro[];
