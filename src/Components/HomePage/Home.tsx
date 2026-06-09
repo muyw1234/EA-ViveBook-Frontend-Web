@@ -104,6 +104,15 @@ const Home: React.FC = () => {
 
   const navigate = useNavigate();
 
+  const checkAuthAndOpen = (openModalSetter: React.Dispatch<React.SetStateAction<boolean>>) => {
+    if (!localStorage.getItem("token")) {
+      toast.warn("Inicia sesión para usar esta función");
+      navigate("/login");
+    } else {
+      openModalSetter(true);
+    }
+  };
+
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -120,25 +129,43 @@ const Home: React.FC = () => {
       );
     }
     const fetchData = async () => {
+      const token = localStorage.getItem("token");
       try {
-        const userData = await UsuarioService.getProfile();
-        setUser(userData);
-
-        PostService.readAllPosts(setPosts);
-        const booksData = await LibroService.getAllLibros();
-        const processedBooks = booksData.map((b: any, index: number) => ({
-          ...b,
-          type: b.type || (index % 2 === 0 ? "VENTA" : "ALQUILER"),
-        }));
-        setBooks(processedBooks);
-
-        const eventosData = await EventoService.getAllEventos();
-        setEventos(eventosData);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        if ((error as any).response?.type === 401) {
-          navigate("/");
+        if (token) {
+          try {
+            const userData = await UsuarioService.getProfile();
+            setUser(userData);
+          } catch (err) {
+            console.error("Error fetching user profile:", err);
+            localStorage.removeItem("token");
+          }
         }
+
+        try {
+          PostService.readAllPosts(setPosts);
+        } catch (postErr) {
+          console.error("Error fetching posts:", postErr);
+        }
+
+        try {
+          const booksData = await LibroService.getAllLibros();
+          const processedBooks = booksData.map((b: any, index: number) => ({
+            ...b,
+            type: b.type || (index % 2 === 0 ? "VENTA" : "ALQUILER"),
+          }));
+          setBooks(processedBooks);
+        } catch (bookErr) {
+          console.error("Error fetching books:", bookErr);
+        }
+
+        try {
+          const eventosData = await EventoService.getAllEventos();
+          setEventos(eventosData);
+        } catch (eventErr) {
+          console.error("Error fetching events:", eventErr);
+        }
+      } catch (error) {
+        console.error("General error in Home fetchData:", error);
       } finally {
         setLoading(false);
       }
@@ -277,7 +304,7 @@ const Home: React.FC = () => {
           <div className="user-info-nav">
             <button
               className="add-book-btn"
-              onClick={() => setIsAddBookModalOpen(true)}
+              onClick={() => checkAuthAndOpen(setIsAddBookModalOpen)}
             >
               + Añadir Libro
             </button>
@@ -504,7 +531,7 @@ const Home: React.FC = () => {
               </div>
             ))
           ) : (
-            <p className="no-data-msg">{t("no_rentals_available")}</p>
+            <p className="no-data-msg">{t("no_posts_available", "No hay publicaciones disponibles")}</p>
           )}
         </div>
       </section>
@@ -675,7 +702,7 @@ const Home: React.FC = () => {
           <h2 className="section-title">{t("section_events")}</h2>
           <button
             className="add-book-btn"
-            onClick={() => setIsAddEventModalOpen(true)}
+            onClick={() => checkAuthAndOpen(setIsAddEventModalOpen)}
           >
             + Añadir Evento
           </button>
