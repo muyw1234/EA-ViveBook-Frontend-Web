@@ -18,7 +18,7 @@ api.interceptors.request.use((config) => {
 }, (error) => {
   return Promise.reject(error);
 });
-
+ // como una matrioska
 api.interceptors.response.use((response) => {
   if (response.data && typeof response.data === "object" && "success" in response.data && "data" in response.data) {
     response.data = response.data.data;

@@ -1,8 +1,9 @@
 import type { AxiosResponse } from "axios";
 import api from "../../api";
-import type { ILibro } from "../../Models/Libro";
+import type ILibro from "../../Models/Libro";
 import type { Dispatch, SetStateAction } from "react";
 import { toast } from "react-toastify";
+import type Result from "../../Models/Result";
 
 const getAllLibros = async () => {
     try {
@@ -79,11 +80,11 @@ const addLibroListing = async (bookData: {
 
 async function searchLibro(
     term: string, 
-    setter: Dispatch<SetStateAction<Partial<ILibro>[]>>, 
+    /* setter: Dispatch<SetStateAction<Partial<ILibro>[]>>,  */
     page: number = 1, 
     limit: number = 10
 ) {
-    api.get('/libros/search', { params: { term, page, limit } })
+    /* api.get('/libros/search', { params: { term, page, limit } })
         .then((res: AxiosResponse<any>) => {
             // ? No lo compliques, el componente ya se da cuenta de que el array esta vacio
             // if (res.data && res.data.success) {
@@ -91,13 +92,15 @@ async function searchLibro(
             // } else {
             //     setter(Array.isArray(res.data) ? res.data : []);
             // } 
-            toast.success(`${res.data.data} items has been found.`)
-            setter(res.data.data);
+            console.log(`${JSON.stringify(res.data)} items has been found.`)
+                setter(res.data!);
         })
         .catch((error) => {
             const errorMsg = error.response?.data?.message || "Error en la búsqueda";
             toast.error(errorMsg);
-        });
+        }); */
+
+        return await api.get('/libros/search', { params: { term, page, limit } });
 }
 
 export default {
