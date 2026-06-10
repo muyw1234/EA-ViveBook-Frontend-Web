@@ -20,7 +20,9 @@
   font-size: 24px;
   cursor: pointer;
   box-shadow: var(--shadow);
-  transition: transform 0.2s ease, background-color 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease;
 }
 
 .a11y-trigger-btn:hover {

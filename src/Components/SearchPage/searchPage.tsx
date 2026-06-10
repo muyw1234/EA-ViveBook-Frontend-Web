@@ -1,9 +1,9 @@
-import { useEffect, useState, type JSX } from "react";
-import type ILibro from "../../Models/Libro";
-import LibroIndividual from "./LibroIndividual";
-import Libro from "../Services/Libro";
-import { useLocation } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
+import { useEffect, useState, type JSX } from 'react';
+import type ILibro from '../../Models/Libro';
+import LibroIndividual from './LibroIndividual';
+import Libro from '../Services/Libro';
+import { useLocation } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
 
 // export interface Props {
 //   resultado: ILibro[];
@@ -18,17 +18,19 @@ export default function SearchPage(/*props: Props*/) {
   // const params = useParams();
   const location = useLocation();
   /* let buffer: JSX.Element[] = []; */
-  
 
   useEffect(() => {
     async function fetchData() {
       const data = await Libro.searchLibro(location.state.term as string);
-      if(data.data.length !== 0) setBuffer(data.data.map((res : Partial<ILibro>) => {
-        console.log(`Rendering: ${JSON.stringify(res)}`);
-        return <LibroIndividual libro={res} />;
-      })); 
+      if (data.data.length !== 0)
+        setBuffer(
+          data.data.map((res: Partial<ILibro>) => {
+            console.log(`Rendering: ${JSON.stringify(res)}`);
+            return <LibroIndividual libro={res} />;
+          }),
+        );
     }
-    fetchData(); 
+    fetchData();
   }, []);
 
   return (

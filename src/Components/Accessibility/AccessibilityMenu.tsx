@@ -1,13 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import ThemeToggle from './ThemeToggle/ThemeToggle';
 import LanguageSelector from './LanguageSelector/LanguageSelector';
-import "./AccessibilityMenu.css";
+import './AccessibilityMenu.css';
 
-import { useTranslation } from "react-i18next";
-
+import { useTranslation } from 'react-i18next';
 
 export default function AccessibilityMenu() {
-  
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -18,7 +16,7 @@ export default function AccessibilityMenu() {
         setIsOpen(false);
       }
     }
-    
+
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === 'Escape') {
         setIsOpen(false);
@@ -51,18 +49,17 @@ export default function AccessibilityMenu() {
       {/* Accessible Dropdown Panel */}
       {isOpen && (
         <div className="a11y-panel" role="dialog" aria-label="Accessibility Menu">
-          <h3>{t("accessibility_settings")}</h3>
+          <h3>{t('accessibility_settings')}</h3>
           <hr />
-          
+
           <div className="a11y-option">
-            <label>{t("contrast")}:</label>
+            <label>{t('contrast')}:</label>
             <ThemeToggle />
           </div>
 
           <div className="a11y-option">
             <LanguageSelector />
           </div>
-          
         </div>
       )}
     </div>

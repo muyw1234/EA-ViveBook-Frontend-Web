@@ -29,7 +29,9 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .mybooks-header {
@@ -88,7 +90,7 @@
 }
 
 .tab-btn.active::after {
-  content: "";
+  content: '';
   position: absolute;
   bottom: -0.6rem;
   left: 0;
@@ -164,7 +166,9 @@
   flex-direction: column;
   justify-content: space-between;
   gap: 1.25rem;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .mybooks-card:hover {
@@ -189,7 +193,7 @@
   border: 1px solid var(--accent-border);
 }
 
-.book-badge[data-type="ALQUILER"] {
+.book-badge[data-type='ALQUILER'] {
   background-color: #e0f2fe;
   color: #0369a1;
   border: 1px solid rgba(3, 105, 161, 0.2);
@@ -290,7 +294,7 @@
 
 /* Rental Status Box */
 .rental-status-box {
-  background-color: #FAF6FA;
+  background-color: #faf6fa;
   padding: 1rem;
   border-radius: 0.5rem;
   display: flex;
@@ -477,7 +481,9 @@
   font-size: 2.5rem;
   cursor: pointer;
   color: #e2e8f0;
-  transition: transform 0.2s ease, color 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    color 0.2s ease;
 }
 
 .star-select-btn.selected {

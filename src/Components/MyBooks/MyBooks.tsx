@@ -1,35 +1,35 @@
-import React, { useState, useEffect } from "react";
-import api from "../../api";
-import { useNavigate } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import "./MyBooks.css";
+import React, { useState, useEffect } from 'react';
+import api from '../../api';
+import { useNavigate } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import './MyBooks.css';
 
 export default function MyBooks() {
   const navigate = useNavigate();
-  
+
   const [uploadedBooks, setUploadedBooks] = useState<any[]>([]);
   const [boughtBooks, setBoughtBooks] = useState<any[]>([]);
   const [rentedBooks, setRentedBooks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [category, setCategory] = useState("uploaded"); // 'uploaded', 'bought', 'rented'
+  const [category, setCategory] = useState('uploaded'); // 'uploaded', 'bought', 'rented'
   const [page, setPage] = useState(1);
   const ITEMS_PER_PAGE = 6;
 
   // Edit Modal State
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingBook, setEditingBook] = useState<any>(null);
-  const [editTitle, setEditTitle] = useState("");
-  const [editAutor, setEditAutor] = useState("");
-  const [editIsbn, setEditIsbn] = useState("");
-  const [editPrice, setEditPrice] = useState("");
-  const [editState, setEditState] = useState("");
+  const [editTitle, setEditTitle] = useState('');
+  const [editAutor, setEditAutor] = useState('');
+  const [editIsbn, setEditIsbn] = useState('');
+  const [editPrice, setEditPrice] = useState('');
+  const [editState, setEditState] = useState('');
   const [updating, setUpdating] = useState(false);
 
   // Rating Modal State
   const [ratingModalOpen, setRatingModalOpen] = useState(false);
   const [ratingValue, setRatingValue] = useState(5);
-  const [ratingComment, setRatingComment] = useState("");
+  const [ratingComment, setRatingComment] = useState('');
   const [targetBook, setTargetBook] = useState<any>(null);
   const [submittingRating, setSubmittingRating] = useState(false);
 
@@ -39,7 +39,7 @@ export default function MyBooks() {
 
   const fetchMyBooks = async () => {
     try {
-      const response = await api.get("/auth/profile");
+      const response = await api.get('/auth/profile');
       const userObj = response.data.data || response.data;
       if (userObj) {
         setUploadedBooks(userObj.libros || []);
@@ -47,10 +47,10 @@ export default function MyBooks() {
         setRentedBooks(userObj.rentedLibros || []);
       }
     } catch (error: any) {
-      console.error("Error fetching my books:", error);
-      toast.error("Error al cargar tus libros");
+      console.error('Error fetching my books:', error);
+      toast.error('Error al cargar tus libros');
       if (error.response?.status === 401) {
-        navigate("/");
+        navigate('/');
       }
     } finally {
       setLoading(false);
@@ -64,10 +64,10 @@ export default function MyBooks() {
   const handleEditPress = (book: any) => {
     setEditingBook(book);
     setEditTitle(book.title);
-    setEditAutor(book.authors?.join(", ") || book.autor || "");
+    setEditAutor(book.authors?.join(', ') || book.autor || '');
     setEditIsbn(book.isbn);
     setEditPrice(book.precio.toString());
-    setEditState(book.estado || "buen_estado");
+    setEditState(book.estado || 'buen_estado');
     setEditModalOpen(true);
   };
 
@@ -75,19 +75,21 @@ export default function MyBooks() {
     setUpdating(true);
     try {
       await api.delete(`/libros/${editingBook._id}`);
-      toast.success("Libro eliminado correctamente");
+      toast.success('Libro eliminado correctamente');
       setEditModalOpen(false);
       fetchMyBooks();
     } catch (error) {
-      console.error("Error deleting book:", error);
-      toast.error("No se pudo eliminar el libro");
+      console.error('Error deleting book:', error);
+      toast.error('No se pudo eliminar el libro');
     } finally {
       setUpdating(false);
     }
   };
 
   const handleDeleteBook = () => {
-    if (window.confirm("¿Seguro que quieres eliminar este libro? Esta acción no se puede deshacer.")) {
+    if (
+      window.confirm('¿Seguro que quieres eliminar este libro? Esta acción no se puede deshacer.')
+    ) {
       performDelete();
     }
   };
@@ -95,7 +97,7 @@ export default function MyBooks() {
   const handleUpdateBook = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editTitle || !editIsbn || !editPrice || !editState) {
-      toast.warn("Por favor, rellena todos los campos obligatorios");
+      toast.warn('Por favor, rellena todos los campos obligatorios');
       return;
     }
 
@@ -107,14 +109,14 @@ export default function MyBooks() {
         isbn: editIsbn,
         precio: parseFloat(editPrice),
         estado: editState,
-        type: editingBook.type
+        type: editingBook.type,
       });
-      toast.success("Libro actualizado con éxito");
+      toast.success('Libro actualizado con éxito');
       setEditModalOpen(false);
       fetchMyBooks();
     } catch (error) {
-      console.error("Error updating book:", error);
-      toast.error("Error al actualizar el libro");
+      console.error('Error updating book:', error);
+      toast.error('Error al actualizar el libro');
     } finally {
       setUpdating(false);
     }
@@ -123,7 +125,7 @@ export default function MyBooks() {
   const handleRateSeller = (book: any) => {
     setTargetBook(book);
     setRatingValue(5);
-    setRatingComment("");
+    setRatingComment('');
     setRatingModalOpen(true);
   };
 
@@ -131,9 +133,9 @@ export default function MyBooks() {
     e.preventDefault();
     if (!targetBook) return;
 
-    const ownerId = typeof targetBook.owner === "object" ? targetBook.owner._id : targetBook.owner;
+    const ownerId = typeof targetBook.owner === 'object' ? targetBook.owner._id : targetBook.owner;
     if (!ownerId) {
-      toast.error("No se pudo identificar al vendedor");
+      toast.error('No se pudo identificar al vendedor');
       return;
     }
 
@@ -144,17 +146,17 @@ export default function MyBooks() {
         libro: targetBook._id,
         tipoOperacion: targetBook.type,
         puntuacion: ratingValue,
-        comentario: ratingComment
+        comentario: ratingComment,
       };
 
-      await api.post("/valoraciones", payload);
-      toast.success("¡Valoración publicada correctamente!");
+      await api.post('/valoraciones', payload);
+      toast.success('¡Valoración publicada correctamente!');
       setRatingModalOpen(false);
     } catch (error: any) {
-      console.error("Error submitting rating:", error);
-      let msg = error.response?.data?.message || error.message || "Error al enviar la valoración";
-      if (msg.includes("11000") || msg.toLowerCase().includes("duplicate")) {
-        msg = "Ya has valorado a este usuario por este libro.";
+      console.error('Error submitting rating:', error);
+      let msg = error.response?.data?.message || error.message || 'Error al enviar la valoración';
+      if (msg.includes('11000') || msg.toLowerCase().includes('duplicate')) {
+        msg = 'Ya has valorado a este usuario por este libro.';
       }
       toast.error(msg);
     } finally {
@@ -163,9 +165,9 @@ export default function MyBooks() {
   };
 
   const getBooksByCategory = () => {
-    if (category === "uploaded") return uploadedBooks;
-    if (category === "bought") return boughtBooks;
-    if (category === "rented") return rentedBooks;
+    if (category === 'uploaded') return uploadedBooks;
+    if (category === 'bought') return boughtBooks;
+    if (category === 'rented') return rentedBooks;
     return [];
   };
 
@@ -177,14 +179,14 @@ export default function MyBooks() {
     const now = Date.now();
 
     let progress = 0;
-    let statusText = "";
+    let statusText = '';
 
     if (now < start) {
       progress = 0;
-      statusText = "El alquiler todavía no ha empezado";
+      statusText = 'El alquiler todavía no ha empezado';
     } else if (now > end) {
       progress = 100;
-      statusText = "Alquiler finalizado";
+      statusText = 'Alquiler finalizado';
     } else {
       const total = end - start;
       const elapsed = now - start;
@@ -231,20 +233,20 @@ export default function MyBooks() {
 
       <div className="mybooks-tabs">
         <button
-          className={`tab-btn ${category === "uploaded" ? "active" : ""}`}
-          onClick={() => setCategory("uploaded")}
+          className={`tab-btn ${category === 'uploaded' ? 'active' : ''}`}
+          onClick={() => setCategory('uploaded')}
         >
           📤 Subidos ({uploadedBooks.length})
         </button>
         <button
-          className={`tab-btn ${category === "bought" ? "active" : ""}`}
-          onClick={() => setCategory("bought")}
+          className={`tab-btn ${category === 'bought' ? 'active' : ''}`}
+          onClick={() => setCategory('bought')}
         >
           🛍️ Comprados ({boughtBooks.length})
         </button>
         <button
-          className={`tab-btn ${category === "rented" ? "active" : ""}`}
-          onClick={() => setCategory("rented")}
+          className={`tab-btn ${category === 'rented' ? 'active' : ''}`}
+          onClick={() => setCategory('rented')}
         >
           🔑 Alquilados ({rentedBooks.length})
         </button>
@@ -255,8 +257,8 @@ export default function MyBooks() {
           <span className="empty-emoji">📖</span>
           <h3>No hay libros en esta categoría</h3>
           <p>Explora ViveBook para encontrar y alquilar o comprar tu próxima lectura.</p>
-          {category === "uploaded" && (
-            <button className="tab-action-btn" onClick={() => navigate("/home")}>
+          {category === 'uploaded' && (
+            <button className="tab-action-btn" onClick={() => navigate('/home')}>
               Subir mi primer libro
             </button>
           )}
@@ -273,19 +275,25 @@ export default function MyBooks() {
                   <div className="book-price">{book.precio}€</div>
                 </div>
                 <div className="card-mid">
-                  <h3 className="book-title" title={book.title}>{book.title}</h3>
-                  <p className="book-meta">✍️ {book.authors?.join(", ") || book.autor || "Autor Desconocido"}</p>
+                  <h3 className="book-title" title={book.title}>
+                    {book.title}
+                  </h3>
+                  <p className="book-meta">
+                    ✍️ {book.authors?.join(', ') || book.autor || 'Autor Desconocido'}
+                  </p>
                   <p className="book-meta">🏷️ ISBN: {book.isbn}</p>
-                  <p className="book-meta">✨ Estado: <span className="book-state">{book.estado || "Normal"}</span></p>
-                  {(category === "bought" || category === "rented") && book.owner && (
+                  <p className="book-meta">
+                    ✨ Estado: <span className="book-state">{book.estado || 'Normal'}</span>
+                  </p>
+                  {(category === 'bought' || category === 'rented') && book.owner && (
                     <p className="book-owner-tag">👤 Vendedor: {book.owner.name}</p>
                   )}
                 </div>
 
-                {category === "rented" && renderRentalStatus(book)}
+                {category === 'rented' && renderRentalStatus(book)}
 
                 <div className="card-bottom-actions">
-                  {category === "uploaded" ? (
+                  {category === 'uploaded' ? (
                     <button className="action-edit-btn" onClick={() => handleEditPress(book)}>
                       ✏️ Editar o Borrar
                     </button>
@@ -329,7 +337,9 @@ export default function MyBooks() {
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h2>Editar Libro</h2>
-              <button className="close-btn" onClick={() => setEditModalOpen(false)}>×</button>
+              <button className="close-btn" onClick={() => setEditModalOpen(false)}>
+                ×
+              </button>
             </div>
             <form onSubmit={handleUpdateBook} className="modal-form">
               <div className="form-group">
@@ -372,11 +382,7 @@ export default function MyBooks() {
               </div>
               <div className="form-group">
                 <label>Estado del libro</label>
-                <select
-                  value={editState}
-                  onChange={(e) => setEditState(e.target.value)}
-                  required
-                >
+                <select value={editState} onChange={(e) => setEditState(e.target.value)} required>
                   <option value="nuevo">Nuevo</option>
                   <option value="como_nuevo">Como nuevo</option>
                   <option value="buen_estado">Buen estado</option>
@@ -402,12 +408,8 @@ export default function MyBooks() {
                   >
                     Cancelar
                   </button>
-                  <button
-                    type="submit"
-                    className="modal-save-btn"
-                    disabled={updating}
-                  >
-                    {updating ? "Guardando..." : "Guardar cambios"}
+                  <button type="submit" className="modal-save-btn" disabled={updating}>
+                    {updating ? 'Guardando...' : 'Guardar cambios'}
                   </button>
                 </div>
               </div>
@@ -422,11 +424,14 @@ export default function MyBooks() {
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h2>Valorar Vendedor</h2>
-              <button className="close-btn" onClick={() => setRatingModalOpen(false)}>×</button>
+              <button className="close-btn" onClick={() => setRatingModalOpen(false)}>
+                ×
+              </button>
             </div>
             <form onSubmit={submitRating} className="modal-form">
               <p className="rating-subtitle">
-                ¿Qué tal fue tu experiencia con <strong>{targetBook.owner?.name}</strong> por el libro <strong>{targetBook.title}</strong>?
+                ¿Qué tal fue tu experiencia con <strong>{targetBook.owner?.name}</strong> por el
+                libro <strong>{targetBook.title}</strong>?
               </p>
 
               <div className="stars-rating-container">
@@ -434,7 +439,7 @@ export default function MyBooks() {
                   <button
                     key={star}
                     type="button"
-                    className={`star-select-btn ${star <= ratingValue ? "selected" : ""}`}
+                    className={`star-select-btn ${star <= ratingValue ? 'selected' : ''}`}
                     onClick={() => setRatingValue(star)}
                   >
                     ★
@@ -466,7 +471,7 @@ export default function MyBooks() {
                   className="modal-submit-rating-btn"
                   disabled={submittingRating}
                 >
-                  {submittingRating ? "Publicando..." : "Publicar valoración"}
+                  {submittingRating ? 'Publicando...' : 'Publicar valoración'}
                 </button>
               </div>
             </form>

@@ -16,7 +16,7 @@ export default function ThemeToggle() {
   }, [highContrast]);
 
   return (
-    <button 
+    <button
       onClick={() => setHighContrast(!highContrast)}
       aria-pressed={highContrast}
       style={{ padding: '8px 12px', cursor: 'pointer' }}

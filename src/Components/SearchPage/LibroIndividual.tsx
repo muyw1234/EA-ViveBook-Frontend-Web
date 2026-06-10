@@ -1,5 +1,5 @@
-import type { JSX } from "react";
-import type ILibro from "../../Models/Libro";
+import type { JSX } from 'react';
+import type ILibro from '../../Models/Libro';
 
 /**
  * Una entrada de resultado de libro
@@ -13,13 +13,7 @@ export default function LibroIndividual(props: Props) {
   //#region Conditional rendering
   let imagen: JSX.Element = <div className="card-img-top">No hay imagen.</div>;
   if (props.libro.imageUrl)
-    imagen = (
-      <img
-        className="card-img-top"
-        src={props.libro.imageUrl}
-        alt="Card image"
-      />
-    );
+    imagen = <img className="card-img-top" src={props.libro.imageUrl} alt="Card image" />;
   //#endregion
 
   return (
@@ -37,15 +31,10 @@ export default function LibroIndividual(props: Props) {
       {imagen}
       <div className="card-body">
         <p className="card-text">
-          Isbn: {props.libro.isbn}, Precio: {props.libro.precio}€{" "}
-          {/*Seria interesante poner otras monedas, no?*/}, Estado:{" "}
-          {props.libro.estado}
+          Isbn: {props.libro.isbn}, Precio: {props.libro.precio}€{' '}
+          {/*Seria interesante poner otras monedas, no?*/}, Estado: {props.libro.estado}
         </p>
-        <a
-          href="#"
-          className="btn-primary"
-          onClick={() => console.log("Hello world!")}
-        >
+        <a href="#" className="btn-primary" onClick={() => console.log('Hello world!')}>
           Detalles
         </a>
       </div>

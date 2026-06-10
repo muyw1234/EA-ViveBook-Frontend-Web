@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import api from "../../api";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import "./Profile.css";
-import RetoService from "../Services/Reto";
-import { calculateUserLevel, type UserLevelInfo } from "../../utils/levelHelper";
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import api from '../../api';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import './Profile.css';
+import RetoService from '../Services/Reto';
+import { calculateUserLevel, type UserLevelInfo } from '../../utils/levelHelper';
 
 export default function Profile() {
   const { userId } = useParams();
@@ -15,16 +15,16 @@ export default function Profile() {
   const [profileUser, setProfileUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [description, setDescription] = useState("");
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [description, setDescription] = useState('');
   const [updating, setUpdating] = useState(false);
   const [isMyProfile, setIsMyProfile] = useState(true);
   const [userLevel, setUserLevel] = useState<UserLevelInfo | null>(null);
   const [reviews, setReviews] = useState<any[]>([]);
   const [stats, setStats] = useState({ averageRating: 0, totalReviews: 0 });
   const [followers, setFollowers] = useState<any[]>([]);
-  
+
   // Follow/following state for viewing another user
   const [isFollowing, setIsFollowing] = useState(false);
 
@@ -32,39 +32,48 @@ export default function Profile() {
   const [favoriteAuthors, setFavoriteAuthors] = useState<string[]>([]);
   const [favoriteBooks, setFavoriteBooks] = useState<string[]>([]);
   const [favoriteCategories, setFavoriteCategories] = useState<string[]>([]);
-  
-  const [newAuthor, setNewAuthor] = useState("");
-  const [newBook, setNewBook] = useState("");
+
+  const [newAuthor, setNewAuthor] = useState('');
+  const [newBook, setNewBook] = useState('');
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
 
   // Delete Modal State
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [deleteStep, setDeleteStep] = useState<"menu" | "confirm_soft" | "confirm_perm">("menu");
+  const [deleteStep, setDeleteStep] = useState<'menu' | 'confirm_soft' | 'confirm_perm'>('menu');
   const [deleting, setDeleting] = useState(false);
 
   const ALL_CATEGORIES = [
-    "Terror", "Misterio", "Aventura", "Juvenil", "Policíaco",
-    "Infantil", "Autoayuda", "Novela", "Biografías", "Cómics", "Otros"
+    'Terror',
+    'Misterio',
+    'Aventura',
+    'Juvenil',
+    'Policíaco',
+    'Infantil',
+    'Autoayuda',
+    'Novela',
+    'Biografías',
+    'Cómics',
+    'Otros',
   ];
 
   const fetchProfile = async () => {
     setLoading(true);
     try {
       let loggedInUser: any = null;
-      
+
       // 1. Get logged-in user profile
       try {
-        const profileRes = await api.get("/auth/profile");
+        const profileRes = await api.get('/auth/profile');
         loggedInUser = profileRes.data.data || profileRes.data;
         setCurrentUser(loggedInUser);
       } catch (err) {
-        console.error("Error reading current user profile:", err);
+        console.error('Error reading current user profile:', err);
       }
 
       const activeUserId = userId || loggedInUser?._id;
       if (!activeUserId) {
-        toast.error("No se ha podido identificar el perfil a mostrar");
-        navigate("/");
+        toast.error('No se ha podido identificar el perfil a mostrar');
+        navigate('/');
         return;
       }
 
@@ -81,7 +90,7 @@ export default function Profile() {
           const computedLevel = calculateUserLevel(retosRes);
           setUserLevel(computedLevel);
         } catch (err) {
-          console.error("Error fetching user retos for profile:", err);
+          console.error('Error fetching user retos for profile:', err);
         }
       } else {
         response = await api.get(`/usuarios/${activeUserId}`);
@@ -92,7 +101,7 @@ export default function Profile() {
       setProfileUser(u);
       setName(u.name);
       setEmail(u.email);
-      setDescription(u.description || "");
+      setDescription(u.description || '');
       setFavoriteAuthors(Array.isArray(u.favoriteAuthors) ? u.favoriteAuthors : []);
       setFavoriteBooks(Array.isArray(u.favoriteBooks) ? u.favoriteBooks : []);
       setFavoriteCategories(Array.isArray(u.favoriteCategories) ? u.favoriteCategories : []);
@@ -101,7 +110,7 @@ export default function Profile() {
       if (activeUserId && activeUserId.length === 24) {
         const [reviewsRes, followersRes] = await Promise.all([
           api.get(`/valoraciones/received/${activeUserId}`),
-          api.get(`/usuarios/${activeUserId}/followers`)
+          api.get(`/usuarios/${activeUserId}/followers`),
         ]);
         setReviews(Array.isArray(reviewsRes.data.valoraciones) ? reviewsRes.data.valoraciones : []);
         setStats(reviewsRes.data.stats || { averageRating: 0, totalReviews: 0 });
@@ -115,10 +124,9 @@ export default function Profile() {
           : [];
         setIsFollowing(followingList.includes(activeUserId));
       }
-
     } catch (error: any) {
-      console.error("Error fetching profile:", error);
-      toast.error("Error al cargar la información del perfil");
+      console.error('Error fetching profile:', error);
+      toast.error('Error al cargar la información del perfil');
     } finally {
       setLoading(false);
     }
@@ -131,7 +139,7 @@ export default function Profile() {
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !email) {
-      toast.warn("El nombre y el correo electrónico son obligatorios");
+      toast.warn('El nombre y el correo electrónico son obligatorios');
       return;
     }
 
@@ -143,19 +151,19 @@ export default function Profile() {
         description,
         favoriteAuthors,
         favoriteBooks,
-        favoriteCategories
+        favoriteCategories,
       };
 
       const response = await api.put(`/usuarios/${profileUser._id}`, payload);
       if (response.status === 200) {
         setProfileUser(response.data);
         setIsEditing(false);
-        toast.success("Perfil actualizado correctamente");
+        toast.success('Perfil actualizado correctamente');
         fetchProfile();
       }
     } catch (error: any) {
-      console.error("Error updating profile:", error);
-      toast.error("Error al guardar los cambios del perfil");
+      console.error('Error updating profile:', error);
+      toast.error('Error al guardar los cambios del perfil');
     } finally {
       setUpdating(false);
     }
@@ -163,7 +171,7 @@ export default function Profile() {
 
   const handleToggleFollow = async () => {
     if (!currentUser) {
-      toast.warn("Debes iniciar sesión para seguir a otros usuarios");
+      toast.warn('Debes iniciar sesión para seguir a otros usuarios');
       return;
     }
 
@@ -185,36 +193,36 @@ export default function Profile() {
       }
 
       await api.put(`/usuarios/${currentUser._id}`, {
-        followingUsers: updatedFollowing
+        followingUsers: updatedFollowing,
       });
-      
+
       // Update local storage user profile cache
       const updatedUser = { ...currentUser, followingUsers: updatedFollowing };
       setCurrentUser(updatedUser);
     } catch (error) {
-      console.error("Error toggling follow:", error);
-      toast.error("No se pudo procesar la acción de seguimiento");
+      console.error('Error toggling follow:', error);
+      toast.error('No se pudo procesar la acción de seguimiento');
     }
   };
 
   const logout = () => {
-    localStorage.removeItem("token");
-    navigate("/");
+    localStorage.removeItem('token');
+    navigate('/');
   };
 
   const executeSoftDelete = async () => {
     setDeleting(true);
     try {
       await api.delete(`/usuarios/${profileUser._id}`);
-      toast.success("Tu cuenta ha sido desactivada con éxito");
+      toast.success('Tu cuenta ha sido desactivada con éxito');
       logout();
     } catch (error) {
-      console.error("Error deleting profile (soft):", error);
-      toast.error("No se pudo desactivar tu cuenta");
+      console.error('Error deleting profile (soft):', error);
+      toast.error('No se pudo desactivar tu cuenta');
     } finally {
       setDeleting(false);
       setDeleteModalOpen(false);
-      setDeleteStep("menu");
+      setDeleteStep('menu');
     }
   };
 
@@ -222,15 +230,15 @@ export default function Profile() {
     setDeleting(true);
     try {
       await api.delete(`/usuarios/permanent/${profileUser._id}`);
-      toast.success("Tu cuenta ha sido eliminada de forma permanente");
+      toast.success('Tu cuenta ha sido eliminada de forma permanente');
       logout();
     } catch (error) {
-      console.error("Error deleting profile (permanent):", error);
-      toast.error("No se pudo eliminar permanentemente tu cuenta");
+      console.error('Error deleting profile (permanent):', error);
+      toast.error('No se pudo eliminar permanentemente tu cuenta');
     } finally {
       setDeleting(false);
       setDeleteModalOpen(false);
-      setDeleteStep("menu");
+      setDeleteStep('menu');
     }
   };
 
@@ -238,11 +246,11 @@ export default function Profile() {
     const author = newAuthor.trim();
     if (author && !favoriteAuthors.includes(author)) {
       if (favoriteAuthors.length >= 5) {
-        toast.warn("Límite de 5 autores favoritos alcanzado");
+        toast.warn('Límite de 5 autores favoritos alcanzado');
         return;
       }
       setFavoriteAuthors([...favoriteAuthors, author]);
-      setNewAuthor("");
+      setNewAuthor('');
     }
   };
 
@@ -250,11 +258,11 @@ export default function Profile() {
     const book = newBook.trim();
     if (book && !favoriteBooks.includes(book)) {
       if (favoriteBooks.length >= 5) {
-        toast.warn("Límite de 5 libros favoritos alcanzado");
+        toast.warn('Límite de 5 libros favoritos alcanzado');
         return;
       }
       setFavoriteBooks([...favoriteBooks, book]);
-      setNewBook("");
+      setNewBook('');
     }
   };
 
@@ -280,7 +288,9 @@ export default function Profile() {
       <div className="profile-error">
         <h3>Error al cargar</h3>
         <p>No se pudo cargar el perfil del usuario solicitado.</p>
-        <button onClick={fetchProfile} className="retry-btn">Reintentar</button>
+        <button onClick={fetchProfile} className="retry-btn">
+          Reintentar
+        </button>
       </div>
     );
   }
@@ -289,9 +299,7 @@ export default function Profile() {
     <div className="profile-container">
       {/* Top Banner Profile Details */}
       <div className="profile-header-card">
-        <div className="profile-avatar">
-          {(name || "U").substring(0, 2).toUpperCase()}
-        </div>
+        <div className="profile-avatar">{(name || 'U').substring(0, 2).toUpperCase()}</div>
         <div className="profile-main-info">
           <h1>{name}</h1>
           <p className="profile-email">✉ {email}</p>
@@ -303,7 +311,9 @@ export default function Profile() {
             {stats.totalReviews > 0 && (
               <div className="stat-box">
                 <span className="stat-num rating">
-                  {"★".repeat(Math.max(0, Math.round(stats.averageRating)))}{"☆".repeat(Math.max(0, 5 - Math.round(stats.averageRating)))} {stats.averageRating}
+                  {'★'.repeat(Math.max(0, Math.round(stats.averageRating)))}
+                  {'☆'.repeat(Math.max(0, 5 - Math.round(stats.averageRating)))}{' '}
+                  {stats.averageRating}
                 </span>
                 <span className="stat-label">({stats.totalReviews} Valoraciones)</span>
               </div>
@@ -311,9 +321,11 @@ export default function Profile() {
             {isMyProfile && userLevel && (
               <div className="stat-box level-badge-box">
                 <span className="stat-num">
-                  {userLevel.medal || "❔"} {userLevel.levelName}
+                  {userLevel.medal || '❔'} {userLevel.levelName}
                 </span>
-                <span className="stat-label">Nivel ({userLevel.completedCount} / {userLevel.totalCount} Retos)</span>
+                <span className="stat-label">
+                  Nivel ({userLevel.completedCount} / {userLevel.totalCount} Retos)
+                </span>
               </div>
             )}
           </div>
@@ -334,10 +346,10 @@ export default function Profile() {
             </div>
           ) : (
             <button
-              className={`follow-profile-btn ${isFollowing ? "following" : ""}`}
+              className={`follow-profile-btn ${isFollowing ? 'following' : ''}`}
               onClick={handleToggleFollow}
             >
-              {isFollowing ? "👥 Siguiendo" : "👤 Seguir"}
+              {isFollowing ? '👥 Siguiendo' : '👤 Seguir'}
             </button>
           )}
         </div>
@@ -349,7 +361,7 @@ export default function Profile() {
           {isEditing ? (
             <form onSubmit={handleUpdate} className="profile-edit-form">
               <h3>Editar mi Información</h3>
-              
+
               <div className="form-group">
                 <label>Nombre</label>
                 <input
@@ -393,7 +405,9 @@ export default function Profile() {
                     value={newAuthor}
                     onChange={(e) => setNewAuthor(e.target.value)}
                   />
-                  <button type="button" onClick={handleAddAuthor}>+</button>
+                  <button type="button" onClick={handleAddAuthor}>
+                    +
+                  </button>
                 </div>
                 <div className="chips-row">
                   {favoriteAuthors.map((author, index) => (
@@ -402,7 +416,9 @@ export default function Profile() {
                       <button
                         type="button"
                         className="chip-remove"
-                        onClick={() => setFavoriteAuthors(favoriteAuthors.filter((_, i) => i !== index))}
+                        onClick={() =>
+                          setFavoriteAuthors(favoriteAuthors.filter((_, i) => i !== index))
+                        }
                       >
                         ×
                       </button>
@@ -420,7 +436,9 @@ export default function Profile() {
                     value={newBook}
                     onChange={(e) => setNewBook(e.target.value)}
                   />
-                  <button type="button" onClick={handleAddBook}>+</button>
+                  <button type="button" onClick={handleAddBook}>
+                    +
+                  </button>
                 </div>
                 <div className="chips-row">
                   {favoriteBooks.map((book, index) => (
@@ -429,7 +447,9 @@ export default function Profile() {
                       <button
                         type="button"
                         className="chip-remove"
-                        onClick={() => setFavoriteBooks(favoriteBooks.filter((_, i) => i !== index))}
+                        onClick={() =>
+                          setFavoriteBooks(favoriteBooks.filter((_, i) => i !== index))
+                        }
                       >
                         ×
                       </button>
@@ -445,9 +465,9 @@ export default function Profile() {
                   className="dropdown-toggle-btn"
                   onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
                 >
-                  Seleccionar categorías {categoryDropdownOpen ? "▲" : "▼"}
+                  Seleccionar categorías {categoryDropdownOpen ? '▲' : '▼'}
                 </button>
-                
+
                 {categoryDropdownOpen && (
                   <div className="categories-dropdown">
                     {ALL_CATEGORIES.map((cat) => {
@@ -473,7 +493,9 @@ export default function Profile() {
                       <button
                         type="button"
                         className="chip-remove"
-                        onClick={() => setFavoriteCategories(favoriteCategories.filter((c) => c !== cat))}
+                        onClick={() =>
+                          setFavoriteCategories(favoriteCategories.filter((c) => c !== cat))
+                        }
                       >
                         ×
                       </button>
@@ -487,7 +509,7 @@ export default function Profile() {
                   type="button"
                   className="delete-acc-btn"
                   onClick={() => {
-                    setDeleteStep("menu");
+                    setDeleteStep('menu');
                     setDeleteModalOpen(true);
                   }}
                 >
@@ -501,7 +523,7 @@ export default function Profile() {
                       setIsEditing(false);
                       setName(profileUser.name);
                       setEmail(profileUser.email);
-                      setDescription(profileUser.description || "");
+                      setDescription(profileUser.description || '');
                       setFavoriteAuthors(profileUser.favoriteAuthors || []);
                       setFavoriteBooks(profileUser.favoriteBooks || []);
                       setFavoriteCategories(profileUser.favoriteCategories || []);
@@ -510,7 +532,7 @@ export default function Profile() {
                     Cancelar
                   </button>
                   <button type="submit" className="edit-save-btn" disabled={updating}>
-                    {updating ? "Guardando..." : "Guardar cambios"}
+                    {updating ? 'Guardando...' : 'Guardar cambios'}
                   </button>
                 </div>
               </div>
@@ -520,42 +542,49 @@ export default function Profile() {
               <div className="details-section">
                 <h3>Sobre Mí</h3>
                 <p className="description-text">
-                  {profileUser.description || "Este lector aún no ha escrito una biografía."}
+                  {profileUser.description || 'Este lector aún no ha escrito una biografía.'}
                 </p>
               </div>
 
               <hr />
 
-              {((Array.isArray(profileUser.favoriteAuthors) && profileUser.favoriteAuthors.length > 0) ||
-                (Array.isArray(profileUser.favoriteBooks) && profileUser.favoriteBooks.length > 0) ||
-                (Array.isArray(profileUser.favoriteCategories) && profileUser.favoriteCategories.length > 0)) ? (
+              {(Array.isArray(profileUser.favoriteAuthors) &&
+                profileUser.favoriteAuthors.length > 0) ||
+              (Array.isArray(profileUser.favoriteBooks) && profileUser.favoriteBooks.length > 0) ||
+              (Array.isArray(profileUser.favoriteCategories) &&
+                profileUser.favoriteCategories.length > 0) ? (
                 <div className="details-section">
                   <h3>Mis Favoritos</h3>
 
-                  {Array.isArray(profileUser.favoriteAuthors) && profileUser.favoriteAuthors.length > 0 && (
-                    <div className="fav-subset">
-                      <span className="fav-label">✍️ Autores favoritos</span>
-                      <p className="fav-value">{profileUser.favoriteAuthors.join(", ")}</p>
-                    </div>
-                  )}
-
-                  {Array.isArray(profileUser.favoriteBooks) && profileUser.favoriteBooks.length > 0 && (
-                    <div className="fav-subset">
-                      <span className="fav-label">📚 Libros favoritos</span>
-                      <p className="fav-value">{profileUser.favoriteBooks.join(", ")}</p>
-                    </div>
-                  )}
-
-                  {Array.isArray(profileUser.favoriteCategories) && profileUser.favoriteCategories.length > 0 && (
-                    <div className="fav-subset">
-                      <span className="fav-label">🏷️ Géneros favoritos</span>
-                      <div className="chips-row">
-                        {profileUser.favoriteCategories.map((cat: string) => (
-                          <span key={cat} className="tag-chip static">{cat}</span>
-                        ))}
+                  {Array.isArray(profileUser.favoriteAuthors) &&
+                    profileUser.favoriteAuthors.length > 0 && (
+                      <div className="fav-subset">
+                        <span className="fav-label">✍️ Autores favoritos</span>
+                        <p className="fav-value">{profileUser.favoriteAuthors.join(', ')}</p>
                       </div>
-                    </div>
-                  )}
+                    )}
+
+                  {Array.isArray(profileUser.favoriteBooks) &&
+                    profileUser.favoriteBooks.length > 0 && (
+                      <div className="fav-subset">
+                        <span className="fav-label">📚 Libros favoritos</span>
+                        <p className="fav-value">{profileUser.favoriteBooks.join(', ')}</p>
+                      </div>
+                    )}
+
+                  {Array.isArray(profileUser.favoriteCategories) &&
+                    profileUser.favoriteCategories.length > 0 && (
+                      <div className="fav-subset">
+                        <span className="fav-label">🏷️ Géneros favoritos</span>
+                        <div className="chips-row">
+                          {profileUser.favoriteCategories.map((cat: string) => (
+                            <span key={cat} className="tag-chip static">
+                              {cat}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                 </div>
               ) : (
                 <p className="no-favs-yet">Este lector aún no ha seleccionado favoritos.</p>
@@ -568,7 +597,9 @@ export default function Profile() {
         <div className="profile-reviews-card">
           <h2>Valoraciones como vendedor</h2>
           {reviews.length === 0 ? (
-            <p className="no-reviews-msg">Este usuario aún no ha recibido valoraciones como vendedor.</p>
+            <p className="no-reviews-msg">
+              Este usuario aún no ha recibido valoraciones como vendedor.
+            </p>
           ) : (
             <div className="reviews-feed">
               {reviews.map((rev) => (
@@ -576,16 +607,20 @@ export default function Profile() {
                   <div className="review-item-header">
                     <span className="reviewer-name">{rev.usuarioAutor?.name}</span>
                     <span className="review-stars">
-                      {"★".repeat(Math.max(0, rev.puntuacion || 0)) + "☆".repeat(Math.max(0, 5 - (rev.puntuacion || 0)))}
+                      {'★'.repeat(Math.max(0, rev.puntuacion || 0)) +
+                        '☆'.repeat(Math.max(0, 5 - (rev.puntuacion || 0)))}
                     </span>
                   </div>
                   {rev.libro && (
                     <span className="review-book-title">
-                      Libro: {rev.libro.title} {rev.tipoOperacion ? `(${rev.tipoOperacion.toLowerCase()})` : ""}
+                      Libro: {rev.libro.title}{' '}
+                      {rev.tipoOperacion ? `(${rev.tipoOperacion.toLowerCase()})` : ''}
                     </span>
                   )}
-                  {rev.comentario && <p className="review-text">"{rev.comentario}"</p>}
-                  <span className="review-date">{new Date(rev.createdAt).toLocaleDateString()}</span>
+                  {rev.comentario && <p className="review-text">&quot;{rev.comentario}&quot;</p>}
+                  <span className="review-date">
+                    {new Date(rev.createdAt).toLocaleDateString()}
+                  </span>
                 </div>
               ))}
             </div>
@@ -597,23 +632,18 @@ export default function Profile() {
       {deleteModalOpen && (
         <div className="modal-overlay" onClick={() => setDeleteModalOpen(false)}>
           <div className="modal-content text-center" onClick={(e) => e.stopPropagation()}>
-            {deleteStep === "menu" && (
+            {deleteStep === 'menu' && (
               <>
                 <h2>Eliminar Cuenta</h2>
                 <p className="delete-warning-text">
-                  ¿Qué tipo de eliminación deseas realizar? Puedes suspender tu cuenta temporalmente o eliminarla permanentemente.
+                  ¿Qué tipo de eliminación deseas realizar? Puedes suspender tu cuenta temporalmente
+                  o eliminarla permanentemente.
                 </p>
                 <div className="delete-actions-column">
-                  <button
-                    className="temp-delete-btn"
-                    onClick={() => setDeleteStep("confirm_soft")}
-                  >
+                  <button className="temp-delete-btn" onClick={() => setDeleteStep('confirm_soft')}>
                     Desactivar Temporalmente
                   </button>
-                  <button
-                    className="perm-delete-btn"
-                    onClick={() => setDeleteStep("confirm_perm")}
-                  >
+                  <button className="perm-delete-btn" onClick={() => setDeleteStep('confirm_perm')}>
                     Eliminar Permanentemente
                   </button>
                   <button
@@ -626,11 +656,12 @@ export default function Profile() {
               </>
             )}
 
-            {deleteStep === "confirm_soft" && (
+            {deleteStep === 'confirm_soft' && (
               <>
                 <h2>Confirmar Desactivación Temporal</h2>
                 <p className="delete-warning-text">
-                  Tu cuenta será desactivada. Tus libros subidos no se verán en el catálogo público, pero podrás reactivarla cuando inicies sesión de nuevo.
+                  Tu cuenta será desactivada. Tus libros subidos no se verán en el catálogo público,
+                  pero podrás reactivarla cuando inicies sesión de nuevo.
                 </p>
                 <div className="delete-actions-column">
                   <button
@@ -638,11 +669,11 @@ export default function Profile() {
                     onClick={executeSoftDelete}
                     disabled={deleting}
                   >
-                    {deleting ? "Desactivando..." : "Sí, Desactivar temporalmente"}
+                    {deleting ? 'Desactivando...' : 'Sí, Desactivar temporalmente'}
                   </button>
                   <button
                     className="modal-cancel-btn full-width"
-                    onClick={() => setDeleteStep("menu")}
+                    onClick={() => setDeleteStep('menu')}
                     disabled={deleting}
                   >
                     Volver atrás
@@ -651,11 +682,12 @@ export default function Profile() {
               </>
             )}
 
-            {deleteStep === "confirm_perm" && (
+            {deleteStep === 'confirm_perm' && (
               <>
                 <h2>⚠️ ALERTA: Confirmar Borrado Permanente</h2>
                 <p className="delete-warning-text danger">
-                  Esta acción eliminará de forma irreversible tus valoraciones, biblioteca, chats y datos personales de nuestro sistema.
+                  Esta acción eliminará de forma irreversible tus valoraciones, biblioteca, chats y
+                  datos personales de nuestro sistema.
                 </p>
                 <div className="delete-actions-column">
                   <button
@@ -663,11 +695,11 @@ export default function Profile() {
                     onClick={executePermanentDelete}
                     disabled={deleting}
                   >
-                    {deleting ? "Eliminando..." : "Sí, borrar definitivamente"}
+                    {deleting ? 'Eliminando...' : 'Sí, borrar definitivamente'}
                   </button>
                   <button
                     className="modal-cancel-btn full-width"
-                    onClick={() => setDeleteStep("menu")}
+                    onClick={() => setDeleteStep('menu')}
                     disabled={deleting}
                   >
                     Volver atrás

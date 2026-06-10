@@ -363,7 +363,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
 }
 
 .dropdown-item {
@@ -583,4 +583,3 @@
 .level-badge-box .stat-num {
   color: var(--primary);
 }
-

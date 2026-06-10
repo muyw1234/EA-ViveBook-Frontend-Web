@@ -1,58 +1,78 @@
-import { BrowserRouter as Router, Routes, Route, Link, useLocation } from "react-router-dom";
-import Login from "./Components/InitialPage/Login";
-import Register from "./Components/InitialPage/Register";
-import Home from "./Components/HomePage/Home";
-import BookDetail from "./Components/BookDetail/BookDetail";
-import ChatGlobal from "./Components/Chat/ChatGlobal";
-import EventoDetail from "./Components/EventoDetail/EventoDetail";
-import CategoryPage from "./Components/HomePage/CategoryPage";
-import SearchPage from "./Components/SearchPage/searchPage";
-import MyBooks from "./Components/MyBooks/MyBooks";
-import Profile from "./Components/Profile/Profile";
-import { ProfilePage } from "./Components/ProfilePage/UserProfile";
-import AIChatBox from "./Components/AIChatBox/AIChatBox";
-import Retos from "./Components/Retos/Retos";
-import ProtectedRoute from "./Components/ProtectedRoute";
+import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
+import Login from './Components/InitialPage/Login';
+import Register from './Components/InitialPage/Register';
+import Home from './Components/HomePage/Home';
+import BookDetail from './Components/BookDetail/BookDetail';
+import ChatGlobal from './Components/Chat/ChatGlobal';
+import EventoDetail from './Components/EventoDetail/EventoDetail';
+import CategoryPage from './Components/HomePage/CategoryPage';
+import SearchPage from './Components/SearchPage/searchPage';
+import MyBooks from './Components/MyBooks/MyBooks';
+import Profile from './Components/Profile/Profile';
+import { ProfilePage } from './Components/ProfilePage/UserProfile';
+import AIChatBox from './Components/AIChatBox/AIChatBox';
+import Retos from './Components/Retos/Retos';
+import ProtectedRoute from './Components/ProtectedRoute';
 
 function Navigation() {
   useLocation(); // Triggers re-render on route changes
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem('token');
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    window.location.href = "/";
+    localStorage.removeItem('token');
+    window.location.href = '/';
   };
 
   return (
     <nav className="main-nav">
-      <Link to="/" className="nav-link">Inicio</Link>
-      <Link to="/categorias/sales" className="nav-link">Libros</Link>
-      <Link to="/categorias/events" className="nav-link">Eventos</Link>
-      
+      <Link to="/" className="nav-link">
+        Inicio
+      </Link>
+      <Link to="/categorias/sales" className="nav-link">
+        Libros
+      </Link>
+      <Link to="/categorias/events" className="nav-link">
+        Eventos
+      </Link>
+
       {!token ? (
         <>
-          <Link to="/register" className="nav-link">Crear Cuenta</Link>
-          <Link to="/login" className="nav-link">Login</Link>
+          <Link to="/register" className="nav-link">
+            Crear Cuenta
+          </Link>
+          <Link to="/login" className="nav-link">
+            Login
+          </Link>
         </>
       ) : (
         <>
-          <Link to="/my-books" className="nav-link">Mis Libros</Link>
-          <Link to="/retos" className="nav-link">Retos</Link>
-          <Link to="/profile" className="nav-link">Mi Perfil</Link>
-          <Link to="/ia" className="nav-link highlight">IA</Link>
-          <Link to="/chat" className="nav-link highlight">Chat Global</Link>
-          <button 
-            onClick={handleLogout} 
-            className="nav-link" 
-            style={{ 
-              background: "none", 
-              border: "none", 
-              cursor: "pointer", 
-              fontFamily: "inherit",
-              fontSize: "inherit",
+          <Link to="/my-books" className="nav-link">
+            Mis Libros
+          </Link>
+          <Link to="/retos" className="nav-link">
+            Retos
+          </Link>
+          <Link to="/profile" className="nav-link">
+            Mi Perfil
+          </Link>
+          <Link to="/ia" className="nav-link highlight">
+            IA
+          </Link>
+          <Link to="/chat" className="nav-link highlight">
+            Chat Global
+          </Link>
+          <button
+            onClick={handleLogout}
+            className="nav-link"
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+              fontSize: 'inherit',
               fontWeight: 600,
-              padding: "0.5rem 1rem",
-              borderRadius: "99px"
+              padding: '0.5rem 1rem',
+              borderRadius: '99px',
             }}
           >
             Cerrar Sesión
