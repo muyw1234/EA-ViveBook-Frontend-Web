@@ -4,9 +4,12 @@ import { createRoot } from 'react-dom/client';
 
 import App from './App.tsx';
 import './i18n';
+import { AccessibilityProvider } from './context/AccessibilityContext.tsx';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <AccessibilityProvider>
+      <App />
+    </AccessibilityProvider>
   </StrictMode>,
 );
