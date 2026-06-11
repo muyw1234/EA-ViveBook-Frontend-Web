@@ -283,12 +283,14 @@ const Home: React.FC = () => {
         <div className="logo-container">
           <span className="logo-text">ViveBook</span>
           <div className="user-info-nav">
-            <button
-              className="add-book-btn"
-              onClick={() => checkAuthAndOpen(setIsAddBookModalOpen)}
-            >
-              + Añadir Libro
-            </button>
+            {user && (
+              <button
+                className="add-book-btn"
+                onClick={() => checkAuthAndOpen(setIsAddBookModalOpen)}
+              >
+                + {t('add_book_btn', 'Añadir Libro')}
+              </button>
+            )}
             {user ? (
               <div className="user-profile-badge">
                 <button onClick={() => navigate('/profile')} className="profile-btn">
