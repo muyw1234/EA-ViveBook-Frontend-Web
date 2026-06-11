@@ -45,8 +45,13 @@ const getProfile = async () => {
   return (response.data.data || response.data) as Partial<IUsuario>;
 };
 
+const searchUsuarios = async (term: string, page: number = 1, limit: number = 10) => {
+    return await api.get('/usuarios/search', { params: { term, page, limit } });
+};
+
 export default {
   createUser,
   getUserByEmail,
   getProfile,
+  searchUsuarios,
 };
