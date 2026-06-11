@@ -162,16 +162,20 @@ export default function SearchPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
+            <div className="search-filter-btn-container">
+              <div className="search-field-divider"></div>
+              <button
+                type="button"
+                className={`search-filter-toggle-btn ${showFilters ? "active" : ""}`}
+                onClick={() => setShowFilters(!showFilters)}
+                title={t("filters", "Filtros")}
+              >
+                ⚙️
+              </button>
+            </div>
           </div>
           <button type="submit" className="search-action-btn">
             {t("search_button", "Buscar")}
-          </button>
-          <button
-            type="button"
-            className={`filter-toggle-btn ${showFilters ? "active" : ""}`}
-            onClick={() => setShowFilters(!showFilters)}
-          >
-            ⚙️ {t("filters", "Filtros")}
           </button>
         </form>
 
