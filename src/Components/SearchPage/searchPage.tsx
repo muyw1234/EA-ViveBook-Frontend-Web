@@ -41,7 +41,7 @@ export default function SearchPage() {
   const [filterCategory, setFilterCategory] = useState("");
   const [filterMaxPrice, setFilterMaxPrice] = useState("");
   const [filterType, setFilterType] = useState("");
-  const [showFilters, setShowFilters] = useState(false);
+  const [showFilters, setShowFilters] = useState(location.state?.openFilters || false);
 
   // Search execution
   const performSearch = async (query: string) => {
@@ -104,7 +104,10 @@ export default function SearchPage() {
   useEffect(() => {
     performSearch(initialTerm);
     document.title = `${t("search_title", "Buscador")} - ViveBook`;
-  }, [initialTerm]);
+    if (location.state?.openFilters) {
+      setShowFilters(true);
+    }
+  }, [initialTerm, location.state]);
 
   // Handle manual search form submit
   const handleSearchSubmit = (e: React.FormEvent) => {

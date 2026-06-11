@@ -306,17 +306,29 @@ const Home: React.FC = () => {
           </div>
         </div>
         <div className="search-bar-wrapper">
-          <span className="search-icon">🔍</span>
-          <input
-            type="text"
-            className="search-bar"
-            placeholder={t('search_placeholder')}
-            value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-              // search(e.target.value);
-            }}
-          />
+          <div className="search-field-container">
+            <span className="search-icon">🔍</span>
+            <input
+              type="text"
+              className="search-bar"
+              placeholder={t('search_placeholder')}
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+              }}
+            />
+            <div className="search-filter-btn-container">
+              <div className="search-field-divider"></div>
+              <button
+                type="button"
+                className="search-filter-toggle-btn"
+                onClick={() => navigate('/search', { state: { term: searchQuery, openFilters: true } })}
+                title={t('filters', 'Filtros')}
+              >
+                ⚙️
+              </button>
+            </div>
+          </div>
 
           <button className="add-book-btn" onClick={() => search()}>
             Buscar
