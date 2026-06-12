@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
 import Login from './Components/InitialPage/Login';
 import Register from './Components/InitialPage/Register';
 import Home from './Components/HomePage/Home';
@@ -91,6 +91,7 @@ function App() {
       <Routes>
         {/* Rutas Públicas */}
         <Route path="/" element={<Home />} />
+        <Route path="/home" element={<Navigate to="/" replace />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="/libros/:id" element={<BookDetail />} />

@@ -45,13 +45,35 @@ const getProfile = async () => {
   return (response.data.data || response.data) as Partial<IUsuario>;
 };
 
+const toggleWishlist = async (bookId: string) => {
+  try {
+    const response = await api.post(`/usuarios/wishlist/${bookId}`);
+    return response.data.data || response.data;
+  } catch (error) {
+    console.error('Error toggling wishlist:', error);
+    throw error;
+  }
+};
+
+const toggleFavorite = async (bookId: string) => {
+  try {
+    const response = await api.post(`/usuarios/favoritos/${bookId}`);
+    return response.data.data || response.data;
+  } catch (error) {
+    console.error('Error toggling favorite:', error);
+    throw error;
+  }
+};
+
 const searchUsuarios = async (term: string, page: number = 1, limit: number = 10) => {
-    return await api.get('/usuarios/search', { params: { term, page, limit } });
+  return await api.get('/usuarios/search', { params: { term, page, limit } });
 };
 
 export default {
   createUser,
   getUserByEmail,
   getProfile,
+  toggleWishlist,
+  toggleFavorite,
   searchUsuarios,
 };
