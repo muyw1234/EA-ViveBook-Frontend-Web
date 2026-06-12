@@ -33,6 +33,8 @@ export default function Profile() {
   const [favoriteBooks, setFavoriteBooks] = useState<any[]>([]);
   const [favoriteCategories, setFavoriteCategories] = useState<string[]>([]);
 
+  const [followedEvents, setFollowedEvents] = useState<any[]>([]);
+
   const [newAuthor, setNewAuthor] = useState('');
   const [newBook, setNewBook] = useState('');
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
@@ -105,6 +107,8 @@ export default function Profile() {
       setFavoriteAuthors(Array.isArray(u.favoriteAuthors) ? u.favoriteAuthors : []);
       setFavoriteBooks(Array.isArray(u.favoriteBooks) ? u.favoriteBooks : []);
       setFavoriteCategories(Array.isArray(u.favoriteCategories) ? u.favoriteCategories : []);
+      
+      setFollowedEvents(Array.isArray(u.eventos) ? u.eventos : []);
 
       // 3. Fetch reviews & followers count
       if (activeUserId && activeUserId.length === 24) {
@@ -198,7 +202,6 @@ export default function Profile() {
         followingUsers: updatedFollowing,
       });
 
-      // Update local storage user profile cache
       const updatedUser = { ...currentUser, followingUsers: updatedFollowing };
       setCurrentUser(updatedUser);
     } catch (error) {
@@ -333,7 +336,6 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* Action Button: Follow or Edit */}
         <div className="profile-header-actions">
           {isMyProfile ? (
             <div className="profile-my-actions">
@@ -358,7 +360,7 @@ export default function Profile() {
       </div>
 
       <div className="profile-content-grid">
-        {/* Left Card: Info & Favorites */}
+        {/* Left Card: Info, Favorites, Wishlist & Events */}
         <div className="profile-details-card">
           {isEditing ? (
             <form onSubmit={handleUpdate} className="profile-edit-form">
@@ -543,11 +545,9 @@ export default function Profile() {
 
               <hr />
 
-              {(Array.isArray(profileUser.favoriteAuthors) &&
-                profileUser.favoriteAuthors.length > 0) ||
+              {(Array.isArray(profileUser.favoriteAuthors) && profileUser.favoriteAuthors.length > 0) ||
               (Array.isArray(profileUser.favoriteBooks) && profileUser.favoriteBooks.length > 0) ||
-              (Array.isArray(profileUser.favoriteCategories) &&
-                profileUser.favoriteCategories.length > 0) ? (
+              (Array.isArray(profileUser.favoriteCategories) && profileUser.favoriteCategories.length > 0) ? (
                 <div className="details-section">
                   <h3>Mis Favoritos</h3>
 
@@ -622,6 +622,34 @@ export default function Profile() {
                   <p className="no-favs-yet">No hay libros en la lista de deseos.</p>
                 )}
               </div>
+
+              {/* 🚀 NUEVO: Sección de Eventos Seguidos */}
+              <hr />
+              <div className="details-section">
+                <h3>Eventos Seguidos</h3>
+                {followedEvents.length > 0 ? (
+                  <div className="chips-row">
+                    {followedEvents.map((evento: any) => {
+                      const eventTitle = typeof evento === "object" ? evento.title : "Evento";
+                      const eventId = typeof evento === "object" ? evento._id : evento;
+                      return (
+                        <span
+                          key={eventId}
+                          className="tag-chip static followed-event-chip"
+                          onClick={() => navigate(`/eventos/${eventId}`)} // Navega a la ruta de tu evento
+                          style={{ cursor: "pointer", backgroundColor: '#e3f2fd', color: '#0d47a1' }} // Un color azulado de ejemplo
+                          title="Haga clic para ver el detalle del evento"
+                        >
+                          📅 {eventTitle}
+                        </span>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="no-favs-yet">No estás siguiendo ningún evento.</p>
+                )}
+              </div>
+
             </div>
           )}
         </div>

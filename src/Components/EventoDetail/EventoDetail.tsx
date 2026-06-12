@@ -143,8 +143,21 @@ const EventDetail: React.FC = () => {
 
     setJoining(true);
     try {
-      const updatedEvent = await EventService.participateInEvento(event._id, currentUserId);
-      setEvent(updatedEvent);
+      await EventService.participateInEvento(event._id, currentUserId);
+      
+      const mockCurrentUser: ParticipantUser = {
+        _id: currentUserId,
+        name: localStorage.getItem('userName') || 'Tú', // Asegúrate de tener guardado el nombre del usuario logueado en el localStorage al iniciar sesión
+      };
+
+      setEvent((prevEvent) => {
+        if (!prevEvent) return null;
+        return {
+          ...prevEvent,
+          participant: [...(prevEvent.participant || []), mockCurrentUser],
+        };
+      });
+
       toast.success('¡Te has apuntado al evento con éxito!');
     } catch (err) {
       console.error('Error al unirse al evento:', err);

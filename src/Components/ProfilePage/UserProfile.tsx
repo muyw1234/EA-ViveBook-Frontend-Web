@@ -9,7 +9,15 @@ interface ILibroSimple {
   isbn?: string;
   precio?: number;
   type?: 'VENTA' | 'ALQUILER';
-  owner?: { _id: string; name: string };
+  owner?: { _id: string; name: string } | string | any; // Ajustado por seguridad
+}
+
+interface IEventoSimple {
+  _id: string;
+  title: string;
+  date?: string;
+  location?: string;
+  description?: string;
 }
 
 interface IUsuarioProfile {
@@ -20,6 +28,7 @@ interface IUsuarioProfile {
   boughtLibros: ILibroSimple[];
   rentedLibros: ILibroSimple[];
   followingUsers: Array<{ _id: string; name: string; email: string }>;
+  eventos: IEventoSimple[];
 }
 
 export const ProfilePage = () => {
@@ -27,7 +36,7 @@ export const ProfilePage = () => {
   const [profile, setProfile] = useState<IUsuarioProfile | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [activeTab, setActiveTab] = useState<
-    'mis-libros' | 'comprados' | 'alquilados' | 'siguiendo'
+    'mis-libros' | 'comprados' | 'alquilados' | 'siguiendo' | 'eventos'
   >('mis-libros');
 
   useEffect(() => {
@@ -73,6 +82,14 @@ export const ProfilePage = () => {
     );
   }
 
+  // Helper para renderizar el nombre del propietario de forma segura
+  const renderOwnerName = (owner: any) => {
+    if (!owner) return null;
+    if (typeof owner === 'string') return owner;
+    if (typeof owner === 'object' && owner.name) return owner.name;
+    return 'Desconocido';
+  };
+
   const renderBookGrid = (books: ILibroSimple[], emptyMessage: string) => {
     if (!books || books.length === 0) {
       return (
@@ -107,7 +124,7 @@ export const ProfilePage = () => {
               padding: '1.25rem',
               display: 'flex',
               flexDirection: 'column',
-              justifyContent: 'between',
+              justifyContent: 'space-between', // Corregido: era 'between' y lo correcto en CSS es 'space-between'
               textAlign: 'left',
               boxShadow: 'var(--shadow)',
             }}
@@ -137,7 +154,7 @@ export const ProfilePage = () => {
                     fontWeight: 600,
                   }}
                 >
-                  Propietario: {libro.owner.name}
+                  Propietario: {renderOwnerName(libro.owner)}
                 </p>
               )}
             </div>
@@ -177,6 +194,29 @@ export const ProfilePage = () => {
     );
   };
 
+  const renderEventGrid = (events: IEventoSimple[], emptyMessage: string) => {
+    if (!events || events.length === 0) {
+      return (
+        <p style={{ color: 'var(--text)', fontStyle: 'italic', textAlign: 'center', margin: '3rem 0' }}>
+          {emptyMessage}
+        </p>
+      );
+    }
+
+    // CORRECCIÓN: Ahora sí retorna la estructura JSX en caso de que existan eventos
+    return (
+      <div style={{ display: 'grid', gap: '1rem', textAlign: 'left' }}>
+        {events.map((ev) => (
+          <div key={ev._id} style={{ padding: '1rem', border: '1px solid var(--border)', borderRadius: '8px' }}>
+            <h4 style={{ margin: 0, color: 'var(--text-h)' }}>{ev.title}</h4>
+            {ev.location && <p style={{ margin: '0.25rem 0', fontSize: '0.85rem' }}>📍 {ev.location}</p>}
+            {ev.description && <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.9rem', color: 'var(--text)' }}>{ev.description}</p>}
+          </div>
+        ))}
+      </div>
+    );
+  };
+  
   return (
     <div
       style={{
@@ -257,6 +297,10 @@ export const ProfilePage = () => {
               Comprados
             </span>
           </div>
+          <div style={{ paddingRight: '1rem', borderRight: '1px solid rgba(255, 255, 255, 0.2)' }}>
+            <span style={{ display: 'block', fontSize: '1.3rem', fontWeight: 700, fontFamily: 'var(--mono)' }}>{profile.eventos?.length || 0}</span>
+            <span style={{ fontSize: '0.7rem', opacity: 0.85, textTransform: 'uppercase' }}>Mis Eventos</span>
+          </div>
           <div>
             <span
               style={{
@@ -289,6 +333,7 @@ export const ProfilePage = () => {
           { id: 'mis-libros', label: 'Mis Libros' },
           { id: 'comprados', label: 'Comprados' },
           { id: 'alquilados', label: 'Alquilados' },
+          { id: 'eventos', label: 'Mis Eventos' },
           { id: 'siguiendo', label: 'Siguiendo' },
         ].map((tab) => (
           <button
@@ -331,6 +376,8 @@ export const ProfilePage = () => {
           renderBookGrid(profile.boughtLibros, 'No has comprado ningún libro todavía.')}
         {activeTab === 'alquilados' &&
           renderBookGrid(profile.rentedLibros, 'No tienes alquileres activos.')}
+        {activeTab === 'eventos' && 
+          renderEventGrid(profile.eventos, 'No te has apuntado a ningún evento todavía.')}
         {activeTab === 'siguiendo' && (
           <div style={{ textAlign: 'left' }}>
             {profile.followingUsers && profile.followingUsers.length > 0 ? (
