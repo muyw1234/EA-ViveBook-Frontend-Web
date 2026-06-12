@@ -1,5 +1,7 @@
+import type { AxiosResponse } from 'axios';
 import api from '../../api';
-import type { IUsuario } from '../../Models/Usuario';
+import type IUsuario from '../../Models/Usuario';
+import Image from './Image';
 
 const createUser = async (userData: { name: string; email: string; password: string }) => {
   try {
@@ -69,6 +71,17 @@ const searchUsuarios = async (term: string, page: number = 1, limit: number = 10
   return await api.get('/usuarios/search', { params: { term, page, limit } });
 };
 
+async function updateUsuario(userData: Partial<IUsuario> , payload : any) : Promise<AxiosResponse<Partial<IUsuario>>> {
+  return await api.put(`/usuarios/${userData._id}`, payload);
+}
+
+async function changeAvatar(data : FormData, userData : Partial<IUsuario>) : Promise<Partial<IUsuario> | undefined>{
+  const url = await Image.upload(data);
+
+  const user = await updateUsuario(userData, {avatar : url});
+  return user.data;
+}
+
 export default {
   createUser,
   getUserByEmail,
@@ -76,4 +89,6 @@ export default {
   toggleWishlist,
   toggleFavorite,
   searchUsuarios,
+  updateUsuario,
+  changeAvatar
 };

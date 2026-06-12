@@ -6,13 +6,17 @@ import 'react-toastify/dist/ReactToastify.css';
 import './Profile.css';
 import RetoService from '../Services/Reto';
 import { calculateUserLevel, type UserLevelInfo } from '../../utils/levelHelper';
+import type IUsuario from '../../Models/Usuario';
+import AvatarFrame from './AvatarFrame';
+import Usuario from '../Services/Usuario';
+import Image from '../Services/Image';
 
 export default function Profile() {
   const { userId } = useParams();
   const navigate = useNavigate();
 
   const [currentUser, setCurrentUser] = useState<any>(null);
-  const [profileUser, setProfileUser] = useState<any>(null);
+  const [profileUser, setProfileUser] = useState<Partial<IUsuario>>({}); // con esto ya basta, por favor pedid al agente que sea menos redudante, eliminaria algunos los de abajo pero me da 62 expecptions
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState('');
@@ -99,15 +103,16 @@ export default function Profile() {
         setUserLevel(null);
       }
 
-      const u = response.data.data || response.data;
+      const u: Partial<IUsuario> = response.data.data || response.data;
       setProfileUser(u);
-      setName(u.name);
-      setEmail(u.email);
+      // en verdad, con lo de arriba ya es suficiente
+      setName(u.name!);
+      setEmail(u.email!);
       setDescription(u.description || '');
       setFavoriteAuthors(Array.isArray(u.favoriteAuthors) ? u.favoriteAuthors : []);
       setFavoriteBooks(Array.isArray(u.favoriteBooks) ? u.favoriteBooks : []);
       setFavoriteCategories(Array.isArray(u.favoriteCategories) ? u.favoriteCategories : []);
-      
+
       setFollowedEvents(Array.isArray(u.eventos) ? u.eventos : []);
 
       // 3. Fetch reviews & followers count
@@ -160,7 +165,7 @@ export default function Profile() {
         favoriteCategories,
       };
 
-      const response = await api.put(`/usuarios/${profileUser._id}`, payload);
+      const response = await Usuario.updateUsuario(profileUser, payload); // lo he tenido que refactorizar y extraer. Recordad de que tenemos la capa de servicios.
       if (response.status === 200) {
         setProfileUser(response.data);
         setIsEditing(false);
@@ -304,7 +309,8 @@ export default function Profile() {
     <div className="profile-container">
       {/* Top Banner Profile Details */}
       <div className="profile-header-card">
-        <div className="profile-avatar">{(name || 'U').substring(0, 2).toUpperCase()}</div>
+        {/* <div className="profile-avatar">{(name || 'U').substring(0, 2).toUpperCase()}</div> */}
+        <AvatarFrame avatar={profileUser.avatar} name={name} />
         <div className="profile-main-info">
           <h1>{name}</h1>
           <p className="profile-email">✉ {email}</p>
@@ -376,6 +382,8 @@ export default function Profile() {
                 />
               </div>
 
+              <div className="form-group"></div>
+
               <div className="form-group">
                 <label>Correo Electrónico</label>
                 <input
@@ -383,6 +391,30 @@ export default function Profile() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
+                />
+              </div>
+
+              <div className="form-group container">
+                <input
+                className='form-control'
+                  type="file"
+                  src="./"
+                  id="imageSelector"
+                  alt="Cambiar avatar"
+                  /* T-T Por favor comprobad el codigo antes de subir al repositorio, lo he tenido que volver a añadir. */
+                  onChange={(e) => {
+                    async function update(data: FormData) {
+                      const user = await Usuario.changeAvatar(data, profileUser);
+                      setProfileUser(user!);
+                    }
+                    const file = e.target.files![0];
+                    //toast(JSON.stringify(path)); // aqui no aparece
+                    //console.log(path);
+                    const formData: FormData = new FormData();
+                    formData.append('file', file);
+                    // no es lo mejor ponerlo asi, la subida de la imagen tendria que hacerlo al Subir el Libro
+                    update(formData);
+                  }}
                 />
               </div>
 
@@ -433,8 +465,17 @@ export default function Profile() {
 
               <div className="form-group">
                 <label>Libros Favoritos (Gestionables desde el detalle del libro)</label>
-                <p className="favorites-helper-text" style={{ fontSize: '0.85rem', color: 'var(--text)', opacity: 0.8, margin: '0 0 0.5rem 0' }}>
-                  Añade libros a tus favoritos visitando la página de detalles de cada libro. Puedes eliminar favoritos actuales pulsando en la "×" a continuación.
+                <p
+                  className="favorites-helper-text"
+                  style={{
+                    fontSize: '0.85rem',
+                    color: 'var(--text)',
+                    opacity: 0.8,
+                    margin: '0 0 0.5rem 0',
+                  }}
+                >
+                  Añade libros a tus favoritos visitando la página de detalles de cada libro. Puedes
+                  eliminar favoritos actuales pulsando en la "×" a continuación.
                 </p>
                 <div className="chips-row">
                   {favoriteBooks.map((book, index) => {
@@ -445,7 +486,9 @@ export default function Profile() {
                         <button
                           type="button"
                           className="chip-remove"
-                          onClick={() => setFavoriteBooks(favoriteBooks.filter((_, i) => i !== index))}
+                          onClick={() =>
+                            setFavoriteBooks(favoriteBooks.filter((_, i) => i !== index))
+                          }
                         >
                           ×
                         </button>
@@ -518,8 +561,8 @@ export default function Profile() {
                     className="edit-cancel-btn"
                     onClick={() => {
                       setIsEditing(false);
-                      setName(profileUser.name);
-                      setEmail(profileUser.email);
+                      setName(profileUser.name!);
+                      setEmail(profileUser.email!);
                       setDescription(profileUser.description || '');
                       setFavoriteAuthors(profileUser.favoriteAuthors || []);
                       setFavoriteBooks(profileUser.favoriteBooks || []);
@@ -545,52 +588,61 @@ export default function Profile() {
 
               <hr />
 
-              {(Array.isArray(profileUser.favoriteAuthors) && profileUser.favoriteAuthors.length > 0) ||
+              {(Array.isArray(profileUser.favoriteAuthors) &&
+                profileUser.favoriteAuthors.length > 0) ||
               (Array.isArray(profileUser.favoriteBooks) && profileUser.favoriteBooks.length > 0) ||
-              (Array.isArray(profileUser.favoriteCategories) && profileUser.favoriteCategories.length > 0) ? (
+              (Array.isArray(profileUser.favoriteCategories) &&
+                profileUser.favoriteCategories.length > 0) ? (
                 <div className="details-section">
                   <h3>Mis Favoritos</h3>
 
-                  {Array.isArray(profileUser.favoriteAuthors) && profileUser.favoriteAuthors.length > 0 && (
-                    <div className="fav-subset">
-                      <span className="fav-label">✍️ Autores favoritos</span>
-                      <p className="fav-value">{profileUser.favoriteAuthors.join(", ")}</p>
-                    </div>
-                  )}
+                  {Array.isArray(profileUser.favoriteAuthors) &&
+                    profileUser.favoriteAuthors.length > 0 && (
+                      <div className="fav-subset">
+                        <span className="fav-label">✍️ Autores favoritos</span>
+                        <p className="fav-value">{profileUser.favoriteAuthors.join(', ')}</p>
+                      </div>
+                    )}
 
-                  {Array.isArray(profileUser.favoriteBooks) && profileUser.favoriteBooks.length > 0 && (
-                    <div className="fav-subset">
-                      <span className="fav-label">📚 Libros favoritos</span>
-                      <div className="chips-row" style={{ marginTop: "0.5rem" }}>
-                        {profileUser.favoriteBooks.map((book: any) => {
-                          const bookTitle = typeof book === "object" && book !== null ? book.title : "Libro";
-                          const bookId = typeof book === "object" && book !== null ? book._id : book;
-                          return (
-                            <span
-                              key={bookId}
-                              className="tag-chip static favorite-chip"
-                              onClick={() => navigate(`/libros/${bookId}`)}
-                              style={{ cursor: "pointer" }}
-                              title="Haga clic para ver el detalle del libro"
-                            >
-                              ⭐ {bookTitle}
+                  {Array.isArray(profileUser.favoriteBooks) &&
+                    profileUser.favoriteBooks.length > 0 && (
+                      <div className="fav-subset">
+                        <span className="fav-label">📚 Libros favoritos</span>
+                        <div className="chips-row" style={{ marginTop: '0.5rem' }}>
+                          {profileUser.favoriteBooks.map((book: any) => {
+                            const bookTitle =
+                              typeof book === 'object' && book !== null ? book.title : 'Libro';
+                            const bookId =
+                              typeof book === 'object' && book !== null ? book._id : book;
+                            return (
+                              <span
+                                key={bookId}
+                                className="tag-chip static favorite-chip"
+                                onClick={() => navigate(`/libros/${bookId}`)}
+                                style={{ cursor: 'pointer' }}
+                                title="Haga clic para ver el detalle del libro"
+                              >
+                                ⭐ {bookTitle}
+                              </span>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                  {Array.isArray(profileUser.favoriteCategories) &&
+                    profileUser.favoriteCategories.length > 0 && (
+                      <div className="fav-subset">
+                        <span className="fav-label">🏷️ Géneros favoritos</span>
+                        <div className="chips-row">
+                          {profileUser.favoriteCategories.map((cat: string) => (
+                            <span key={cat} className="tag-chip static">
+                              {cat}
                             </span>
-                          );
-                        })}
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
-
-                  {Array.isArray(profileUser.favoriteCategories) && profileUser.favoriteCategories.length > 0 && (
-                    <div className="fav-subset">
-                      <span className="fav-label">🏷️ Géneros favoritos</span>
-                      <div className="chips-row">
-                        {profileUser.favoriteCategories.map((cat: string) => (
-                          <span key={cat} className="tag-chip static">{cat}</span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+                    )}
                 </div>
               ) : (
                 <p className="no-favs-yet">Este lector aún no ha seleccionado favoritos.</p>
@@ -603,14 +655,14 @@ export default function Profile() {
                 {Array.isArray(profileUser.wishlist) && profileUser.wishlist.length > 0 ? (
                   <div className="chips-row">
                     {profileUser.wishlist.map((book: any) => {
-                      const bookTitle = typeof book === "object" ? book.title : "Libro";
-                      const bookId = typeof book === "object" ? book._id : book;
+                      const bookTitle = typeof book === 'object' ? book.title : 'Libro';
+                      const bookId = typeof book === 'object' ? book._id : book;
                       return (
                         <span
                           key={bookId}
                           className="tag-chip static wishlist-chip"
                           onClick={() => navigate(`/libros/${bookId}`)}
-                          style={{ cursor: "pointer" }}
+                          style={{ cursor: 'pointer' }}
                           title="Haga clic para ver el detalle del libro"
                         >
                           📖 {bookTitle}
@@ -630,14 +682,18 @@ export default function Profile() {
                 {followedEvents.length > 0 ? (
                   <div className="chips-row">
                     {followedEvents.map((evento: any) => {
-                      const eventTitle = typeof evento === "object" ? evento.title : "Evento";
-                      const eventId = typeof evento === "object" ? evento._id : evento;
+                      const eventTitle = typeof evento === 'object' ? evento.title : 'Evento';
+                      const eventId = typeof evento === 'object' ? evento._id : evento;
                       return (
                         <span
                           key={eventId}
                           className="tag-chip static followed-event-chip"
                           onClick={() => navigate(`/eventos/${eventId}`)} // Navega a la ruta de tu evento
-                          style={{ cursor: "pointer", backgroundColor: '#e3f2fd', color: '#0d47a1' }} // Un color azulado de ejemplo
+                          style={{
+                            cursor: 'pointer',
+                            backgroundColor: '#e3f2fd',
+                            color: '#0d47a1',
+                          }} // Un color azulado de ejemplo
                           title="Haga clic para ver el detalle del evento"
                         >
                           📅 {eventTitle}
@@ -649,7 +705,6 @@ export default function Profile() {
                   <p className="no-favs-yet">No estás siguiendo ningún evento.</p>
                 )}
               </div>
-
             </div>
           )}
         </div>

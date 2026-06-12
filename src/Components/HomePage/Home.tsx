@@ -784,7 +784,7 @@ const Home: React.FC = () => {
               />
               <label className="form-check-label">{t('use_openlibrary')}</label>
             </div>
-            {onlyISBN ? (
+            {!onlyISBN ? (
               <div className="add-book-form">
                 <div className="form-group">
                   <label>{t('label_operation_type')}</label>
@@ -854,6 +854,30 @@ const Home: React.FC = () => {
                   />
                 </div>
 
+                <div className="form-group">
+                  <label> Subir Foto</label>
+                  <input
+                    type="file"
+                    src="./"
+                    id="imageSelector"
+                    alt="Subir foto"
+                    /* T-T Por favor comprobad el codigo antes de subir al repositorio, lo he tenido que volver a añadir. */
+                    onChange={(e) => {
+                      const file = e.target.files![0];
+                      //toast(JSON.stringify(path)); // aqui no aparece
+                      //console.log(path);
+                      const formData: FormData = new FormData();
+                      formData.append('file', file);
+                      // no es lo mejor ponerlo asi, la subida de la imagen tendria que hacerlo al Subir el Libro
+                      ImageService.upload(formData)
+                        .then((url) => setImageUrl(url!))
+                        .catch((error) => {
+                          toast.error(JSON.stringify(error));
+                        });
+                    }}
+                  />
+                </div>
+
                 <button
                   className="submit-btn"
                   disabled={!newBookIsbn || !newBookPrice}
@@ -902,15 +926,7 @@ const Home: React.FC = () => {
                     required
                   />
                 </div>
-                <div className="form-group">
-                  <label> Subir Foto</label>
-                  <input
-                    type="file"
-                    src="./"
-                    id="imageSelector"
-                    alt="Subir foto"
-                  />
-                </div>
+                
               </form>
             )}
           </div>
