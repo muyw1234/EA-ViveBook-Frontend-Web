@@ -29,20 +29,15 @@ const CategoryPage: React.FC = () => {
         setLoading(true);
 
         if (type === 'rentals' || type === 'sales') {
-          const response = await LibroService.getAllLibros(currentPage, limit);
+          const backendType = type === 'rentals' ? 'ALQUILER' : 'VENTA';
+          const response = await LibroService.getAllLibros(currentPage, limit, backendType);
 
           if (Array.isArray(response)) {
-            const filteredBooks = response.filter((b: any) =>
-              type === 'rentals' ? b.type === 'ALQUILER' : b.type === 'VENTA'
-            );
-            setItems(filteredBooks);
+            setItems(response);
             setHasMore(response.length === limit);
           } else if (response && response.data) {
             const booksArray = Array.isArray(response.data.data) ? response.data.data : response.data;
-            const filteredBooks = (booksArray || []).filter((b: any) =>
-              type === 'rentals' ? b.type === 'ALQUILER' : b.type === 'VENTA'
-            );
-            setItems(filteredBooks);
+            setItems(booksArray || []);
             
             const rawLength = (booksArray || []).length;
             setHasMore(rawLength === limit);

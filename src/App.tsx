@@ -3,7 +3,7 @@ import Login from './Components/InitialPage/Login';
 import Register from './Components/InitialPage/Register';
 import Home from './Components/HomePage/Home';
 import BookDetail from './Components/BookDetail/BookDetail';
-import ChatGlobal from './Components/Chat/ChatGlobal';
+
 import EventoDetail from './Components/EventoDetail/EventoDetail';
 import CategoryPage from './Components/HomePage/CategoryPage';
 import SearchPage from './Components/SearchPage/searchPage';
@@ -66,9 +66,7 @@ function Navigation() {
           <Link to="/ia" className="nav-link highlight">
             IA
           </Link>
-          <Link to="/chat" className="nav-link highlight">
-            Chat Global
-          </Link>
+
           <button
             onClick={handleLogout}
             className="nav-link"
@@ -109,7 +107,7 @@ function App() {
 
         {/* Rutas Privadas */}
         <Route element={<ProtectedRoute />}>
-          <Route path="/chat" element={<ChatGlobal />} />
+
           <Route path="/ia" element={<AIChatBox />} />
           <Route path="/discover" element={<Discover />} />
           <Route path="/buzon" element={<Buzon />} />
