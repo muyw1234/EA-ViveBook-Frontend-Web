@@ -55,6 +55,7 @@ const addLibroListing = async (bookData: {
   type: string;
   precio: number;
   estado: string;
+  imageUrl?: string | null;
 }) => {
   try {
     const response = await api.post('/libros', bookData);

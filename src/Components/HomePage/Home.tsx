@@ -172,7 +172,7 @@ const Home: React.FC = () => {
         type: newBookType,
         precio: Number(newBookPrice),
         estado: newBookState,
-        imageUrl: imageUrl,
+        imageUrl: imageUrl || undefined,
       };
 
       const newBookResponse = await LibroService.addLibroListing(bookData);
