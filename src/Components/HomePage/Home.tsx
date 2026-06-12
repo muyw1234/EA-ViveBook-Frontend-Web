@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 import UsuarioService from '../Services/Usuario';
 import LibroService from '../Services/Libro';
@@ -63,7 +63,7 @@ const MapClickHandler = ({ onMapClick }: { onMapClick: (lat: number, lng: number
 const Home: React.FC = () => {
   const { t } = useTranslation();
 
-  const [searchQuery, setSearchQuery] = useState(''); // Ya no es necesario
+  const [searchQuery, setSearchQuery] = useState('');
   const [user, setUser] = useState<any | null>(null);
   const [books, setBooks] = useState<any[]>([]);
   const [posts, setPosts] = useState<Partial<IPost>[]>([]);
@@ -72,6 +72,10 @@ const Home: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [isAddBookModalOpen, setIsAddBookModalOpen] = useState(false);
   const [isAddEventModalOpen, setIsAddEventModalOpen] = useState(false);
+  
+  // Guardamos dinámicamente si hay un token en el localStorage para escuchar cambios
+  const [authToken, setAuthToken] = useState<string | null>(localStorage.getItem('token'));
+
   const latestBooks = [...books].reverse();
 
   // Form state corresponding to book fields
@@ -103,6 +107,7 @@ const Home: React.FC = () => {
     }
   };
 
+  // 1. Efecto separado únicamente para la geolocalización (Solo corre al montar)
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -116,17 +121,45 @@ const Home: React.FC = () => {
         },
       );
     }
+  }, []);
+
+  // 2. Efecto periódico para verificar si el usuario inició o cerró sesión en otra vista
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setAuthToken(localStorage.getItem('token'));
+    };
+
+    // Escucha cambios en el mismo componente y entre pestañas
+    window.addEventListener('storage', handleStorageChange);
+    const interval = setInterval(() => {
+      const currentToken = localStorage.getItem('token');
+      if (currentToken !== authToken) {
+        setAuthToken(currentToken);
+      }
+    }, 1000);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+    };
+  }, [authToken]);
+
+  // 3. Efecto encargado de traer los datos (Se dispara al montar Y cada vez que el token cambie)
+  useEffect(() => {
     const fetchData = async () => {
-      const token = localStorage.getItem('token');
+      setLoading(true);
       try {
-        if (token) {
+        if (authToken) {
           try {
             const userData = await UsuarioService.getProfile();
             setUser(userData);
           } catch (err) {
             console.error('Error fetching user profile:', err);
             localStorage.removeItem('token');
+            setUser(null);
           }
+        } else {
+          setUser(null); // Si no hay token, limpiamos explícitamente el usuario
         }
 
         try {
@@ -160,7 +193,7 @@ const Home: React.FC = () => {
     };
 
     fetchData();
-  }, []);
+  }, [authToken]); // <-- CORRECCIÓN CLAVE: Al añadir authToken aquí, los libros se recargarán inmediatamente al iniciar sesión
 
   const handleAddBookSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -268,13 +301,9 @@ const Home: React.FC = () => {
     return <div className="home-container">Cargando ViveBook...</div>;
   }
 
-  //#region Search
-
   function search() {
     navigate('/search', { state: { term: searchQuery } });
   }
-
-  //#endregion Search
 
   return (
     <div className="home-container">
@@ -336,7 +365,7 @@ const Home: React.FC = () => {
         </div>
       </header>
 
-      {/* Hero Banner - BooksHub Style */}
+      {/* Hero Banner */}
       <section className="hero-banner-bookshub">
         <div className="hero-content">
           <h1>This Month</h1>
@@ -468,7 +497,8 @@ const Home: React.FC = () => {
           </div>
         </section>
       )}
-      {/* Aqui estan los posts */}
+
+      {/* Posts Section */}
       <section className="content-section">
         <div className="section-header">
           <h2 className="section-title">{t('section_posts')}</h2>
@@ -613,7 +643,7 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Sección del Mapa */}
+      {/* Mapa Section */}
       <section className="content-section">
         <h2 className="section-title">Eventos cerca de ti</h2>
         <div
@@ -628,12 +658,10 @@ const Home: React.FC = () => {
             <MapContainer center={userLocation} zoom={13} style={{ height: '100%', width: '100%' }}>
               <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
-              {/* MARCADO DE USUARIO*/}
               <Marker position={userLocation} icon={UserIcon}>
                 <Popup>Estás aquí</Popup>
               </Marker>
 
-              {/* USA EventIcon (Rojo) */}
               {eventos.map((evt) => (
                 <Marker
                   key={evt._id}
@@ -676,44 +704,67 @@ const Home: React.FC = () => {
             {t('see_all')}
           </button>
         </div>
-        <div className="events-grid">
-          {eventos.map((event) => (
-            <div
-              key={event._id}
-              className="event-card"
-              onClick={() => navigate(`/eventos/${event._id}`)}
-              style={{ cursor: 'pointer' }}
-            >
-              <div className="event-date">
-                <span className="day">
-                  {event.eventDate
-                    ? new Date(event.eventDate).getDate()
-                    : event.date
-                      ? new Date(event.date).getDate()
-                      : '---'}
-                </span>
-                <span className="month">
-                  {event.eventDate
-                    ? new Date(event.eventDate).toLocaleString('default', {
-                        month: 'short',
-                      })
-                    : event.date
-                      ? new Date(event.date).toLocaleString('default', {
-                          month: 'short',
-                        })
-                      : '---'}
-                </span>
-              </div>
-              <div className="event-details">
-                <span className="event-title">{event.title}</span>
-                <span className="event-location">Ubicación: {event.direccionExacta}</span>
-              </div>
-            </div>
-          ))}
+        
+        <div className="events-grid home-limit">
+          {eventos && eventos.length > 0 ? (
+            eventos
+              .filter((event) => {
+                const dateStr = event.eventDate || event.date;
+                if (!dateStr) return false;
+                
+                const eventDate = new Date(dateStr);
+                const today = new Date();
+                
+                today.setHours(0, 0, 0, 0);
+                eventDate.setHours(0, 0, 0, 0);
+                
+                return eventDate >= today;
+              })
+              .sort((a, b) => {
+                const dateA = new Date(a.eventDate || a.date).getTime();
+                const dateB = new Date(b.eventDate || b.date).getTime();
+                return dateA - dateB;
+              })
+              .slice(0, 4)
+              .map((event) => (
+                <div
+                  key={event._id}
+                  className="event-card"
+                  onClick={() => navigate(`/eventos/${event._id}`)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <div className="event-date">
+                    <span className="day">
+                      {event.eventDate
+                        ? new Date(event.eventDate).getDate()
+                        : event.date
+                          ? new Date(event.date).getDate()
+                          : '---'}
+                    </span>
+                    <span className="month">
+                      {event.eventDate
+                        ? new Date(event.eventDate).toLocaleString('default', {
+                            month: 'short',
+                          })
+                        : event.date
+                          ? new Date(event.date).toLocaleString('default', {
+                              month: 'short',
+                            })
+                          : '---'}
+                    </span>
+                  </div>
+                  <div className="event-details">
+                    <span className="event-title">{event.title}</span>
+                    <span className="event-location">Ubicación: {event.direccionExacta}</span>
+                  </div>
+                </div>
+              ))
+          ) : (
+            <p className="no-data-msg">No hay eventos disponibles</p>
+          )}
         </div>
       </section>
 
-      {/* Sugeriria ponerlo en un componente a parte para asi dividir mejor las responsabilidades. */}
       {/* Add Book Modal */}
       {isAddBookModalOpen && (
         <div className="modal-overlay" onClick={() => setIsAddBookModalOpen(false)}>
@@ -728,14 +779,12 @@ const Home: React.FC = () => {
               <input
                 className="form-check-input"
                 type="checkbox"
-                value=""
                 id="flexCheckDefault"
                 onChange={(e) => setOnlyISBN(e.target.checked)}
               />
-              {/* Open Lirbary no debe estar separado */}
               <label className="form-check-label">{t('use_openlibrary')}</label>
             </div>
-            {onlyISBN ? (
+            {!onlyISBN ? (
               <div className="add-book-form">
                 <div className="form-group">
                   <label>{t('label_operation_type')}</label>
@@ -805,6 +854,30 @@ const Home: React.FC = () => {
                   />
                 </div>
 
+                <div className="form-group">
+                  <label> Subir Foto</label>
+                  <input
+                    type="file"
+                    src="./"
+                    id="imageSelector"
+                    alt="Subir foto"
+                    /* T-T Por favor comprobad el codigo antes de subir al repositorio, lo he tenido que volver a añadir. */
+                    onChange={(e) => {
+                      const file = e.target.files![0];
+                      //toast(JSON.stringify(path)); // aqui no aparece
+                      //console.log(path);
+                      const formData: FormData = new FormData();
+                      formData.append('file', file);
+                      // no es lo mejor ponerlo asi, la subida de la imagen tendria que hacerlo al Subir el Libro
+                      ImageService.upload(formData)
+                        .then((url) => setImageUrl(url!))
+                        .catch((error) => {
+                          toast.error(JSON.stringify(error));
+                        });
+                    }}
+                  />
+                </div>
+
                 <button
                   className="submit-btn"
                   disabled={!newBookIsbn || !newBookPrice}
@@ -853,271 +926,13 @@ const Home: React.FC = () => {
                     required
                   />
                 </div>
-                <div className="form-group">
-                  <label> Subir Foto</label>
-                  <input
-                    type="file"
-                    src="./"
-                    id="imageSelector"
-                    alt="Subir foto"
-                    onChange={(e) => {
-                      const file = e.target.files![0];
-                      //toast(JSON.stringify(path)); // aqui no aparece
-                      //console.log(path);
-                      const formData: FormData = new FormData();
-                      formData.append('file', file);
-                      // no es lo mejor ponerlo asi, la subida de la imagen tendria que hacerlo al Subir el Libro
-                      ImageService.upload(formData)
-                        .then((url) => setImageUrl(url!))
-                        .catch((error) => {
-                          toast.error(JSON.stringify(error));
-                        });
-                    }}
-                  />
-                </div>
-                <div className="form-group">
-                  <label>{t('label_id_data')}</label>
-                  <div style={{ display: 'flex', gap: '1rem' }}>
-                    <div
-                      style={{
-                        flex: 1,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '0.5rem',
-                      }}
-                    >
-                      <label style={{ fontSize: '0.8rem' }}>{t('label_isbn')}</label>
-                      <input
-                        type="text"
-                        placeholder="Ej: 978-3-16-148410-0"
-                        value={newBookIsbn}
-                        onChange={(e) => setNewBookIsbn(e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div
-                      style={{
-                        flex: 1,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '0.5rem',
-                      }}
-                    >
-                      <label style={{ fontSize: '0.8rem' }}>{t('label_author')}</label>
-                      <input
-                        type="text"
-                        placeholder="Ej: Gabriel García Márquez"
-                        value={newBookAuthor}
-                        onChange={(e) => setNewBookAuthor(e.target.value)}
-                        required
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div className="form-group">
-                  <label>Estado del libro</label>
-                  <select value={newBookState} onChange={(e) => setNewBookState(e.target.value)}>
-                    <option value="nuevo">{t('state_new')}</option>
-                    <option value="como_nuevo">{t('state_like_new')}</option>
-                    <option value="buen_estado">{t('state_good')}</option>
-                    <option value="usado">{t('state_used')}</option>
-                  </select>
-                </div>
-
-                <div className="form-group">
-                  <label>{t('label_price')}</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    placeholder="Ej: 15.50"
-                    value={newBookPrice}
-                    onChange={(e) => setNewBookPrice(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  className="submit-btn"
-                  disabled={!newBookTitle || !newBookIsbn || !newBookPrice}
-                >
-                  Subir Libro
-                </button>
+                
               </form>
             )}
           </div>
         </div>
       )}
-
-      {/* Add Event Modal */}
-      {isAddEventModalOpen && (
-        <div className="modal-overlay" onClick={() => setIsAddEventModalOpen(false)}>
-          <div
-            className="modal-content"
-            onClick={(e) => e.stopPropagation()}
-            style={{ maxWidth: '600px', width: '90%' }}
-          >
-            <div className="modal-header">
-              <h2>Crear Nuevo Evento</h2>
-              <button className="close-btn" onClick={() => setIsAddEventModalOpen(false)}>
-                ×
-              </button>
-            </div>
-
-            <form className="add-book-form" onSubmit={handleAddEventSubmit}>
-              <div className="form-group">
-                <label>Título del Evento</label>
-                <input
-                  type="text"
-                  placeholder="Ej: Club de lectura"
-                  value={newEventTitle}
-                  onChange={(e) => setNewEventTitle(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Descripción</label>
-                <textarea
-                  className="auth-input"
-                  style={{
-                    width: '100%',
-                    minHeight: '60px',
-                    padding: '10px',
-                    borderRadius: '5px',
-                  }}
-                  placeholder="¿De qué trata el evento?"
-                  value={newEventDescription}
-                  onChange={(e) => setNewEventDescription(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Fecha del Evento</label>
-                <input
-                  type="datetime-local"
-                  value={newEventDate}
-                  onChange={(e) => setNewEventDate(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Dirección Exacta (Texto)</label>
-                <input
-                  type="text"
-                  placeholder="Ej: Calle Gran Vía, 24, Planta 2"
-                  value={newEventDireccionExacta}
-                  onChange={(e) => setNewEventDireccionExacta(e.target.value)}
-                  required
-                />
-              </div>
-
-              {/* SECCIÓN DEL MAPA INTERACTIVO DENTRO DEL MODAL */}
-              <div className="form-group">
-                <label style={{ display: 'block', marginBottom: '5px' }}>
-                  Ubicación en el Mapa{' '}
-                  <span style={{ color: '#e74c3c', fontSize: '0.85rem' }}>
-                    (Haz clic en el lugar exacto)
-                  </span>
-                </label>
-                <div
-                  style={{
-                    height: '250px',
-                    width: '100%',
-                    borderRadius: '8px',
-                    overflow: 'hidden',
-                    border: '1px solid #ccc',
-                  }}
-                >
-                  <MapContainer
-                    center={newEventLocation || userLocation || [41.3851, 2.1734]}
-                    zoom={14}
-                    style={{ height: '100%', width: '100%' }}
-                  >
-                    <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-
-                    {newEventLocation && (
-                      <Marker position={newEventLocation} icon={EventIcon}>
-                        <Popup>El evento será aquí</Popup>
-                      </Marker>
-                    )}
-
-                    <MapClickHandler
-                      onMapClick={(lat, lng) => {
-                        setNewEventLocation([lat, lng]);
-                      }}
-                    />
-                  </MapContainer>
-                </div>
-                {newEventLocation && (
-                  <p
-                    style={{
-                      fontSize: '0.8rem',
-                      color: 'var(--primary)',
-                      marginTop: '5px',
-                      fontWeight: '500',
-                    }}
-                  >
-                    Coordenadas: {newEventLocation[0].toFixed(5)}, {newEventLocation[1].toFixed(5)}
-                  </p>
-                )}
-              </div>
-
-              <button type="submit" className="submit-btn" disabled={!newEventLocation}>
-                {!newEventLocation ? 'Selecciona ubicación en el mapa' : 'Publicar Evento'}
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
-      {/* Footer - BooksHub Style */}
-      <footer className="bookshub-footer">
-        <div className="footer-newsletter">
-          <h3>Subscribe our newsletter for newest books updates</h3>
-          <div className="newsletter-input-group">
-            <input type="email" placeholder="Type your email here" />
-            <button>Subscribe</button>
-          </div>
-        </div>
-        <div className="footer-links-grid">
-          <div className="footer-brand">
-            <h2 className="footer-logo">ViveBook</h2>
-            <p>Tu plataforma ideal para comprar, vender y compartir libros.</p>
-            <div className="social-links-modern">
-              <a href="#">Twitter</a>
-              <a href="#">Instagram</a>
-              <a href="#">LinkedIn</a>
-            </div>
-          </div>
-          <div className="footer-col">
-            <h4>About</h4>
-            <a href="#">About Us</a>
-            <a href="#">Contact Us</a>
-            <a href="#">FAQ</a>
-          </div>
-          <div className="footer-col">
-            <h4>Services</h4>
-            <a href="#">Products</a>
-            <a href="#">Offers</a>
-            <a href="#">Rentals</a>
-          </div>
-          <div className="footer-col">
-            <h4>Help</h4>
-            <a href="#">FAQ&apos;s</a>
-            <a href="#">Store Locator</a>
-          </div>
-          <div className="footer-col">
-            <h4>Get in Touch</h4>
-            <p>Calle Falsa 123</p>
-            <p>Barcelona, 08001</p>
-          </div>
-        </div>
-      </footer>
       <ToastContainer />
-      <AccessibilityMenu />
     </div>
   );
 };

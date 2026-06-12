@@ -229,7 +229,7 @@ const BookDetail: React.FC = () => {
   if (error || !book) {
     return (
       <div className="book-detail-page">
-        <button className="back-button" onClick={() => navigate('/home')}>
+        <button className="back-button" onClick={() => navigate('/')}>
           Volver
         </button>
         <p className="book-detail-error">{error || 'Libro no encontrado.'}</p>
@@ -239,7 +239,7 @@ const BookDetail: React.FC = () => {
 
   return (
     <main className="book-detail-page">
-      <button className="back-button" onClick={() => navigate('/home')}>
+      <button className="back-button" onClick={() => navigate('/')}>
         Volver
       </button>
 

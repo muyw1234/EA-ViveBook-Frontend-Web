@@ -30,9 +30,9 @@ const createEvento = async (eventoData: IEventoData) => {
   }
 };
 
-const getAllEventos = async () => {
+const getAllEventos = async (page: number = 1, limit: number = 10) => {
   try {
-    const response = await api.get('/eventos');
+    const response = await api.get('/eventos', { params: { page, limit } });
     const data = response.data;
 
     if (Array.isArray(data)) {

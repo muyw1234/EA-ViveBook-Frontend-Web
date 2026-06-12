@@ -19,12 +19,18 @@ type ParticipantUser = {
   email?: string;
 };
 
+type CreatorUser = {
+  _id: string;
+  name: string;
+  email?: string;
+};
+
 type Event = {
   _id?: string;
   id?: string;
   title: string;
   description: string;
-  creator: string;
+  creator: CreatorUser;
   participant: ParticipantUser[];
   eventDate: Date | string;
   createdDate: Date | string;
@@ -137,8 +143,21 @@ const EventDetail: React.FC = () => {
 
     setJoining(true);
     try {
-      const updatedEvent = await EventService.participateInEvento(event._id, currentUserId);
-      setEvent(updatedEvent);
+      await EventService.participateInEvento(event._id, currentUserId);
+      
+      const mockCurrentUser: ParticipantUser = {
+        _id: currentUserId,
+        name: localStorage.getItem('userName') || 'Tú', // Asegúrate de tener guardado el nombre del usuario logueado en el localStorage al iniciar sesión
+      };
+
+      setEvent((prevEvent) => {
+        if (!prevEvent) return null;
+        return {
+          ...prevEvent,
+          participant: [...(prevEvent.participant || []), mockCurrentUser],
+        };
+      });
+
       toast.success('¡Te has apuntado al evento con éxito!');
     } catch (err) {
       console.error('Error al unirse al evento:', err);
@@ -219,7 +238,7 @@ const EventDetail: React.FC = () => {
         <div className="event-detail-info">
           <span className="event-detail-status">Próximamente</span>
           <h1>{event.title || 'Evento sin título'}</h1>
-          <p className="event-detail-author">Organizado por: {event.creator}</p>
+          <p className="event-detail-author">Organizado por: {event.creator?.name || "Anónimo"}</p>
 
           <dl className="event-detail-meta">
             <div>

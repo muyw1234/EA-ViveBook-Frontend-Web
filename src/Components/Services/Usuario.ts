@@ -1,5 +1,7 @@
+import type { AxiosResponse } from 'axios';
 import api from '../../api';
-import type { IUsuario } from '../../Models/Usuario';
+import type IUsuario from '../../Models/Usuario';
+import Image from './Image';
 
 const createUser = async (userData: { name: string; email: string; password: string }) => {
   try {
@@ -84,6 +86,17 @@ const socialLogin = async (socialData: { provider: string; idToken: string; name
   }
 };
 
+async function updateUsuario(userData: Partial<IUsuario> , payload : any) : Promise<AxiosResponse<Partial<IUsuario>>> {
+  return await api.put(`/usuarios/${userData._id}`, payload);
+}
+
+async function changeAvatar(data : FormData, userData : Partial<IUsuario>) : Promise<Partial<IUsuario> | undefined>{
+  const url = await Image.upload(data);
+
+  const user = await updateUsuario(userData, {avatar : url});
+  return user.data;
+}
+
 export default {
   createUser,
   getUserByEmail,
@@ -92,4 +105,6 @@ export default {
   toggleFavorite,
   searchUsuarios,
   socialLogin,
+  updateUsuario,
+  changeAvatar
 };
