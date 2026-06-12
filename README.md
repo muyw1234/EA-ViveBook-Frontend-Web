@@ -1,101 +1,35 @@
-# React + TypeScript + Vite
+# Mínim 2: Llista de Desitjos (Wishlist), Favorits i Paginació de Biblioteca
 
-## Minimo 2
+**Autor:** Marc (Grup G3)
+**Tasca:** Implementar la llista de desitjos (wishlist), la llista de preferits (favorites) de llibres, i optimitzar la biblioteca mitjançant paginació al backend.
 
-En este minimo se ha continuado el desarrollo del frontend web de ViveBook, integrando la parte visual de la aplicacion con los servicios disponibles en el backend. El proyecto esta construido con React, TypeScript y Vite, y utiliza `axios` para centralizar las llamadas HTTP contra la API configurada en `src/api.ts`.
+## Abast de l'exercici
+Aquest document descriu l'abast i l'estat de la implementació de les funcionalitats desenvolupades per al Mínim 2.
 
-El cambio principal incorporado en esta fase ha sido la creacion de una nueva seccion de IA accesible desde el menu superior mediante la pestaña `IA`. Esta pestaña abre un chatbox propio, implementado en `src/Components/AIChatBox`, que permite al usuario escribir una consulta en lenguaje natural para pedir recomendaciones de libros. El componente llama al endpoint del backend `POST /recomendaciones`, enviando la consulta como `query` junto con un limite de resultados, y muestra la respuesta generada por el servicio de IA.
+## Estat de l'exercici
+Completat / Operatiu. L'exercici ha passat de la fase "in progress" a estar finalitzat.
 
-Tambien se ha creado un servicio frontend especifico en `src/Components/Services/Recomendacion.ts` para encapsular las llamadas al backend relacionadas con recomendaciones. De esta forma, el componente de interfaz no depende directamente de los detalles de `axios` ni de la ruta exacta del endpoint.
+## Parts operatives (Finalitzades)
+S'han codificat i provat les següents funcionalitats:
+* **Definició de la història d'usuari:** Història amb descripció en GHERKIN i les tasques principals a la targeta de seguiment.
+* **Branca Git de treball:** Desenvolupament i proves organitzades completament sota la branca `minim2/marc`.
+* **Model de dades:** Adaptació de l'esquema de l'usuari a MongoDB per emmagatzemar referències d'ObjectIds cap al model `Libro`.
+* **Lògica del Backend:**
+  * Endpoints per afegir, consultar i eliminar llibres de la llista de desitjos (`POST /usuarios/wishlist/:libroId`) i favorits (`POST /usuarios/favoritos/:libroId`).
+  * Nou endpoint paginat `/auth/profile/libros` que rep paràmetres de cerca `category`, `page` i `limit` per processar la paginació des de la base de dades i obtenir els contadors totals de cada secció de forma eficient.
+* **Integració i Millores al Frontend:**
+  * Botó interactiu per afegir/eliminar llibres a la llista de desitjos i a preferits directament a la vista de detalls del llibre (`BookDetail.tsx`).
+  * Secció del perfil d'usuari (`Profile.tsx`) que mostra els favorits en forma de chips estètics grocs (amb enllaços clicables i botó de supressió en mode edició).
+  * Redisseny de la biblioteca personal (`MyBooks.tsx`) per connectar-se al servei de paginació del backend. S'elimina el filtratge local com `.slice()`, optimitzant la càrrega de dades i actualitzant de forma dinàmica les pestanyes (Pujats, Comprats, Llogats i Llista de desitjos) amb els comptadors retornats per l'API.
 
-Actualmente el proyecto se encuentra en un estado funcional para desarrollo local. La aplicacion compila correctamente con:
+## Parts pendents de codificar
+* Cap. Totes les funcionalitats requerides per al Mínim 2 estan codificades i operatives.
 
-```bash
-npm run build
-```
-
-Para ejecutar el frontend en local se puede usar:
-
-```bash
-npm run dev
-```
-
-El frontend espera que el backend este disponible en `http://localhost:1337`, tal como esta definido en `src/api.ts`. Para que la pestaña `IA` funcione completamente, el backend debe estar levantado y el servicio de recomendaciones debe tener acceso al servicio de IA configurado previamente.
-
-# Comandos
-
-Crear nuevo proyecto con Vite con última versión: npm create vite@latest
-
-Comando para compilar: npm run dev
-
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x';
-import reactDom from 'eslint-plugin-react-dom';
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
-```
+## Ús de la Intel·ligència Artificial (IA)
+S'ha utilitzat una eina de suport d'Intel·ligència Artificial (IA) durant el desenvolupament de l'exercici, posant el focus de forma molt predominant en les tasques del **frontend**:
+* **Desenvolupament al Frontend (Major enfocament):**
+  * Implementació de la lògica de presentació dinàmica dels botons de favorits i llista de desitjos en el detall de llibre (`BookDetail.tsx`).
+  * Refactorització completa del component de biblioteca (`MyBooks.tsx`) per connectar-lo al servei de paginació del backend, eliminant el filtratge i tallat local (`.slice()`) que es feia anteriorment.
+  * Resolució d'errors de compilació i definició d'interfícies en TypeScript.
+* **Desenvolupament al Backend:**
+  * Suport en el disseny i implementació del nou endpoint paginat de perfil/llibres (`/auth/profile/libros`) i l'endpoint per fer toggle de preferits.
