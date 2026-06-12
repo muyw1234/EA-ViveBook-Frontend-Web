@@ -138,177 +138,139 @@ export default function Retos() {
 
   return (
     <div className="retos-container">
-      {/* Header card with overall progress gradient */}
-      <div className="retos-header-gradient">
-        <div className="header-row">
-          <div className="trophy-container">
-            <span className="trophy-emoji">🏆</span>
+      {/* Dashboard Top Header Grid */}
+      <div className="retos-dashboard-header">
+        {/* Left Card: Level info & badge */}
+        <div className="level-summary-card">
+          <div className="level-medal-wrapper">
+            <span className="level-medal-emoji">{userLevel.medal || '❔'}</span>
           </div>
-          <div className="header-text-container">
-            <h1>Mis Retos</h1>
-            <p>Completa objetivos y gana insignias en la comunidad</p>
-          </div>
-        </div>
-
-        <div className="progress-container">
-          <div className="progress-text-row">
-            <span className="progress-text-label">Retos completados</span>
-            <span className="progress-count-text">
-              {completedCount} / {totalCount}
-            </span>
-          </div>
-          <div className="header-progress-bg">
-            <div className="header-progress-bar" style={{ width: `${overallPercentage}%` }}></div>
-          </div>
-        </div>
-      </div>
-
-      {/* Level Info Card */}
-      <div className="level-summary-card">
-        <div className="level-badge-container">
-          <span className="level-medal">{userLevel.medal || '❔'}</span>
-          <div className="level-info-text">
-            <h2>Nivel: {userLevel.levelName}</h2>
-            <p className="level-description">
-              {userLevel.levelName === 'Oro' &&
-                '¡Felicidades! Has completado todos los retos disponibles. ¡Eres un lector legendario! 🌟'}
-              {userLevel.levelName === 'Plata' &&
-                '¡Buen trabajo! Has completado al menos la mitad de los retos. ¡Sigue así! 🚀'}
-              {userLevel.levelName === 'Bronce' &&
-                '¡Vas por buen camino! Has completado al menos 3 retos. ¡Pronto subirás al siguiente nivel! 🌱'}
-              {userLevel.levelName === 'Sin nivel' &&
-                'Completa retos para desbloquear tu primera medalla. ¡Comienza hoy! 📖'}
+          <div className="level-info-details">
+            <span className="level-label">Nivel Actual</span>
+            <h2 className="level-title">{userLevel.levelName}</h2>
+            <p className="level-desc-text">
+              {userLevel.levelName === 'Oro' && '¡Felicidades! Has completado todos los retos de la comunidad. ¡Eres una leyenda! 🌟'}
+              {userLevel.levelName === 'Plata' && '¡Buen trabajo! Has completado la mayoría de los retos. ¡Sigue así! 🚀'}
+              {userLevel.levelName === 'Bronce' && '¡Vas por muy buen camino! Completa más retos para ascender de nivel. 🌱'}
+              {userLevel.levelName === 'Sin nivel' && 'Completa retos para desbloquear tu primera medalla en la comunidad. 📖'}
             </p>
           </div>
         </div>
+
+        {/* Right Card: Overall statistics & Progress Gauge */}
+        <div className="progress-summary-card">
+          <div className="progress-summary-info">
+            <div className="progress-stat">
+              <span className="stat-value">{completedCount}</span>
+              <span className="stat-label">Completados</span>
+            </div>
+            <div className="progress-stat-divider"></div>
+            <div className="progress-stat">
+              <span className="stat-value">{totalCount}</span>
+              <span className="stat-label">Retos Totales</span>
+            </div>
+          </div>
+          <div className="progress-gauge-wrapper">
+            <div className="progress-gauge-label">
+              <span>Progreso de Logros</span>
+              <span>{Math.round(overallPercentage)}%</span>
+            </div>
+            <div className="progress-gauge-bar-bg">
+              <div className="progress-gauge-bar-fill" style={{ width: `${overallPercentage}%` }}></div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Success card if all completed */}
+      {/* Success Banner if all completed */}
       {completedCount === totalCount && totalCount > 0 && (
-        <div className="all-completed-card">
-          <span className="all-completed-emoji">🎉🏆🎉</span>
-          <h3>¡Retos Completados!</h3>
-          <p>Ya has completado todos los retos, próximamente habrá más!</p>
+        <div className="all-completed-banner">
+          <span className="celebrate-icon">🎉</span>
+          <div className="banner-text">
+            <h3>¡Todos los retos completados!</h3>
+            <p>Has conquistado todos los objetivos disponibles. ¡Próximamente añadiremos más retos!</p>
+          </div>
         </div>
       )}
 
-      {/* Filter buttons */}
-      <div className="filter-row">
-        <button
-          className={`filter-tab ${filter === 'all' ? 'active' : ''}`}
-          onClick={() => setFilter('all')}
-        >
-          Todos
-        </button>
-        <button
-          className={`filter-tab ${filter === 'pending' ? 'active' : ''}`}
-          onClick={() => setFilter('pending')}
-        >
-          Pendientes
-        </button>
-        <button
-          className={`filter-tab ${filter === 'completed' ? 'active' : ''}`}
-          onClick={() => setFilter('completed')}
-        >
-          Completados
-        </button>
+      {/* Section Divider & Filters */}
+      <div className="challenges-section-header">
+        <h2 className="section-title-retos">Objetivos de la Comunidad</h2>
+        <div className="filter-row">
+          <button
+            className={`filter-tab ${filter === 'all' ? 'active' : ''}`}
+            onClick={() => setFilter('all')}
+          >
+            Todos
+          </button>
+          <button
+            className={`filter-tab ${filter === 'pending' ? 'active' : ''}`}
+            onClick={() => setFilter('pending')}
+          >
+            Pendientes
+          </button>
+          <button
+            className={`filter-tab ${filter === 'completed' ? 'active' : ''}`}
+            onClick={() => setFilter('completed')}
+          >
+            Completados
+          </button>
+        </div>
       </div>
 
-      {/* Accordion Grouped List */}
-      {groupTypes.length === 0 ? (
+      {/* Grid of Challenges */}
+      {filteredRetos.length === 0 ? (
         <div className="empty-container">
-          <span className="empty-emoji">
-            {completedCount === totalCount && totalCount > 0 ? '🎉' : '🔍'}
-          </span>
+          <span className="empty-emoji">🔍</span>
           <p className="empty-text">
-            {completedCount === totalCount && totalCount > 0
-              ? 'Ya has completado todos los retos, próximamente habrá más!'
-              : filter === 'completed' && completedCount === 0
-                ? 'Todavía no has completado ningún reto.'
-                : 'No hay retos disponibles en este momento.'}
+            {filter === 'completed' 
+              ? 'Todavía no has completado ningún reto.' 
+              : 'No se encontraron retos que coincidan con el filtro seleccionado.'}
           </p>
         </div>
       ) : (
-        <div className="groups-list">
-          {groupTypes.map((type) => {
-            const items = groupedRetos[type];
-            const isExpanded = expandedGroups[type] || false;
-            const completedInGroup = items.filter((r) => r.completado).length;
-            const totalInGroup = items.length;
+        <div className="retos-grid">
+          {filteredRetos.map((reto) => {
+            const progressPercent = reto.completado
+              ? 100
+              : Math.min(100, Math.max(0, (reto.progresoActual / reto.objetivo) * 100));
 
             return (
-              <div key={type} className="group-card">
-                <button onClick={() => toggleGroup(type)} className="group-header">
-                  <div
-                    className="group-icon-badge"
-                    style={{ backgroundColor: getBadgeColor(type) }}
-                  >
-                    <span className="group-icon-emoji">{getIcon(type)}</span>
+              <div key={reto._id} className={`reto-card ${reto.completado ? 'completed' : ''}`}>
+                <div className="reto-card-header">
+                  <div className="reto-card-icon" style={{ backgroundColor: getBadgeColor(reto.type) }}>
+                    {getIcon(reto.type)}
                   </div>
+                  {reto.completado ? (
+                    <span className="reto-status-badge completed">Completado</span>
+                  ) : (
+                    <span className="reto-status-badge pending">En progreso</span>
+                  )}
+                </div>
 
-                  <div className="group-title-container">
-                    <span className="group-title">{TYPE_TRANSLATIONS[type] || type}</span>
-                    <span className="group-subtitle">
-                      {completedInGroup} / {totalInGroup} completados
+                <div className="reto-card-body">
+                  <span className="reto-card-category">{TYPE_TRANSLATIONS[reto.type] || reto.type}</span>
+                  <h3 className="reto-card-title">{reto.title}</h3>
+                  {reto.description && <p className="reto-card-desc">{reto.description}</p>}
+                </div>
+
+                <div className="reto-card-footer">
+                  <div className="progress-info">
+                    <span className="progress-label">Progreso</span>
+                    <span className="progress-value">{reto.progresoActual} / {reto.objetivo}</span>
+                  </div>
+                  <div className="progress-bar-bg">
+                    <div
+                      className={`progress-bar-fill ${reto.completado ? 'completed' : ''}`}
+                      style={{ width: `${progressPercent}%` }}
+                    ></div>
+                  </div>
+                  {reto.completado && reto.fechaCompletado && (
+                    <span className="completion-date">
+                      Completado el {new Date(reto.fechaCompletado).toLocaleDateString()}
                     </span>
-                  </div>
-
-                  <span className="expand-chevron">{isExpanded ? '▲' : '▼'}</span>
-                </button>
-
-                {isExpanded && (
-                  <div className="group-content">
-                    {items.map((reto, idx) => {
-                      const progressPercent = reto.completado
-                        ? 100
-                        : Math.min(100, Math.max(0, (reto.progresoActual / reto.objetivo) * 100));
-
-                      return (
-                        <div
-                          key={reto._id}
-                          className={`reto-item ${reto.completado ? 'completed' : ''} ${
-                            idx < items.length - 1 ? 'divider' : ''
-                          }`}
-                        >
-                          <div className="reto-item-top-row">
-                            <div className="reto-text-col">
-                              <span className="reto-item-title">{reto.title}</span>
-                              {reto.description && (
-                                <span className="reto-item-description">{reto.description}</span>
-                              )}
-                            </div>
-
-                            {reto.completado && (
-                              <div className="completed-badge-small">Completado</div>
-                            )}
-                          </div>
-
-                          <div className="progress-section">
-                            <div className="progress-label-row">
-                              <span className="progress-label">Progreso</span>
-                              <span className="progress-count">
-                                {reto.progresoActual} / {reto.objetivo}
-                              </span>
-                            </div>
-                            <div className="progress-bar-container-small">
-                              <div
-                                className={`progress-bar-small ${
-                                  reto.completado ? 'completed' : ''
-                                }`}
-                                style={{ width: `${progressPercent}%` }}
-                              ></div>
-                            </div>
-                            {reto.completado && reto.fechaCompletado && (
-                              <span className="completion-date-text">
-                                🎉 {new Date(reto.fechaCompletado).toLocaleDateString()}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             );
           })}

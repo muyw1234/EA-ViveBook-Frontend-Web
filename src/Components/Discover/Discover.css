@@ -249,18 +249,26 @@
 .item-actions {
   display: flex;
   gap: 0.5rem;
+  align-items: center; /* prevent buttons from stretching vertically */
 }
 
 .follow-btn {
   background: #faf5f9;
   border: 1px solid #d183ba;
   color: #d183ba;
-  padding: 0.45rem 1rem;
+  padding: 0 1.25rem; /* horizontal padding only */
   border-radius: 0.5rem;
   font-size: 0.85rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s ease;
+  white-space: nowrap; /* prevent text wrapping */
+  height: 36px; /* fixed height for absolute uniformity */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: 105px; /* enough space for 'Siguiendo' and 'Seguir' without resizing */
 }
 
 .follow-btn:hover {
@@ -282,12 +290,18 @@
   background: transparent;
   border: 1px solid #cbd5e1;
   color: #64748b;
-  padding: 0.45rem 0.75rem;
+  padding: 0 1rem;
   border-radius: 0.5rem;
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+  white-space: nowrap;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
 }
 
 .view-btn:hover {
