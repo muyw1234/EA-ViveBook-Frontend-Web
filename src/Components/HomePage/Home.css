@@ -600,7 +600,7 @@
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  gap: -20px;
+  gap: 0;
   height: 250px;
 }
 
@@ -807,4 +807,137 @@
   background-color: #f3e8ff;
   color: #6b21a8;
   border: 1px solid rgba(107, 33, 168, 0.2);
+}
+
+/* --- Social Dashboard Section --- */
+.social-dashboard-section {
+  padding-top: 1.5rem;
+}
+
+.social-dashboard-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .social-dashboard-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+/* Vertical layout inside network panel */
+.following-subgrid-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Event & Map Container Box */
+.events-map-container-box {
+  background: var(--surface);
+  border: 1px solid var(--outline);
+  border-radius: 1rem;
+  padding: 1.75rem;
+  box-shadow: var(--shadow);
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  box-sizing: border-box;
+}
+
+.events-box-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.see-all-btn-link {
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.see-all-btn-link:hover {
+  color: var(--secondary) !important;
+  transform: translateX(2px);
+}
+
+/* Leaflet Map Wrapper */
+.social-map-wrapper {
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.social-map-wrapper:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: var(--primary) !important;
+}
+
+/* Events List */
+.social-events-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.social-event-row-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  background: #faf5f9;
+  border: 1px solid #f1e2f0;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.social-event-row-card:hover {
+  transform: translateY(-2px);
+  background-color: #fff;
+  box-shadow: 0 6px 16px rgba(209, 131, 186, 0.15);
+  border-color: #d183ba;
+}
+
+.event-date-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border: 1px solid #d183ba;
+  color: #d183ba;
+  border-radius: 0.5rem;
+  width: 45px;
+  height: 45px;
+  flex-shrink: 0;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.social-event-row-card:hover .event-date-badge {
+  background-color: #d183ba;
+  color: white;
+}
+
+/* Overlapping Book covers in Hero Display */
+.hero-book-card.left-book {
+  transform: rotate(-6deg) translateX(15px);
+  z-index: 1;
+}
+
+.hero-book-card.center-book {
+  z-index: 3;
+  transform: translateY(-15px) scale(1.05);
+}
+
+.hero-book-card.right-book {
+  transform: rotate(6deg) translateX(-15px);
+  z-index: 1;
+}
+
+.hero-book-card:hover {
+  transform: translateY(-25px) scale(1.1) !important;
+  z-index: 10 !important;
+  box-shadow: 0 15px 30px rgba(61, 26, 60, 0.25) !important;
 }

@@ -77,6 +77,7 @@ const Home: React.FC = () => {
   const [authToken, setAuthToken] = useState<string | null>(localStorage.getItem('token'));
 
   const latestBooks = [...books].reverse();
+  const heroBooks = latestBooks.slice(0, 3);
 
   // Form state corresponding to book fields
   const [newBookType, setNewBookType] = useState('VENTA');
@@ -368,38 +369,70 @@ const Home: React.FC = () => {
       {/* Hero Banner */}
       <section className="hero-banner-bookshub">
         <div className="hero-content">
-          <h1>This Month</h1>
+          <h1>Libros del Mes</h1>
           <p>
-            Descubre las recomendaciones más destacadas de este mes para sumergirte en nuevas
-            aventuras literarias.
+            Descubre las lecturas más recientes subidas por nuestra comunidad de lectores y atrévete con una nueva historia.
           </p>
-          <button className="read-more-btn">Read More</button>
+          <button className="read-more-btn" onClick={() => navigate('/categorias/sales')}>
+            Explorar Catálogo
+          </button>
         </div>
         <div className="hero-books-display">
-          <div className="hero-book-card left-book">
-            <div
-              className="book-cover-placeholder modern-cover"
-              style={{
-                background: 'linear-gradient(135deg, #F5E4F0, #D183BA)',
-              }}
-            ></div>
-          </div>
-          <div className="hero-book-card center-book">
-            <div
-              className="book-cover-placeholder modern-cover"
-              style={{
-                background: 'linear-gradient(135deg, #D183BA, #a85890)',
-              }}
-            ></div>
-          </div>
-          <div className="hero-book-card right-book">
-            <div
-              className="book-cover-placeholder modern-cover"
-              style={{
-                background: 'linear-gradient(135deg, #fbcfe8, #e0a3cd)',
-              }}
-            ></div>
-          </div>
+          {heroBooks.map((book, idx) => {
+            const positionClass = idx === 0 ? 'left-book' : idx === 1 ? 'center-book' : 'right-book';
+            const defaultGradient = idx === 0 
+              ? 'linear-gradient(135deg, #F5E4F0, #D183BA)' 
+              : idx === 1 
+                ? 'linear-gradient(135deg, #D183BA, #a85890)' 
+                : 'linear-gradient(135deg, #fbcfe8, #e0a3cd)';
+            
+            return (
+              <div 
+                key={book._id || idx} 
+                className={`hero-book-card ${positionClass}`}
+                onClick={() => book._id && openBookDetail(book._id)}
+                style={{ cursor: book._id ? 'pointer' : 'default' }}
+              >
+                {book.imageUrl ? (
+                  <img src={book.imageUrl} alt={book.title} className="book-cover-placeholder" style={{ objectFit: 'cover' }} />
+                ) : (
+                  <div
+                    className="book-cover-placeholder modern-cover"
+                    style={{
+                      background: defaultGradient,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      padding: '1rem',
+                      textAlign: 'center',
+                      boxSizing: 'border-box'
+                    }}
+                  >
+                    <span style={{ fontSize: '0.9rem', fontWeight: 800, color: 'white', marginBottom: '0.25rem', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>
+                      {book.title || 'Título'}
+                    </span>
+                    <span style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.8)', fontWeight: 600 }}>
+                      {book.authors?.join(', ') || 'Autor'}
+                    </span>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+          {heroBooks.length === 0 && (
+            <>
+              <div className="hero-book-card left-book">
+                <div className="book-cover-placeholder modern-cover" style={{ background: 'linear-gradient(135deg, #F5E4F0, #D183BA)' }}></div>
+              </div>
+              <div className="hero-book-card center-book">
+                <div className="book-cover-placeholder modern-cover" style={{ background: 'linear-gradient(135deg, #D183BA, #a85890)' }}></div>
+              </div>
+              <div className="hero-book-card right-book">
+                <div className="book-cover-placeholder modern-cover" style={{ background: 'linear-gradient(135deg, #fbcfe8, #e0a3cd)' }}></div>
+              </div>
+            </>
+          )}
         </div>
       </section>
 
@@ -432,68 +465,160 @@ const Home: React.FC = () => {
         </section>
       )}
 
-      {/* Following Section */}
+      {/* Social Dashboard Section */}
       {user && (
-        <section className="content-section following-section">
-          <h2 className="section-title">Mi Red & Preferencias</h2>
-          <div className="following-container-box">
-            {!user.followingUsers?.length &&
-            !user.favoriteAuthors?.length &&
-            !user.favoriteCategories?.length ? (
-              <p className="no-following-msg">
-                Aún no sigues a ningún lector ni has añadido favoritos. ¡Ve a tu perfil para
-                configurar tus gustos!
-              </p>
-            ) : (
-              <div className="following-subgrid">
-                {user.followingUsers && user.followingUsers.length > 0 && (
-                  <div className="following-group">
-                    <h3>👥 Lectores que sigues</h3>
-                    <div className="following-list">
-                      {user.followingUsers.map((followedUser: any) => (
-                        <div key={followedUser._id || followedUser} className="followed-user-row">
-                          <span className="followed-user-name">
-                            {followedUser.name || 'Lector'}
+        <section className="content-section social-dashboard-section">
+          <div className="social-dashboard-grid">
+            {/* Left Column: Mi Red & Preferencias */}
+            <div className="following-container-box">
+              <h2 className="section-title">Mi Red & Preferencias</h2>
+              {!user.followingUsers?.length &&
+              !user.favoriteAuthors?.length &&
+              !user.favoriteCategories?.length ? (
+                <p className="no-following-msg">
+                  Aún no sigues a ningún lector ni has añadido favoritos. ¡Ve a tu perfil para configurar tus gustos!
+                </p>
+              ) : (
+                <div className="following-subgrid-vertical">
+                  {user.followingUsers && user.followingUsers.length > 0 && (
+                    <div className="following-group">
+                      <h3>👥 Lectores que sigues</h3>
+                      <div className="following-list">
+                        {user.followingUsers.map((followedUser: any) => (
+                          <div key={followedUser._id || followedUser} className="followed-user-row">
+                            <span className="followed-user-name">
+                              {followedUser.name || 'Lector'}
+                            </span>
+                            <button
+                              className="view-followed-btn"
+                              onClick={() => navigate(`/profile/${followedUser._id || followedUser}`)}
+                            >
+                              Ver Perfil
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {user.favoriteAuthors && user.favoriteAuthors.length > 0 && (
+                    <div className="following-group">
+                      <h3>✍️ Autores Favoritos</h3>
+                      <div className="fav-items-list">
+                        {user.favoriteAuthors.map((author: string, idx: number) => (
+                          <span key={idx} className="fav-item-badge author">
+                            {author}
                           </span>
-                          <button
-                            className="view-followed-btn"
-                            onClick={() => navigate(`/profile/${followedUser._id || followedUser}`)}
-                          >
-                            Ver Perfil
-                          </button>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {user.favoriteAuthors && user.favoriteAuthors.length > 0 && (
-                  <div className="following-group">
-                    <h3>✍️ Autores Favoritos</h3>
-                    <div className="fav-items-list">
-                      {user.favoriteAuthors.map((author: string, idx: number) => (
-                        <span key={idx} className="fav-item-badge author">
-                          {author}
-                        </span>
-                      ))}
+                  {user.favoriteCategories && user.favoriteCategories.length > 0 && (
+                    <div className="following-group">
+                      <h3>🏷️ Géneros Favoritos</h3>
+                      <div className="fav-items-list">
+                        {user.favoriteCategories.map((cat: string, idx: number) => (
+                          <span key={idx} className="fav-item-badge category">
+                            {cat}
+                          </span>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
+              )}
+            </div>
 
-                {user.favoriteCategories && user.favoriteCategories.length > 0 && (
-                  <div className="following-group">
-                    <h3>🏷️ Géneros Favoritos</h3>
-                    <div className="fav-items-list">
-                      {user.favoriteCategories.map((cat: string, idx: number) => (
-                        <span key={idx} className="fav-item-badge category">
-                          {cat}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
+            {/* Right Column: Eventos y Mapa */}
+            <div className="events-map-container-box">
+              <div className="events-box-header">
+                <h2 className="section-title">Eventos & Mapa local</h2>
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                  <button className="add-book-btn" style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem' }} onClick={() => checkAuthAndOpen(setIsAddEventModalOpen)}>
+                    + Nuevo Evento
+                  </button>
+                  <button
+                    className="see-all-btn-link"
+                    style={{ background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600, textDecoration: 'underline' }}
+                    onClick={() => navigate('/categorias/events')}
+                  >
+                    Ver todos
+                  </button>
+                </div>
+              </div>
+
+              {/* Map displaying events */}
+              <div className="social-map-wrapper" style={{ height: '260px', width: '100%', borderRadius: '1rem', overflow: 'hidden', border: '1px solid var(--border)' }}>
+                {userLocation && (
+                  <MapContainer center={userLocation} zoom={13} style={{ height: '100%', width: '100%' }}>
+                    <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                    <Marker position={userLocation} icon={UserIcon}>
+                      <Popup>Estás aquí</Popup>
+                    </Marker>
+                    {eventos.map((evt: any) => (
+                      <Marker
+                        key={evt._id}
+                        position={[evt.location.coordinates[1], evt.location.coordinates[0]]}
+                        icon={EventIcon}
+                      >
+                        <Popup>
+                          <strong>{evt.title}</strong>
+                          <br />
+                          {evt.direccionExacta}
+                        </Popup>
+                      </Marker>
+                    ))}
+                    <RecenterMap coords={userLocation} />
+                  </MapContainer>
                 )}
               </div>
-            )}
+
+              {/* List of 2 upcoming events */}
+              <div className="social-events-list" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '0.75rem' }}>
+                {eventos && eventos.length > 0 ? (
+                  eventos
+                    .filter((event: any) => {
+                      const dateStr = event.eventDate || event.date;
+                      if (!dateStr) return false;
+                      const eventDate = new Date(dateStr);
+                      const today = new Date();
+                      today.setHours(0, 0, 0, 0);
+                      eventDate.setHours(0, 0, 0, 0);
+                      return eventDate >= today;
+                    })
+                    .sort((a: any, b: any) => {
+                      const dateA = new Date(a.eventDate || a.date).getTime();
+                      const dateB = new Date(b.eventDate || b.date).getTime();
+                      return dateA - dateB;
+                    })
+                    .slice(0, 2)
+                    .map((event: any) => (
+                      <div
+                        key={event._id}
+                        className="social-event-row-card"
+                        style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.75rem', background: '#faf5f9', borderRadius: '0.75rem', cursor: 'pointer', border: '1px solid #f1e2f0' }}
+                        onClick={() => navigate(`/eventos/${event._id}`)}
+                      >
+                        <div className="event-date-badge" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'white', border: '1px solid #d183ba', color: '#d183ba', borderRadius: '0.5rem', width: '45px', height: '45px', flexShrink: 0 }}>
+                          <span style={{ fontWeight: '800', fontSize: '1rem', lineHeight: 1 }}>
+                            {event.eventDate ? new Date(event.eventDate).getDate() : '---'}
+                          </span>
+                          <span style={{ fontSize: '0.65rem', textTransform: 'uppercase', fontWeight: 600 }}>
+                            {event.eventDate ? new Date(event.eventDate).toLocaleString('default', { month: 'short' }) : '---'}
+                          </span>
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem', textAlign: 'left' }}>
+                          <span style={{ fontWeight: '700', fontSize: '0.9rem', color: 'var(--text-h)' }}>{event.title}</span>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--text)' }}>📍 {event.direccionExacta}</span>
+                        </div>
+                      </div>
+                    ))
+                ) : (
+                  <p style={{ color: 'var(--text)', fontStyle: 'italic', fontSize: '0.85rem', margin: 0 }}>No hay eventos próximos en tu zona.</p>
+                )}
+              </div>
+            </div>
           </div>
         </section>
       )}
@@ -643,127 +768,7 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Mapa Section */}
-      <section className="content-section">
-        <h2 className="section-title">Eventos cerca de ti</h2>
-        <div
-          style={{
-            height: '450px',
-            width: '100%',
-            borderRadius: '15px',
-            overflow: 'hidden',
-          }}
-        >
-          {userLocation && (
-            <MapContainer center={userLocation} zoom={13} style={{ height: '100%', width: '100%' }}>
-              <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
-              <Marker position={userLocation} icon={UserIcon}>
-                <Popup>Estás aquí</Popup>
-              </Marker>
-
-              {eventos.map((evt) => (
-                <Marker
-                  key={evt._id}
-                  position={[evt.location.coordinates[1], evt.location.coordinates[0]]}
-                  icon={EventIcon}
-                >
-                  <Popup>
-                    <strong>{evt.title}</strong>
-                    <br />
-                    {evt.direccionExacta}
-                  </Popup>
-                </Marker>
-              ))}
-
-              <RecenterMap coords={userLocation} />
-            </MapContainer>
-          )}
-        </div>
-      </section>
-
-      {/* Events Section */}
-      <section className="content-section">
-        <div className="section-header">
-          <h2 className="section-title">{t('section_events')}</h2>
-          <button className="add-book-btn" onClick={() => checkAuthAndOpen(setIsAddEventModalOpen)}>
-            + Añadir Evento
-          </button>
-          <button
-            className="see-all"
-            onClick={() => navigate('/categorias/events')}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: 'inherit',
-              font: 'inherit',
-              cursor: 'pointer',
-              textDecoration: 'underline',
-            }}
-          >
-            {t('see_all')}
-          </button>
-        </div>
-        
-        <div className="events-grid home-limit">
-          {eventos && eventos.length > 0 ? (
-            eventos
-              .filter((event) => {
-                const dateStr = event.eventDate || event.date;
-                if (!dateStr) return false;
-                
-                const eventDate = new Date(dateStr);
-                const today = new Date();
-                
-                today.setHours(0, 0, 0, 0);
-                eventDate.setHours(0, 0, 0, 0);
-                
-                return eventDate >= today;
-              })
-              .sort((a, b) => {
-                const dateA = new Date(a.eventDate || a.date).getTime();
-                const dateB = new Date(b.eventDate || b.date).getTime();
-                return dateA - dateB;
-              })
-              .slice(0, 4)
-              .map((event) => (
-                <div
-                  key={event._id}
-                  className="event-card"
-                  onClick={() => navigate(`/eventos/${event._id}`)}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <div className="event-date">
-                    <span className="day">
-                      {event.eventDate
-                        ? new Date(event.eventDate).getDate()
-                        : event.date
-                          ? new Date(event.date).getDate()
-                          : '---'}
-                    </span>
-                    <span className="month">
-                      {event.eventDate
-                        ? new Date(event.eventDate).toLocaleString('default', {
-                            month: 'short',
-                          })
-                        : event.date
-                          ? new Date(event.date).toLocaleString('default', {
-                              month: 'short',
-                            })
-                          : '---'}
-                    </span>
-                  </div>
-                  <div className="event-details">
-                    <span className="event-title">{event.title}</span>
-                    <span className="event-location">Ubicación: {event.direccionExacta}</span>
-                  </div>
-                </div>
-              ))
-          ) : (
-            <p className="no-data-msg">No hay eventos disponibles</p>
-          )}
-        </div>
-      </section>
 
       {/* Add Book Modal */}
       {isAddBookModalOpen && (
