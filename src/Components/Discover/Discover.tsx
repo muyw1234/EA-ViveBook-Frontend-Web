@@ -138,116 +138,118 @@ const Discover: React.FC = () => {
 
         {message && <div className="discover-message error">{message}</div>}
 
-        {/* Categories Section */}
-        <div className="discover-section">
-          <h2 className="discover-section-title">Mis Categorías Favoritas</h2>
-          <p className="discover-section-desc">Selecciona los géneros literarios que más te gusta leer.</p>
-          <div className="categories-grid">
-            {ALL_CATEGORIES.map((cat) => {
-              const isSelected = favoriteCategories.includes(cat);
-              return (
-                <button
-                  key={cat}
-                  onClick={() => toggleCategory(cat)}
-                  className={`category-chip ${isSelected ? 'selected' : ''}`}
-                >
-                  {cat}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Authors Section */}
-        <div className="discover-section">
-          <h2 className="discover-section-title">Autores que me interesan</h2>
-          <p className="discover-section-desc">Sigue a tus autores favoritos (máximo 5).</p>
-          
-          <div className="author-input-wrapper">
-            <input
-              type="text"
-              placeholder="Añadir autor manualmente..."
-              value={newAuthor}
-              onChange={(e) => setNewAuthor(e.target.value)}
-              className="discover-input"
-            />
-            <button
-              onClick={() => {
-                if (newAuthor.trim()) {
-                  toggleAuthor(newAuthor.trim());
-                  setNewAuthor('');
-                }
-              }}
-              className="discover-add-btn"
-            >
-              Añadir
-            </button>
-          </div>
-
-          <div className="items-list">
-            {authors.map((authorName) => {
-              const isFollowing = favoriteAuthors.includes(authorName);
-              return (
-                <div key={authorName} className="discover-item-row">
-                  <div className="item-info">
-                    <div className="item-avatar author-avatar">
-                      {authorName.substring(0, 2).toUpperCase()}
-                    </div>
-                    <span className="item-name">{authorName}</span>
-                  </div>
-                  <button
-                    onClick={() => toggleAuthor(authorName)}
-                    className={`follow-btn ${isFollowing ? 'following' : ''}`}
-                  >
-                    {isFollowing ? 'Siguiendo' : 'Seguir'}
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Users Section */}
-        <div className="discover-section">
-          <h2 className="discover-section-title">Comunidad de Lectores</h2>
-          <p className="discover-section-desc">Conecta con otros entusiastas de la lectura en ViveBook.</p>
-          
-          <div className="items-list">
-            {users.length > 0 ? (
-              users.map((u) => {
-                const isFollowing = followingUsers.includes(u._id);
+        <div className="discover-sections-grid">
+          {/* Categories Section */}
+          <div className="discover-section">
+            <h2 className="discover-section-title">Mis Categorías Favoritas</h2>
+            <p className="discover-section-desc">Selecciona los géneros literarios que más te gusta leer.</p>
+            <div className="categories-grid">
+              {ALL_CATEGORIES.map((cat) => {
+                const isSelected = favoriteCategories.includes(cat);
                 return (
-                  <div key={u._id} className="discover-item-row">
+                  <button
+                    key={cat}
+                    onClick={() => toggleCategory(cat)}
+                    className={`category-chip ${isSelected ? 'selected' : ''}`}
+                  >
+                    {cat}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Authors Section */}
+          <div className="discover-section">
+            <h2 className="discover-section-title">Autores que me interesan</h2>
+            <p className="discover-section-desc">Sigue a tus autores favoritos (máximo 5).</p>
+            
+            <div className="author-input-wrapper">
+              <input
+                type="text"
+                placeholder="Añadir autor manualmente..."
+                value={newAuthor}
+                onChange={(e) => setNewAuthor(e.target.value)}
+                className="discover-input"
+              />
+              <button
+                onClick={() => {
+                  if (newAuthor.trim()) {
+                    toggleAuthor(newAuthor.trim());
+                    setNewAuthor('');
+                  }
+                }}
+                className="discover-add-btn"
+              >
+                Añadir
+              </button>
+            </div>
+
+            <div className="items-list">
+              {authors.map((authorName) => {
+                const isFollowing = favoriteAuthors.includes(authorName);
+                return (
+                  <div key={authorName} className="discover-item-row">
                     <div className="item-info">
-                      {u.avatar ? (
-                        <img src={u.avatar} alt={u.name} className="item-avatar-img" />
-                      ) : (
-                        <div className="item-avatar user-avatar">
-                          {u.name.substring(0, 2).toUpperCase()}
-                        </div>
-                      )}
-                      <span className="item-name">{u.name}</span>
+                      <div className="item-avatar author-avatar">
+                        {authorName.substring(0, 2).toUpperCase()}
+                      </div>
+                      <span className="item-name">{authorName}</span>
                     </div>
-                    <div className="item-actions">
-                      <button
-                        onClick={() => toggleUser(u._id)}
-                        className={`follow-btn ${isFollowing ? 'following' : ''}`}
-                      >
-                        {isFollowing ? 'Siguiendo' : 'Seguir'}
-                      </button>
-                      <button
-                        onClick={() => navigate(`/profile/${u._id}`)}
-                        className="view-btn"
-                      >
-                        Ver Perfil
-                      </button>
-                    </div>
+                    <button
+                      onClick={() => toggleAuthor(authorName)}
+                      className={`follow-btn ${isFollowing ? 'following' : ''}`}
+                    >
+                      {isFollowing ? 'Siguiendo' : 'Seguir'}
+                    </button>
                   </div>
                 );
-              })
-            ) : (
-              <p className="empty-text">No hay otros usuarios registrados actualmente.</p>
-            )}
+              })}
+            </div>
+          </div>
+
+          {/* Users Section */}
+          <div className="discover-section">
+            <h2 className="discover-section-title">Comunidad de Lectores</h2>
+            <p className="discover-section-desc">Conecta con otros entusiastas de la lectura en ViveBook.</p>
+            
+            <div className="items-list">
+              {users.length > 0 ? (
+                users.map((u) => {
+                  const isFollowing = followingUsers.includes(u._id);
+                  return (
+                    <div key={u._id} className="discover-item-row">
+                      <div className="item-info">
+                        {u.avatar ? (
+                          <img src={u.avatar} alt={u.name} className="item-avatar-img" />
+                        ) : (
+                          <div className="item-avatar user-avatar">
+                            {u.name.substring(0, 2).toUpperCase()}
+                          </div>
+                        )}
+                        <span className="item-name">{u.name}</span>
+                      </div>
+                      <div className="item-actions">
+                        <button
+                          onClick={() => toggleUser(u._id)}
+                          className={`follow-btn ${isFollowing ? 'following' : ''}`}
+                        >
+                          {isFollowing ? 'Siguiendo' : 'Seguir'}
+                        </button>
+                        <button
+                          onClick={() => navigate(`/profile/${u._id}`)}
+                          className="view-btn"
+                        >
+                          Ver Perfil
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <p className="empty-text">No hay otros usuarios registrados actualmente.</p>
+              )}
+            </div>
           </div>
         </div>
 
