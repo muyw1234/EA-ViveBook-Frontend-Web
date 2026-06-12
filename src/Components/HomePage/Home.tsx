@@ -957,9 +957,10 @@ const Home: React.FC = () => {
 
               <div className="form-group">
                 <label>Descripción</label>
-                <input
-                  type="text"
-                  placeholder="Ej: Compartiremos nuestras opiniones sobre el libro..."
+                <textarea
+                  className="auth-input"
+                  style={{ width: '100%', minHeight: '60px', padding: '10px', borderRadius: '5px', boxSizing: 'border-box' }}
+                  placeholder="¿De qué trata el evento?"
                   value={newEventDescription}
                   onChange={(e) => setNewEventDescription(e.target.value)}
                   required
@@ -1014,9 +1015,9 @@ const Home: React.FC = () => {
               <button
                 type="submit"
                 className="submit-btn"
-                disabled={!newEventTitle || !newEventDescription || !newEventDate || !newEventLocation}
+                disabled={!newEventLocation}
               >
-                Crear Evento
+                {!newEventLocation ? "Selecciona ubicación en el mapa" : "Publicar Evento"}
               </button>
             </form>
           </div>
