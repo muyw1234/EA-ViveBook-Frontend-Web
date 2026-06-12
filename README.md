@@ -20,7 +20,7 @@ S'han codificat i provat les següents funcionalitats:
 * **Integració i Millores al Frontend:**
   * Botó interactiu per afegir/eliminar llibres a la llista de desitjos i a preferits directament a la vista de detalls del llibre (`BookDetail.tsx`).
   * Secció del perfil d'usuari (`Profile.tsx`) que mostra els favorits en forma de chips estètics grocs (amb enllaços clicables i botó de supressió en mode edició).
-  * Redisseny de la biblioteca personal (`MyBooks.tsx`) per connectar-se al servei de paginació del backend. S'elimina el filtratge local amb `.slice()`, optimitzant la càrrega de dades i actualitzant de forma dinàmica les pestanyes (Pujats, Comprats, Llogats i Llista de desitjos) amb els comptadors retornats per l'API.
+  * Redisseny de la biblioteca personal (`MyBooks.tsx`) per connectar-se al servei de paginació del backend. S'elimina el filtratge local com `.slice()`, optimitzant la càrrega de dades i actualitzant de forma dinàmica les pestanyes (Pujats, Comprats, Llogats i Llista de desitjos) amb els comptadors retornats per l'API.
 
 ## Parts pendents de codificar
 * Cap. Totes les funcionalitats requerides per al Mínim 2 estan codificades i operatives.

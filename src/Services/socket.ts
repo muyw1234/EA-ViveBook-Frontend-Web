@@ -4,7 +4,7 @@ import { io } from 'socket.io-client';
 const SOCKET_URL = 'http://localhost:1337';
 
 const socket = io(SOCKET_URL, {
-    autoConnect: false
+  autoConnect: false,
 });
 
 export default socket;

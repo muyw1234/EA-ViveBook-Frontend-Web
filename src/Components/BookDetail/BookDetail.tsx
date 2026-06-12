@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import LibroService from "../Services/Libro";
-import UsuarioService from "../Services/Usuario";
-import "./BookDetail.css";
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import LibroService from '../Services/Libro';
+import UsuarioService from '../Services/Usuario';
+import './BookDetail.css';
 
 type Book = {
   _id?: string;
@@ -25,15 +25,15 @@ type Book = {
 
 const formatAuthors = (book: Book) => {
   if (book.authors?.length) {
-    return book.authors.join(", ");
+    return book.authors.join(', ');
   }
 
-  return book.author || "Autor desconocido";
+  return book.author || 'Autor desconocido';
 };
 
 const formatPrice = (price?: string | number) => {
-  if (price === undefined || price === null || price === "") {
-    return "Consultar precio";
+  if (price === undefined || price === null || price === '') {
+    return 'Consultar precio';
   }
 
   return `${price} EUR`;
@@ -44,7 +44,7 @@ const BookDetail: React.FC = () => {
   const navigate = useNavigate();
   const [book, setBook] = useState<Book | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
   // Wishlist and Favorites States
   const [isInWishlist, setIsInWishlist] = useState(false);
@@ -58,7 +58,7 @@ const BookDetail: React.FC = () => {
   useEffect(() => {
     const fetchBookAndWishlist = async () => {
       if (!id) {
-        setError("No se encontro el identificador del libro.");
+        setError('No se encontro el identificador del libro.');
         setLoading(false);
         return;
       }
@@ -89,8 +89,8 @@ const BookDetail: React.FC = () => {
           }
         }
       } catch (fetchError) {
-        console.error("Error fetching book detail:", fetchError);
-        setError("No se pudo cargar el detalle del libro.");
+        console.error('Error fetching book detail:', fetchError);
+        setError('No se pudo cargar el detalle del libro.');
       } finally {
         setLoading(false);
       }
@@ -160,17 +160,17 @@ const BookDetail: React.FC = () => {
   if (error || !book) {
     return (
       <div className="book-detail-page">
-        <button className="back-button" onClick={() => navigate("/home")}>
+        <button className="back-button" onClick={() => navigate('/home')}>
           Volver
         </button>
-        <p className="book-detail-error">{error || "Libro no encontrado."}</p>
+        <p className="book-detail-error">{error || 'Libro no encontrado.'}</p>
       </div>
     );
   }
 
   return (
     <main className="book-detail-page">
-      <button className="back-button" onClick={() => navigate("/home")}>
+      <button className="back-button" onClick={() => navigate('/home')}>
         Volver
       </button>
 
@@ -180,10 +180,8 @@ const BookDetail: React.FC = () => {
         </div>
 
         <div className="book-detail-info">
-          <span className="book-detail-status">
-            {book.status || "Disponible"}
-          </span>
-          <h1>{book.title || "Titulo sin nombre"}</h1>
+          <span className="book-detail-status">{book.status || 'Disponible'}</span>
+          <h1>{book.title || 'Titulo sin nombre'}</h1>
           <p className="book-detail-author">{formatAuthors(book)}</p>
 
           <div className="book-detail-price">{formatPrice(book.price)}</div>
@@ -226,21 +224,19 @@ const BookDetail: React.FC = () => {
           <dl className="book-detail-meta">
             <div>
               <dt>ISBN</dt>
-              <dd>{book.isbn || "No disponible"}</dd>
+              <dd>{book.isbn || 'No disponible'}</dd>
             </div>
             <div>
               <dt>Estado</dt>
-              <dd>{book.state || "No indicado"}</dd>
+              <dd>{book.state || 'No indicado'}</dd>
             </div>
             <div>
               <dt>Editorial</dt>
-              <dd>{book.editorial || book.publisher || "No indicada"}</dd>
+              <dd>{book.editorial || book.publisher || 'No indicada'}</dd>
             </div>
             <div>
               <dt>Publicacion</dt>
-              <dd>
-                {book.publicationDate || book.publishedDate || "No indicada"}
-              </dd>
+              <dd>{book.publicationDate || book.publishedDate || 'No indicada'}</dd>
             </div>
           </dl>
 
