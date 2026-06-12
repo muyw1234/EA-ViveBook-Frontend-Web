@@ -19,12 +19,18 @@ type ParticipantUser = {
   email?: string;
 };
 
+type CreatorUser = {
+  _id: string;
+  name: string;
+  email?: string;
+};
+
 type Event = {
   _id?: string;
   id?: string;
   title: string;
   description: string;
-  creator: string;
+  creator: CreatorUser;
   participant: ParticipantUser[];
   eventDate: Date | string;
   createdDate: Date | string;
@@ -219,7 +225,7 @@ const EventDetail: React.FC = () => {
         <div className="event-detail-info">
           <span className="event-detail-status">Próximamente</span>
           <h1>{event.title || 'Evento sin título'}</h1>
-          <p className="event-detail-author">Organizado por: {event.creator}</p>
+          <p className="event-detail-author">Organizado por: {event.creator?.name || "Anónimo"}</p>
 
           <dl className="event-detail-meta">
             <div>

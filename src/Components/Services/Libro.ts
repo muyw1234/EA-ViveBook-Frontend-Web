@@ -1,8 +1,8 @@
 import api from '../../api';
 
-const getAllLibros = async () => {
+const getAllLibros = async (page: number = 1, limit: number = 10) => {
   try {
-    const response = await api.get('/libros');
+    const response = await api.get('/libros', { params: { page, limit } });
     const data = response.data;
 
     if (Array.isArray(data)) {
