@@ -932,6 +932,97 @@ const Home: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Add Event Modal */}
+      {isAddEventModalOpen && (
+        <div className="modal-overlay" onClick={() => setIsAddEventModalOpen(false)}>
+          <div className="modal-content" style={{ maxWidth: '600px' }} onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Crear Nuevo Evento</h2>
+              <button className="close-btn" onClick={() => setIsAddEventModalOpen(false)}>
+                ×
+              </button>
+            </div>
+            <form className="add-book-form" onSubmit={handleAddEventSubmit}>
+              <div className="form-group">
+                <label>Título del Evento</label>
+                <input
+                  type="text"
+                  placeholder="Ej: Club de lectura semanal"
+                  value={newEventTitle}
+                  onChange={(e) => setNewEventTitle(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Descripción</label>
+                <input
+                  type="text"
+                  placeholder="Ej: Compartiremos nuestras opiniones sobre el libro..."
+                  value={newEventDescription}
+                  onChange={(e) => setNewEventDescription(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Fecha y Hora</label>
+                <input
+                  type="datetime-local"
+                  value={newEventDate}
+                  onChange={(e) => setNewEventDate(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Dirección Exacta</label>
+                <input
+                  type="text"
+                  placeholder="Ej: Calle Mayor 12, Planta 1"
+                  value={newEventDireccionExacta}
+                  onChange={(e) => setNewEventDireccionExacta(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Ubicación en el Mapa (Haz clic para seleccionar)</label>
+                <div style={{ height: '250px', width: '100%', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border)' }}>
+                  <MapContainer center={userLocation || [41.3851, 2.1734]} zoom={13} style={{ height: '100%', width: '100%' }}>
+                    <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                    <MapClickHandler
+                      onMapClick={(lat, lng) => {
+                        setNewEventLocation([lat, lng]);
+                      }}
+                    />
+                    {newEventLocation && (
+                      <Marker position={newEventLocation} icon={EventIcon}>
+                        <Popup>Ubicación seleccionada</Popup>
+                      </Marker>
+                    )}
+                  </MapContainer>
+                </div>
+                {newEventLocation && (
+                  <span style={{ fontSize: '0.8rem', color: 'green', marginTop: '0.25rem' }}>
+                    Coordenadas seleccionadas: {newEventLocation[0].toFixed(5)}, {newEventLocation[1].toFixed(5)}
+                  </span>
+                )}
+              </div>
+
+              <button
+                type="submit"
+                className="submit-btn"
+                disabled={!newEventTitle || !newEventDescription || !newEventDate || !newEventLocation}
+              >
+                Crear Evento
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
       <ToastContainer />
     </div>
   );
