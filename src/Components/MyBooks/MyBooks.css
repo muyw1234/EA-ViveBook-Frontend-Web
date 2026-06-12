@@ -58,6 +58,57 @@
   margin: 0;
 }
 
+/* Search bar in MyBooks */
+.mybooks-search-container {
+  display: flex;
+  align-items: center;
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+  margin-bottom: 0.5rem;
+}
+
+.mybooks-search-input {
+  width: 100%;
+  padding: 0.8rem 2.5rem 0.8rem 1.2rem;
+  font-size: 0.95rem;
+  border: 2px solid var(--outline);
+  border-radius: 0.75rem;
+  background-color: var(--surface);
+  color: var(--text-h);
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.mybooks-search-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(209, 131, 186, 0.15);
+}
+
+.clear-search-btn {
+  position: absolute;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  color: var(--text);
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.clear-search-btn:hover {
+  background-color: var(--outline);
+  color: var(--text-h);
+}
+
 /* Tabs */
 .mybooks-tabs {
   display: flex;

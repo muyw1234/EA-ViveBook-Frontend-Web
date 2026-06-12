@@ -19,6 +19,7 @@ export default function MyBooks() {
   const [category, setCategory] = useState('uploaded'); // 'uploaded', 'bought', 'rented', 'wishlist'
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
   const ITEMS_PER_PAGE = 6;
 
   // Edit Modal State
@@ -46,6 +47,7 @@ export default function MyBooks() {
           category,
           page,
           limit: ITEMS_PER_PAGE,
+          search: searchQuery,
         },
       });
       const resData = response.data.data || response.data;
@@ -72,11 +74,12 @@ export default function MyBooks() {
 
   useEffect(() => {
     setPage(1);
+    setSearchQuery('');
   }, [category]);
 
   useEffect(() => {
     fetchMyBooks();
-  }, [category, page]);
+  }, [category, page, searchQuery]);
 
   const handleRemoveFromWishlist = async (bookId: string) => {
     try {
@@ -88,10 +91,6 @@ export default function MyBooks() {
       toast.error('No se pudo eliminar el libro de la lista de deseos');
     }
   };
-
-  useEffect(() => {
-    fetchMyBooks();
-  }, []);
 
   const handleEditPress = (book: any) => {
     setEditingBook(book);
@@ -250,6 +249,24 @@ export default function MyBooks() {
         <span className="mybooks-icon">📚</span>
         <h1>Mi Biblioteca</h1>
         <p>Gestiona los libros que has subido, comprado o alquilado.</p>
+      </div>
+
+      <div className="mybooks-search-container">
+        <input
+          type="text"
+          placeholder="Buscar por título, autor o ISBN..."
+          value={searchQuery}
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+            setPage(1);
+          }}
+          className="mybooks-search-input"
+        />
+        {searchQuery && (
+          <button className="clear-search-btn" onClick={() => { setSearchQuery(''); setPage(1); }}>
+            ×
+          </button>
+        )}
       </div>
 
       <div className="mybooks-tabs">

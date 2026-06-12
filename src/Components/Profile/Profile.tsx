@@ -667,17 +667,17 @@ export default function Profile() {
           <div className="modal-content text-center" onClick={(e) => e.stopPropagation()}>
             {deleteStep === 'menu' && (
               <>
-                <h2>Eliminar Cuenta</h2>
+                <h2>Eliminar Cuenta o Modo Vacaciones</h2>
                 <p className="delete-warning-text">
-                  ¿Qué tipo de eliminación deseas realizar? Puedes suspender tu cuenta temporalmente
-                  o eliminarla permanentemente.
+                  ¿Qué deseas hacer? Puedes activar el Modo Vacaciones (desactivación temporal de la cuenta)
+                  o eliminar tu cuenta de forma permanente.
                 </p>
                 <div className="delete-actions-column">
                   <button className="temp-delete-btn" onClick={() => setDeleteStep('confirm_soft')}>
-                    Desactivar Temporalmente
+                    🌴 Activar Modo Vacaciones
                   </button>
                   <button className="perm-delete-btn" onClick={() => setDeleteStep('confirm_perm')}>
-                    Eliminar Permanentemente
+                    🗑️ Eliminar Cuenta Permanente
                   </button>
                   <button
                     className="modal-cancel-btn full-width"
@@ -691,10 +691,11 @@ export default function Profile() {
 
             {deleteStep === 'confirm_soft' && (
               <>
-                <h2>Confirmar Desactivación Temporal</h2>
+                <h2>Confirmar Modo Vacaciones</h2>
                 <p className="delete-warning-text">
-                  Tu cuenta será desactivada. Tus libros subidos no se verán en el catálogo público,
-                  pero podrás reactivarla cuando inicies sesión de nuevo.
+                  Al activar el Modo Vacaciones, tu perfil y tus libros subidos se ocultarán del
+                  catálogo público de ViveBook. Podrás reactivarlos automáticamente en cualquier momento
+                  volviendo a iniciar sesión.
                 </p>
                 <div className="delete-actions-column">
                   <button
@@ -702,7 +703,7 @@ export default function Profile() {
                     onClick={executeSoftDelete}
                     disabled={deleting}
                   >
-                    {deleting ? 'Desactivando...' : 'Sí, Desactivar temporalmente'}
+                    {deleting ? 'Activando...' : 'Sí, Activar Modo Vacaciones'}
                   </button>
                   <button
                     className="modal-cancel-btn full-width"

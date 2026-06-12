@@ -69,6 +69,21 @@ const searchUsuarios = async (term: string, page: number = 1, limit: number = 10
   return await api.get('/usuarios/search', { params: { term, page, limit } });
 };
 
+const socialLogin = async (socialData: { provider: string; idToken: string; name?: string }) => {
+  try {
+    const response = await api.post('/auth/social-login', socialData);
+    const resData = response.data.data || response.data;
+    const token = resData.token;
+    if (token) {
+      localStorage.setItem('token', token);
+    }
+    return resData.user || resData;
+  } catch (error) {
+    console.error('Error social login:', error);
+    throw error;
+  }
+};
+
 export default {
   createUser,
   getUserByEmail,
@@ -76,4 +91,5 @@ export default {
   toggleWishlist,
   toggleFavorite,
   searchUsuarios,
+  socialLogin,
 };

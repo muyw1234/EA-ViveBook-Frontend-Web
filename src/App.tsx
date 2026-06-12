@@ -13,6 +13,8 @@ import { ProfilePage } from './Components/ProfilePage/UserProfile';
 import AIChatBox from './Components/AIChatBox/AIChatBox';
 import Retos from './Components/Retos/Retos';
 import ProtectedRoute from './Components/ProtectedRoute';
+import Discover from './Components/Discover/Discover';
+import Buzon from './Components/Buzon/Buzon';
 
 function Navigation() {
   useLocation(); // Triggers re-render on route changes
@@ -46,6 +48,12 @@ function Navigation() {
         </>
       ) : (
         <>
+          <Link to="/discover" className="nav-link">
+            Descubrir
+          </Link>
+          <Link to="/buzon" className="nav-link">
+            Buzón
+          </Link>
           <Link to="/my-books" className="nav-link">
             Mis Libros
           </Link>
@@ -103,6 +111,8 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/chat" element={<ChatGlobal />} />
           <Route path="/ia" element={<AIChatBox />} />
+          <Route path="/discover" element={<Discover />} />
+          <Route path="/buzon" element={<Buzon />} />
           <Route path="/my-books" element={<MyBooks />} />
           <Route path="/retos" element={<Retos />} />
           <Route path="/profile" element={<Profile />} />

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import api from '../../api';
 import LibroService from '../Services/Libro';
 import UsuarioService from '../Services/Usuario';
 import './BookDetail.css';
@@ -12,15 +13,24 @@ type Book = {
   title?: string;
   authors?: string[];
   author?: string;
+  autor?: string;
   isbn?: string;
   price?: string | number;
+  precio?: number;
   status?: string;
   state?: string;
+  estado?: string;
   description?: string;
   editorial?: string;
   publisher?: string;
   publicationDate?: string;
   publishedDate?: string;
+  owner?: {
+    _id: string;
+    name: string;
+    email: string;
+  } | string;
+  type?: 'COMPRA' | 'ALQUILER';
 };
 
 const formatAuthors = (book: Book) => {
@@ -28,7 +38,7 @@ const formatAuthors = (book: Book) => {
     return book.authors.join(', ');
   }
 
-  return book.author || 'Autor desconocido';
+  return book.author || book.autor || 'Autor desconocido';
 };
 
 const formatPrice = (price?: string | number) => {
@@ -46,6 +56,9 @@ const BookDetail: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  // Current User
+  const [currentUser, setCurrentUser] = useState<any>(null);
+
   // Wishlist and Favorites States
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [togglingWishlist, setTogglingWishlist] = useState(false);
@@ -54,6 +67,13 @@ const BookDetail: React.FC = () => {
   const [isInFavorites, setIsInFavorites] = useState(false);
   const [togglingFavorites, setTogglingFavorites] = useState(false);
   const [isFavHovered, setIsFavHovered] = useState(false);
+
+  // Reservation & Contact states
+  const [isReserved, setIsReserved] = useState(false);
+  const [submittingReserve, setSubmittingReserve] = useState(false);
+  const [showContactModal, setShowContactModal] = useState(false);
+  const [initialMessage, setInitialMessage] = useState('');
+  const [submittingContact, setSubmittingContact] = useState(false);
 
   useEffect(() => {
     const fetchBookAndWishlist = async () => {
@@ -72,6 +92,7 @@ const BookDetail: React.FC = () => {
         if (token) {
           try {
             const profile = await UsuarioService.getProfile();
+            setCurrentUser(profile);
             
             const wishlist = profile.wishlist || [];
             const inWishlist = wishlist.some(
@@ -84,6 +105,12 @@ const BookDetail: React.FC = () => {
               (b: any) => (typeof b === "object" ? b._id : b) === id
             );
             setIsInFavorites(!!inFavorites);
+
+            // Fetch reservation requests to check if already requested
+            const resResponse = await api.get('/reservas/solicitadas');
+            const resData = resResponse.data.data || resResponse.data || [];
+            const hasRes = resData.some((r: any) => (r.libro?._id || r.libro) === id);
+            setIsReserved(hasRes);
           } catch (profileError) {
             console.error("Error fetching user profile for wishlist/favorites:", profileError);
           }
@@ -153,6 +180,48 @@ const BookDetail: React.FC = () => {
     }
   };
 
+  const handleReserve = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.warn("Debes iniciar sesión para reservar un libro.");
+      return;
+    }
+    setSubmittingReserve(true);
+    try {
+      await api.post('/reservas', { libroId: id });
+      setIsReserved(true);
+      toast.success("¡Solicitud de reserva enviada con éxito!");
+    } catch (err: any) {
+      console.error(err);
+      const msg = err.response?.data?.message || "Error al realizar la reserva";
+      toast.error(msg);
+    } finally {
+      setSubmittingReserve(false);
+    }
+  };
+
+  const handleContactSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!initialMessage.trim()) return;
+
+    setSubmittingContact(true);
+    try {
+      await api.post('/message-requests', {
+        bookId: id,
+        initialMessage: initialMessage.trim()
+      });
+      toast.success("¡Solicitud de contacto enviada con éxito!");
+      setShowContactModal(false);
+      setInitialMessage('');
+    } catch (err: any) {
+      console.error(err);
+      const msg = err.response?.data?.message || "Error al enviar la solicitud de mensaje";
+      toast.error(msg);
+    } finally {
+      setSubmittingContact(false);
+    }
+  };
+
   if (loading) {
     return <div className="book-detail-page">Cargando detalle del libro...</div>;
   }
@@ -199,8 +268,8 @@ const BookDetail: React.FC = () => {
                 {isInWishlist ? (isHovered ? "💔" : "❤️") : "🤍"}
               </span>
               {isInWishlist 
-                ? (isHovered ? "Quitar de la lista de deseos" : "En tu lista de deseos") 
-                : "Añadir a la lista de deseos"
+                ? (isHovered ? "Quitar de lista" : "En lista de deseos") 
+                : "Añadir a lista"
               }
             </button>
 
@@ -215,10 +284,34 @@ const BookDetail: React.FC = () => {
                 {isInFavorites ? (isFavHovered ? "❌" : "⭐") : "☆"}
               </span>
               {isInFavorites 
-                ? (isFavHovered ? "Quitar de favoritos" : "En mis favoritos") 
-                : "Añadir a favoritos"
+                ? (isFavHovered ? "Quitar" : "Favorito") 
+                : "Favorito"
               }
             </button>
+
+            {currentUser && book.owner && (
+              (typeof book.owner === 'object' ? book.owner._id : book.owner) === currentUser._id
+            ) ? (
+              <span className="owner-listing-tag">👤 Publicación propia</span>
+            ) : (
+              <>
+                <button
+                  className="reserve-btn"
+                  onClick={handleReserve}
+                  disabled={isReserved || submittingReserve}
+                >
+                  {isReserved ? "Reserva Solicitada" : "Solicitar Reserva"}
+                </button>
+
+                <button
+                  className="contact-btn"
+                  onClick={() => setShowContactModal(true)}
+                  disabled={submittingContact}
+                >
+                  Contactar Vendedor
+                </button>
+              </>
+            )}
           </div>
 
           <dl className="book-detail-meta">
@@ -248,6 +341,44 @@ const BookDetail: React.FC = () => {
           )}
         </div>
       </section>
+      
+      {/* Contact Seller Modal Overlay */}
+      {showContactModal && (
+        <div className="contact-modal-overlay" onClick={() => setShowContactModal(false)}>
+          <div className="contact-modal" onClick={(e) => e.stopPropagation()}>
+            <h3>Contactar al Vendedor</h3>
+            <p>Envía un mensaje inicial para iniciar la conversación sobre este libro.</p>
+            <form onSubmit={handleContactSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <textarea
+                placeholder="Hola, me interesa tu libro y me gustaría..."
+                value={initialMessage}
+                onChange={(e) => setInitialMessage(e.target.value)}
+                className="contact-textarea"
+                required
+              />
+              <div className="contact-actions">
+                <button
+                  type="button"
+                  onClick={() => setShowContactModal(false)}
+                  className="back-button"
+                  style={{ flex: 1, textAlign: 'center', justifyContent: 'center', margin: 0 }}
+                  disabled={submittingContact}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="contact-btn"
+                  style={{ flex: 2, margin: 0, justifyContent: 'center' }}
+                  disabled={submittingContact}
+                >
+                  {submittingContact ? "Enviando..." : "Enviar Solicitud"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
       <ToastContainer />
     </main>
   );
