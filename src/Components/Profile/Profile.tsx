@@ -9,7 +9,7 @@ import { calculateUserLevel, type UserLevelInfo } from '../../utils/levelHelper'
 import type IUsuario from '../../Models/Usuario';
 import AvatarFrame from './AvatarFrame';
 import Usuario from '../Services/Usuario';
-import Image from '../Services/Image';
+import { unwrapApiData } from '../../utils/apiResponse';
 
 export default function Profile() {
   const { userId } = useParams();
@@ -40,7 +40,6 @@ export default function Profile() {
   const [followedEvents, setFollowedEvents] = useState<any[]>([]);
 
   const [newAuthor, setNewAuthor] = useState('');
-  const [newBook, setNewBook] = useState('');
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
 
   // Delete Modal State
@@ -70,7 +69,7 @@ export default function Profile() {
       // 1. Get logged-in user profile
       try {
         const profileRes = await api.get('/auth/profile');
-        loggedInUser = profileRes.data.data || profileRes.data;
+        loggedInUser = unwrapApiData<any>(profileRes.data);
         setCurrentUser(loggedInUser);
       } catch (err) {
         console.error('Error reading current user profile:', err);
@@ -103,7 +102,7 @@ export default function Profile() {
         setUserLevel(null);
       }
 
-      const u: Partial<IUsuario> = response.data.data || response.data;
+      const u = unwrapApiData<Partial<IUsuario>>(response.data);
       setProfileUser(u);
       // en verdad, con lo de arriba ya es suficiente
       setName(u.name!);
@@ -264,18 +263,6 @@ export default function Profile() {
     }
   };
 
-  const handleAddBook = () => {
-    const book = newBook.trim();
-    if (book && !favoriteBooks.includes(book)) {
-      if (favoriteBooks.length >= 5) {
-        toast.warn('Límite de 5 libros favoritos alcanzado');
-        return;
-      }
-      setFavoriteBooks([...favoriteBooks, book]);
-      setNewBook('');
-    }
-  };
-
   const handleToggleCategory = (cat: string) => {
     if (favoriteCategories.includes(cat)) {
       setFavoriteCategories(favoriteCategories.filter((c) => c !== cat));
@@ -396,7 +383,7 @@ export default function Profile() {
 
               <div className="form-group container">
                 <input
-                className='form-control'
+                  className="form-control"
                   type="file"
                   src="./"
                   id="imageSelector"
@@ -475,7 +462,7 @@ export default function Profile() {
                   }}
                 >
                   Añade libros a tus favoritos visitando la página de detalles de cada libro. Puedes
-                  eliminar favoritos actuales pulsando en la "×" a continuación.
+                  eliminar favoritos actuales pulsando en la tecla &quot;×&quot; a continuación.
                 </p>
                 <div className="chips-row">
                   {favoriteBooks.map((book, index) => {
@@ -752,8 +739,8 @@ export default function Profile() {
               <>
                 <h2>Eliminar Cuenta o Modo Vacaciones</h2>
                 <p className="delete-warning-text">
-                  ¿Qué deseas hacer? Puedes activar el Modo Vacaciones (desactivación temporal de la cuenta)
-                  o eliminar tu cuenta de forma permanente.
+                  ¿Qué deseas hacer? Puedes activar el Modo Vacaciones (desactivación temporal de la
+                  cuenta) o eliminar tu cuenta de forma permanente.
                 </p>
                 <div className="delete-actions-column">
                   <button className="temp-delete-btn" onClick={() => setDeleteStep('confirm_soft')}>
@@ -777,8 +764,8 @@ export default function Profile() {
                 <h2>Confirmar Modo Vacaciones</h2>
                 <p className="delete-warning-text">
                   Al activar el Modo Vacaciones, tu perfil y tus libros subidos se ocultarán del
-                  catálogo público de ViveBook. Podrás reactivarlos automáticamente en cualquier momento
-                  volviendo a iniciar sesión.
+                  catálogo público de ViveBook. Podrás reactivarlos automáticamente en cualquier
+                  momento volviendo a iniciar sesión.
                 </p>
                 <div className="delete-actions-column">
                   <button

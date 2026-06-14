@@ -60,14 +60,15 @@ const Register: React.FC = () => {
     setMessage('');
 
     try {
-      const name = mockName || (mockProvider === 'google' ? 'Usuario de Google' : 'Usuario de Apple');
+      const name =
+        mockName || (mockProvider === 'google' ? 'Usuario de Google' : 'Usuario de Apple');
       // Format: mock_email_name_sub
       const token = `mock_${mockEmail}_${encodeURIComponent(name)}_${mockEmail.split('@')[0]}`;
-      
+
       const user = await UsuarioService.socialLogin({
         provider: mockProvider,
         idToken: token,
-        name
+        name,
       });
       console.log('Social login exitoso', user);
       setShowMockModal(false);
@@ -187,7 +188,10 @@ const Register: React.FC = () => {
           <div className="mock-modal">
             <h3>Registrarse con {mockProvider === 'google' ? 'Google' : 'Apple'} (Prueba)</h3>
             <p>Introduce los datos para simular el registro con red social.</p>
-            <form onSubmit={handleSocialSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <form
+              onSubmit={handleSocialSubmit}
+              style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}
+            >
               <div className="input-group">
                 <label>Nombre Completo</label>
                 <input

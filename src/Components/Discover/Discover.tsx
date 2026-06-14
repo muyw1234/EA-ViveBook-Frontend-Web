@@ -1,16 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api';
+import { getApiCollection, unwrapApiData } from '../../utils/apiResponse';
 import './Discover.css';
 
 const ALL_CATEGORIES = [
-  'Terror', 'Misterio', 'Aventura', 'Juvenil', 'Policíaco',
-  'Infantil', 'Autoayuda', 'Novela', 'Biografías', 'Cómics', 'Otros'
+  'Terror',
+  'Misterio',
+  'Aventura',
+  'Juvenil',
+  'Policíaco',
+  'Infantil',
+  'Autoayuda',
+  'Novela',
+  'Biografías',
+  'Cómics',
+  'Otros',
 ];
 
 const PREDEFINED_AUTHORS = [
-  'Gabriel García Márquez', 'Jane Austen', 'J.R.R Tolkien',
-  'George Orwell', 'Alice Kellen', 'Stephen King', 'Colleen Hoover'
+  'Gabriel García Márquez',
+  'Jane Austen',
+  'J.R.R Tolkien',
+  'George Orwell',
+  'Alice Kellen',
+  'Stephen King',
+  'Colleen Hoover',
 ];
 
 const Discover: React.FC = () => {
@@ -24,7 +39,7 @@ const Discover: React.FC = () => {
   const [favoriteAuthors, setFavoriteAuthors] = useState<string[]>([]);
   const [favoriteCategories, setFavoriteCategories] = useState<string[]>([]);
   const [followingUsers, setFollowingUsers] = useState<string[]>([]);
-  
+
   const [message, setMessage] = useState('');
 
   useEffect(() => {
@@ -36,7 +51,7 @@ const Discover: React.FC = () => {
       setLoading(true);
       // Fetch profile
       const profileRes = await api.get('/auth/profile');
-      const profile = profileRes.data;
+      const profile = unwrapApiData<any>(profileRes.data);
       setCurrentUser(profile);
       setFavoriteAuthors(profile.favoriteAuthors || []);
       setFavoriteCategories(profile.favoriteCategories || []);
@@ -45,16 +60,16 @@ const Discover: React.FC = () => {
       // Fetch users and authors
       const [usersRes, authorsRes] = await Promise.all([
         api.get('/usuarios'),
-        api.get('/autores/all?limit=20').catch(() => ({ data: [] })) // fallback if failed
+        api.get('/autores/all?limit=20').catch(() => ({ data: [] })), // fallback if failed
       ]);
 
       if (usersRes.data) {
-        const usersList = usersRes.data.data || usersRes.data || [];
+        const usersList = getApiCollection<any>(usersRes.data);
         setUsers(usersList.filter((u: any) => u._id !== profile._id));
       }
 
       if (authorsRes.data) {
-        const backendAuthors = authorsRes.data.data || authorsRes.data || [];
+        const backendAuthors = getApiCollection<any>(authorsRes.data);
         const combined = [...PREDEFINED_AUTHORS];
         backendAuthors.forEach((ba: any) => {
           const name = ba.fullName || ba.name;
@@ -133,7 +148,8 @@ const Discover: React.FC = () => {
       <div className="discover-card">
         <h1 className="discover-title">Descubre ViveBook</h1>
         <p className="discover-subtitle">
-          Personaliza tu experiencia seleccionando las categorías, autores y lectores que más te interesen.
+          Personaliza tu experiencia seleccionando las categorías, autores y lectores que más te
+          interesen.
         </p>
 
         {message && <div className="discover-message error">{message}</div>}
@@ -142,7 +158,9 @@ const Discover: React.FC = () => {
           {/* Categories Section */}
           <div className="discover-section">
             <h2 className="discover-section-title">Mis Categorías Favoritas</h2>
-            <p className="discover-section-desc">Selecciona los géneros literarios que más te gusta leer.</p>
+            <p className="discover-section-desc">
+              Selecciona los géneros literarios que más te gusta leer.
+            </p>
             <div className="categories-grid">
               {ALL_CATEGORIES.map((cat) => {
                 const isSelected = favoriteCategories.includes(cat);
@@ -163,7 +181,7 @@ const Discover: React.FC = () => {
           <div className="discover-section">
             <h2 className="discover-section-title">Autores que me interesan</h2>
             <p className="discover-section-desc">Sigue a tus autores favoritos (máximo 5).</p>
-            
+
             <div className="author-input-wrapper">
               <input
                 type="text"
@@ -211,8 +229,10 @@ const Discover: React.FC = () => {
           {/* Users Section */}
           <div className="discover-section">
             <h2 className="discover-section-title">Comunidad de Lectores</h2>
-            <p className="discover-section-desc">Conecta con otros entusiastas de la lectura en ViveBook.</p>
-            
+            <p className="discover-section-desc">
+              Conecta con otros entusiastas de la lectura en ViveBook.
+            </p>
+
             <div className="items-list">
               {users.length > 0 ? (
                 users.map((u) => {
@@ -236,10 +256,7 @@ const Discover: React.FC = () => {
                         >
                           {isFollowing ? 'Siguiendo' : 'Seguir'}
                         </button>
-                        <button
-                          onClick={() => navigate(`/profile/${u._id}`)}
-                          className="view-btn"
-                        >
+                        <button onClick={() => navigate(`/profile/${u._id}`)} className="view-btn">
                           Ver Perfil
                         </button>
                       </div>

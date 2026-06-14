@@ -15,7 +15,7 @@ const CategoryPage: React.FC = () => {
 
   // --- ESTADOS PARA LA PAGINACIÓN ---
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [limit] = useState<number>(6); 
+  const [limit] = useState<number>(6);
   const [hasMore, setHasMore] = useState<boolean>(true);
 
   useEffect(() => {
@@ -32,39 +32,16 @@ const CategoryPage: React.FC = () => {
           const backendType = type === 'rentals' ? 'ALQUILER' : 'VENTA';
           const response = await LibroService.getAllLibros(currentPage, limit, backendType);
 
-          if (Array.isArray(response)) {
-            setItems(response);
-            setHasMore(response.length === limit);
-          } else if (response && response.data) {
-            const booksArray = Array.isArray(response.data.data) ? response.data.data : response.data;
-            setItems(booksArray || []);
-            
-            const rawLength = (booksArray || []).length;
-            setHasMore(rawLength === limit);
-          } else {
-            setItems([]);
-            setHasMore(false);
-          }
-
+          setItems(response);
+          setHasMore(response.length === limit);
         } else if (type === 'events') {
           const response = await EventService.getAllEventos(currentPage, limit);
 
-          if (Array.isArray(response)) {
-            setItems(response);
-            setHasMore(response.length === limit);
-          } else if (response && response.data) {
-            const eventsArray = Array.isArray(response.data.data) ? response.data.data : response.data;
-            setItems(eventsArray || []);
-            
-            const rawLength = (eventsArray || []).length;
-            setHasMore(rawLength === limit);
-          } else {
-            setItems([]);
-            setHasMore(false);
-          }
+          setItems(response);
+          setHasMore(response.length === limit);
         }
       } catch (error) {
-        console.error("Error al cargar los datos paginados:", error);
+        console.error('Error al cargar los datos paginados:', error);
         setItems([]);
         setHasMore(false);
       } finally {
@@ -82,7 +59,6 @@ const CategoryPage: React.FC = () => {
   const handlePrevPage = () => {
     if (currentPage > 1) setCurrentPage((prev) => prev - 1);
   };
-
 
   const buttonStyle = (isDisabled: boolean): React.CSSProperties => ({
     opacity: isDisabled ? 0.5 : 1,
@@ -167,18 +143,27 @@ const CategoryPage: React.FC = () => {
           )}
 
           {/* --- CONTROLES DE PAGINACIÓN ADAPTADOS --- */}
-          <div className="pagination-controls" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '3rem', gap: '1.5rem' }}>
-            <button 
-              onClick={handlePrevPage} 
+          <div
+            className="pagination-controls"
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginTop: '3rem',
+              gap: '1.5rem',
+            }}
+          >
+            <button
+              onClick={handlePrevPage}
               disabled={currentPage === 1}
               className="add-book-btn"
               style={buttonStyle(currentPage === 1)}
             >
               Anterior
             </button>
-            
-            <button 
-              onClick={handleNextPage} 
+
+            <button
+              onClick={handleNextPage}
               disabled={!hasMore}
               className="add-book-btn"
               style={buttonStyle(!hasMore)}
@@ -193,9 +178,9 @@ const CategoryPage: React.FC = () => {
             {type === 'events' ? 'No hay eventos disponibles' : t('no_sales_available')}
           </p>
           {currentPage > 1 && (
-            <button 
-              onClick={handlePrevPage} 
-              className="add-book-btn" 
+            <button
+              onClick={handlePrevPage}
+              className="add-book-btn"
               style={{ marginTop: '1.5rem' }}
             >
               Volver a la página anterior

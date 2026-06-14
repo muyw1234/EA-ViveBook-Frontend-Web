@@ -3,6 +3,7 @@ import api from '../../api';
 import socket from '../../Services/socket';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { getApiCollection, unwrapApiData } from '../../utils/apiResponse';
 import './Buzon.css';
 
 const Buzon: React.FC = () => {
@@ -13,7 +14,7 @@ const Buzon: React.FC = () => {
   const [privateChats, setPrivateChats] = useState<any[]>([]);
   const [receivedMsgRequests, setReceivedMsgRequests] = useState<any[]>([]);
   const [sentMsgRequests, setSentMsgRequests] = useState<any[]>([]);
-  
+
   const [receivedReservations, setReceivedReservations] = useState<any[]>([]);
   const [sentReservations, setSentReservations] = useState<any[]>([]);
   const [reservationMessages, setReservationMessages] = useState<any[]>([]);
@@ -24,7 +25,7 @@ const Buzon: React.FC = () => {
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [loadingMessages, setLoadingMessages] = useState(false);
-  
+
   // Accept Reservation Modal state
   const [showAcceptResModal, setShowAcceptResModal] = useState(false);
   const [selectedResId, setSelectedResId] = useState<string | null>(null);
@@ -38,7 +39,7 @@ const Buzon: React.FC = () => {
     const fetchUser = async () => {
       try {
         const profileRes = await api.get('/auth/profile');
-        const user = profileRes.data;
+        const user = unwrapApiData<any>(profileRes.data);
         setUserId(user._id);
 
         if (!socket.connected) {
@@ -69,21 +70,21 @@ const Buzon: React.FC = () => {
       const [chatsRes, receivedReqRes, sentReqRes] = await Promise.all([
         api.get('/chats'),
         api.get('/message-requests/received'),
-        api.get('/message-requests/sent')
+        api.get('/message-requests/sent'),
       ]);
-      setPrivateChats(chatsRes.data?.data || chatsRes.data || []);
-      setReceivedMsgRequests(receivedReqRes.data?.data || receivedReqRes.data || []);
-      setSentMsgRequests(sentReqRes.data?.data || sentReqRes.data || []);
+      setPrivateChats(getApiCollection(chatsRes.data));
+      setReceivedMsgRequests(getApiCollection(receivedReqRes.data));
+      setSentMsgRequests(getApiCollection(sentReqRes.data));
 
       // Reservations
       const [recRes, sentRes, resMsgs] = await Promise.all([
         api.get('/reservas/recibidas'),
         api.get('/reservas/solicitadas'),
-        api.get('/mensajes/reservas')
+        api.get('/mensajes/reservas'),
       ]);
-      setReceivedReservations(recRes.data?.data || recRes.data || []);
-      setSentReservations(sentRes.data?.data || sentRes.data || []);
-      setReservationMessages(resMsgs.data?.data || resMsgs.data || []);
+      setReceivedReservations(getApiCollection(recRes.data));
+      setSentReservations(getApiCollection(sentRes.data));
+      setReservationMessages(getApiCollection(resMsgs.data));
     } catch (error) {
       console.error('Error fetching buzon lists:', error);
     }
@@ -150,10 +151,10 @@ const Buzon: React.FC = () => {
         const [messagesRes, chatRes] = await Promise.all([
           api.get(`/chats/${activeChatId}/messages`),
           // Fetch specific chat info if needed, or find in list
-          Promise.resolve(privateChats.find((c) => c._id === activeChatId))
+          Promise.resolve(privateChats.find((c) => c._id === activeChatId)),
         ]);
 
-        setMessages(messagesRes.data?.data || messagesRes.data || []);
+        setMessages(getApiCollection(messagesRes.data));
         setActiveChat(chatRes || null);
 
         // Mark as read
@@ -184,7 +185,7 @@ const Buzon: React.FC = () => {
     socket.emit('send_message', {
       chatId: activeChatId,
       senderId: userId,
-      content: newMessage.trim()
+      content: newMessage.trim(),
     });
 
     setNewMessage('');
@@ -241,7 +242,7 @@ const Buzon: React.FC = () => {
     setSubmittingAcceptRes(true);
     try {
       await api.post(`/reservas/aceptar/${selectedResId}`, {
-        dias: rentalDays
+        dias: rentalDays,
       });
       toast.success('Reserva aceptada correctamente');
       setShowAcceptResModal(false);
@@ -300,17 +301,17 @@ const Buzon: React.FC = () => {
   return (
     <div className="buzon-container">
       <ToastContainer />
-      
+
       {/* Sidebar Panel */}
       <div className="buzon-sidebar">
         <div className="sidebar-tabs">
-          <button 
+          <button
             className={`sidebar-tab-btn ${tab === 'chats' ? 'active' : ''}`}
             onClick={() => setTab('chats')}
           >
             💬 Mensajes
           </button>
-          <button 
+          <button
             className={`sidebar-tab-btn ${tab === 'reservas' ? 'active' : ''}`}
             onClick={() => setTab('reservas')}
           >
@@ -322,7 +323,7 @@ const Buzon: React.FC = () => {
           {tab === 'chats' ? (
             <div className="tab-pane">
               {/* Chat Global card */}
-              <div 
+              <div
                 className={`global-chat-card-item ${activeChatId === '000000000000000000000001' ? 'active' : ''}`}
                 onClick={() => setActiveChatId('000000000000000000000001')}
               >
@@ -340,16 +341,24 @@ const Buzon: React.FC = () => {
                   {notices.map((notice) => {
                     const isAccepted = notice.status === 'accepted';
                     return (
-                      <div key={notice._id} className={`notice-item ${isAccepted ? 'accepted' : 'rejected'}`}>
+                      <div
+                        key={notice._id}
+                        className={`notice-item ${isAccepted ? 'accepted' : 'rejected'}`}
+                      >
                         <div className="notice-body">
                           <strong>{isAccepted ? 'Aceptada 🎉' : 'Rechazada ❌'}</strong>
                           <p>
-                            {isAccepted 
-                              ? `Contacto aprobado para "${notice.book?.title}".` 
+                            {isAccepted
+                              ? `Contacto aprobado para "${notice.book?.title}".`
                               : `Contacto rechazado para "${notice.book?.title}".`}
                           </p>
                         </div>
-                        <button className="close-notice-btn" onClick={() => handleDismissMsgRequest(notice._id)}>×</button>
+                        <button
+                          className="close-notice-btn"
+                          onClick={() => handleDismissMsgRequest(notice._id)}
+                        >
+                          ×
+                        </button>
                       </div>
                     );
                   })}
@@ -366,10 +375,22 @@ const Buzon: React.FC = () => {
                         <strong>{req.requester?.name}</strong>
                         <span>Libro: {req.book?.title}</span>
                       </div>
-                      {req.initialMessage && <p className="msg-req-text">"{req.initialMessage}"</p>}
+                      {req.initialMessage && (
+                        <p className="msg-req-text">&quot;{req.initialMessage}&quot;</p>
+                      )}
                       <div className="msg-req-actions">
-                        <button className="msg-req-deny" onClick={() => handleDenyMsgRequest(req._id)}>Rechazar</button>
-                        <button className="msg-req-accept" onClick={() => handleAcceptMsgRequest(req._id)}>Aceptar</button>
+                        <button
+                          className="msg-req-deny"
+                          onClick={() => handleDenyMsgRequest(req._id)}
+                        >
+                          Rechazar
+                        </button>
+                        <button
+                          className="msg-req-accept"
+                          onClick={() => handleAcceptMsgRequest(req._id)}
+                        >
+                          Aceptar
+                        </button>
                       </div>
                     </div>
                   ))}
@@ -387,8 +408,8 @@ const Buzon: React.FC = () => {
                     const otherName = other.name || 'Usuario';
                     const isSelected = activeChatId === chat._id;
                     return (
-                      <div 
-                        key={chat._id} 
+                      <div
+                        key={chat._id}
                         className={`chat-item-row ${isSelected ? 'active' : ''}`}
                         onClick={() => setActiveChatId(chat._id)}
                       >
@@ -420,21 +441,40 @@ const Buzon: React.FC = () => {
                         {getStatusBadge(res.estado)}
                       </div>
                       <p>Solicitante: {res.usuarioSolicitante?.name}</p>
-                      <p className="reserva-card-date">Fecha: {new Date(res.fechaSolicitud).toLocaleDateString()}</p>
-                      
+                      <p className="reserva-card-date">
+                        Fecha: {new Date(res.fechaSolicitud).toLocaleDateString()}
+                      </p>
+
                       {res.estado === 'ACEPTADA' && res.fechaLimite && (
-                        <p className="reserva-card-limit">Límite: {new Date(res.fechaLimite).toLocaleDateString()}</p>
+                        <p className="reserva-card-limit">
+                          Límite: {new Date(res.fechaLimite).toLocaleDateString()}
+                        </p>
                       )}
 
                       {res.estado === 'PENDIENTE' && (
                         <div className="reserva-card-actions">
-                          <button className="reserva-deny" onClick={() => handleRejectReservation(res._id)}>Rechazar</button>
-                          <button className="reserva-accept" onClick={() => handleOpenAcceptRes(res._id)}>Aceptar</button>
+                          <button
+                            className="reserva-deny"
+                            onClick={() => handleRejectReservation(res._id)}
+                          >
+                            Rechazar
+                          </button>
+                          <button
+                            className="reserva-accept"
+                            onClick={() => handleOpenAcceptRes(res._id)}
+                          >
+                            Aceptar
+                          </button>
                         </div>
                       )}
-                      
+
                       {res.estado !== 'PENDIENTE' && (
-                        <button className="reserva-delete-btn" onClick={() => handleDeleteReservation(res._id)}>Eliminar Reserva</button>
+                        <button
+                          className="reserva-delete-btn"
+                          onClick={() => handleDeleteReservation(res._id)}
+                        >
+                          Eliminar Reserva
+                        </button>
                       )}
                     </div>
                   ))
@@ -454,13 +494,22 @@ const Buzon: React.FC = () => {
                         {getStatusBadge(res.estado)}
                       </div>
                       <p>Propietario: {res.propietario?.name}</p>
-                      <p className="reserva-card-date">Fecha: {new Date(res.fechaSolicitud).toLocaleDateString()}</p>
+                      <p className="reserva-card-date">
+                        Fecha: {new Date(res.fechaSolicitud).toLocaleDateString()}
+                      </p>
 
                       {res.estado === 'ACEPTADA' && res.fechaLimite && (
-                        <p className="reserva-card-limit">Límite: {new Date(res.fechaLimite).toLocaleDateString()}</p>
+                        <p className="reserva-card-limit">
+                          Límite: {new Date(res.fechaLimite).toLocaleDateString()}
+                        </p>
                       )}
-                      
-                      <button className="reserva-delete-btn" onClick={() => handleDeleteReservation(res._id)}>Eliminar Reserva</button>
+
+                      <button
+                        className="reserva-delete-btn"
+                        onClick={() => handleDeleteReservation(res._id)}
+                      >
+                        Eliminar Reserva
+                      </button>
                     </div>
                   ))
                 )}
@@ -475,12 +524,17 @@ const Buzon: React.FC = () => {
                   reservationMessages.map((msg) => {
                     const isMine = msg.sender?._id === userId || msg.sender === userId;
                     return (
-                      <div key={msg._id} className={`reserva-msg-item ${isMine ? 'mine' : 'theirs'}`}>
+                      <div
+                        key={msg._id}
+                        className={`reserva-msg-item ${isMine ? 'mine' : 'theirs'}`}
+                      >
                         <div className="res-msg-body">
                           <strong>{msg.sender?.name || 'Sistema'}</strong>
                           <p>{msg.content}</p>
                         </div>
-                        <button className="res-msg-del" onClick={() => handleDeleteResMsg(msg._id)}>×</button>
+                        <button className="res-msg-del" onClick={() => handleDeleteResMsg(msg._id)}>
+                          ×
+                        </button>
                       </div>
                     );
                   })
@@ -508,10 +562,16 @@ const Buzon: React.FC = () => {
               ) : (
                 <>
                   <div className="chat-header-avatar">
-                    {activeChat?.participants?.find((p: any) => p._id !== userId)?.name?.substring(0, 2).toUpperCase() || 'U'}
+                    {activeChat?.participants
+                      ?.find((p: any) => p._id !== userId)
+                      ?.name?.substring(0, 2)
+                      .toUpperCase() || 'U'}
                   </div>
                   <div className="chat-header-details">
-                    <h3>{activeChat?.participants?.find((p: any) => p._id !== userId)?.name || 'Usuario'}</h3>
+                    <h3>
+                      {activeChat?.participants?.find((p: any) => p._id !== userId)?.name ||
+                        'Usuario'}
+                    </h3>
                     <span>Libro: {activeChat?.libro?.title || 'General'}</span>
                   </div>
                 </>
@@ -531,12 +591,18 @@ const Buzon: React.FC = () => {
                     const isMine = msg.sender?._id === userId || msg.sender === userId;
                     const senderName = msg.sender?.name || 'Usuario';
                     return (
-                      <div key={msg._id} className={`chat-message-row ${isMine ? 'mine' : 'theirs'}`}>
+                      <div
+                        key={msg._id}
+                        className={`chat-message-row ${isMine ? 'mine' : 'theirs'}`}
+                      >
                         {!isMine && <span className="message-sender-name">{senderName}</span>}
                         <div className="message-bubble">
                           <p>{msg.content}</p>
                           <span className="message-time">
-                            {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            {new Date(msg.timestamp).toLocaleTimeString([], {
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}
                           </span>
                         </div>
                       </div>
@@ -566,7 +632,10 @@ const Buzon: React.FC = () => {
           <div className="chat-pane-placeholder">
             <span className="placeholder-icon">📬</span>
             <h3>Tu Buzón de Mensajes</h3>
-            <p>Selecciona una conversación del menú lateral para empezar a chatear o gestionar tus solicitudes.</p>
+            <p>
+              Selecciona una conversación del menú lateral para empezar a chatear o gestionar tus
+              solicitudes.
+            </p>
           </div>
         )}
       </div>
@@ -577,9 +646,14 @@ const Buzon: React.FC = () => {
           <div className="accept-res-modal" onClick={(e) => e.stopPropagation()}>
             <h3>Aceptar Reserva de Libro</h3>
             <p>Introduce el número de días para la duración del préstamo/alquiler.</p>
-            <form onSubmit={handleConfirmAcceptRes} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            <form
+              onSubmit={handleConfirmAcceptRes}
+              style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}
+            >
               <div className="input-group" style={{ textAlign: 'left' }}>
-                <label style={{ fontWeight: '600', color: '#1e293b', fontSize: '0.9rem' }}>Días de alquiler</label>
+                <label style={{ fontWeight: '600', color: '#1e293b', fontSize: '0.9rem' }}>
+                  Días de alquiler
+                </label>
                 <input
                   type="number"
                   min="1"

@@ -1,4 +1,5 @@
 import api from '../../api';
+import { getApiCollection, unwrapApiData } from '../../utils/apiResponse';
 
 export interface IGeoJSONPoint {
   type: 'Point';
@@ -19,11 +20,7 @@ export interface IEventoData {
 const createEvento = async (eventoData: IEventoData) => {
   try {
     const response = await api.post('/eventos', eventoData);
-
-    if (response.data && response.data.success) {
-      return response.data.data;
-    }
-    return response.data;
+    return unwrapApiData<any>(response.data);
   } catch (error) {
     console.error('Error creating evento:', error);
     throw error;
@@ -33,17 +30,7 @@ const createEvento = async (eventoData: IEventoData) => {
 const getAllEventos = async (page: number = 1, limit: number = 10) => {
   try {
     const response = await api.get('/eventos', { params: { page, limit } });
-    const data = response.data;
-
-    if (Array.isArray(data)) {
-      return data;
-    }
-
-    if (data && Array.isArray(data.data)) {
-      return data.data;
-    }
-
-    return [];
+    return getApiCollection<IEventoData>(response.data);
   } catch (error) {
     console.error('Error fetching eventos:', error);
     throw error;
@@ -53,11 +40,7 @@ const getAllEventos = async (page: number = 1, limit: number = 10) => {
 const getEventoById = async (id: string) => {
   try {
     const response = await api.get(`/eventos/${id}`);
-
-    if (response.data && response.data.success) {
-      return response.data.data;
-    }
-    return response.data;
+    return unwrapApiData<any>(response.data);
   } catch (error) {
     console.error('Error fetching evento by id:', error);
     throw error;
@@ -70,10 +53,7 @@ const getEventsAtExactLocation = async (lng: number, lat: number) => {
       params: { lng, lat },
     });
 
-    if (response.data && response.data.success) {
-      return response.data.data;
-    }
-    return response.data;
+    return getApiCollection<IEventoData>(response.data);
   } catch (error) {
     console.error('Error fetching events at exact location:', error);
     throw error;
@@ -83,11 +63,7 @@ const getEventsAtExactLocation = async (lng: number, lat: number) => {
 const participateInEvento = async (eventoId: string, usuarioId: string) => {
   try {
     const response = await api.put(`/eventos/${eventoId}/participate`, { usuarioId });
-
-    if (response.data && response.data.success) {
-      return response.data.data;
-    }
-    return response.data;
+    return unwrapApiData<any>(response.data);
   } catch (error) {
     console.error('Error registering participation in evento:', error);
     throw error;
@@ -95,7 +71,7 @@ const participateInEvento = async (eventoId: string, usuarioId: string) => {
 };
 const leaveEvento = async (eventoId: string, usuarioId: string) => {
   const response = await api.put(`/eventos/${eventoId}/leave`, { usuarioId });
-  return response.data.data;
+  return unwrapApiData<any>(response.data);
 };
 export default {
   createEvento,

@@ -2,12 +2,7 @@
 .discover-container {
   min-height: 100vh;
   padding: 3rem 1.5rem;
-  background: linear-gradient(
-    135deg,
-    #faf5f9 0%,
-    #ebd9e8 50%,
-    #d183ba 100%
-  );
+  background: linear-gradient(135deg, #faf5f9 0%, #ebd9e8 50%, #d183ba 100%);
   display: flex;
   justify-content: center;
   align-items: flex-start;
@@ -196,7 +191,9 @@
   padding: 0.75rem 1rem;
   border-radius: 0.75rem;
   border: 1px solid #e2e8f0;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .discover-item-row:hover {
@@ -367,8 +364,12 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Responsive Styles for Tablet and Mobile */
@@ -377,12 +378,12 @@
     grid-template-columns: 1fr;
     gap: 1.5rem;
   }
-  
+
   .discover-card {
     padding: 2rem 1.5rem;
     max-width: 700px;
   }
-  
+
   .items-list {
     max-height: 280px;
   }

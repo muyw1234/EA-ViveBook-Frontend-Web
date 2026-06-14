@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import UsuarioService from '../Services/Usuario';
 import LibroService from '../Services/Libro';
@@ -9,7 +9,6 @@ import EventoService from '../Services/Evento';
 import './Home.css';
 import ImageService from '../Services/Image';
 import 'leaflet/dist/leaflet.css';
-import AccessibilityMenu from '../Accessibility/AccessibilityMenu';
 import { useTranslation } from 'react-i18next';
 
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
@@ -72,7 +71,7 @@ const Home: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [isAddBookModalOpen, setIsAddBookModalOpen] = useState(false);
   const [isAddEventModalOpen, setIsAddEventModalOpen] = useState(false);
-  
+
   // Guardamos dinámicamente si hay un token en el localStorage para escuchar cambios
   const [authToken, setAuthToken] = useState<string | null>(localStorage.getItem('token'));
 
@@ -216,14 +215,14 @@ const Home: React.FC = () => {
           ? {
               ...newBookResponse,
               type: newBookType,
-              price: newBookPrice,
+              precio: Number(newBookPrice),
               authors: [newBookAuthor],
             }
           : {
               _id: Date.now().toString(),
               title: newBookTitle,
               authors: [newBookAuthor],
-              price: newBookPrice,
+              precio: Number(newBookPrice),
               type: newBookType,
             };
 
@@ -352,7 +351,9 @@ const Home: React.FC = () => {
               <button
                 type="button"
                 className="search-filter-toggle-btn"
-                onClick={() => navigate('/search', { state: { term: searchQuery, openFilters: true } })}
+                onClick={() =>
+                  navigate('/search', { state: { term: searchQuery, openFilters: true } })
+                }
                 title={t('filters', 'Filtros')}
               >
                 ⚙️
@@ -371,7 +372,8 @@ const Home: React.FC = () => {
         <div className="hero-content">
           <h1>Libros del Mes</h1>
           <p>
-            Descubre las lecturas más recientes subidas por nuestra comunidad de lectores y atrévete con una nueva historia.
+            Descubre las lecturas más recientes subidas por nuestra comunidad de lectores y atrévete
+            con una nueva historia.
           </p>
           <button className="read-more-btn" onClick={() => navigate('/categorias/sales')}>
             Explorar Catálogo
@@ -379,22 +381,29 @@ const Home: React.FC = () => {
         </div>
         <div className="hero-books-display">
           {heroBooks.map((book, idx) => {
-            const positionClass = idx === 0 ? 'left-book' : idx === 1 ? 'center-book' : 'right-book';
-            const defaultGradient = idx === 0 
-              ? 'linear-gradient(135deg, #F5E4F0, #D183BA)' 
-              : idx === 1 
-                ? 'linear-gradient(135deg, #D183BA, #a85890)' 
-                : 'linear-gradient(135deg, #fbcfe8, #e0a3cd)';
-            
+            const positionClass =
+              idx === 0 ? 'left-book' : idx === 1 ? 'center-book' : 'right-book';
+            const defaultGradient =
+              idx === 0
+                ? 'linear-gradient(135deg, #F5E4F0, #D183BA)'
+                : idx === 1
+                  ? 'linear-gradient(135deg, #D183BA, #a85890)'
+                  : 'linear-gradient(135deg, #fbcfe8, #e0a3cd)';
+
             return (
-              <div 
-                key={book._id || idx} 
+              <div
+                key={book._id || idx}
                 className={`hero-book-card ${positionClass}`}
                 onClick={() => book._id && openBookDetail(book._id)}
                 style={{ cursor: book._id ? 'pointer' : 'default' }}
               >
                 {book.imageUrl ? (
-                  <img src={book.imageUrl} alt={book.title} className="book-cover-placeholder" style={{ objectFit: 'cover' }} />
+                  <img
+                    src={book.imageUrl}
+                    alt={book.title}
+                    className="book-cover-placeholder"
+                    style={{ objectFit: 'cover' }}
+                  />
                 ) : (
                   <div
                     className="book-cover-placeholder modern-cover"
@@ -406,13 +415,31 @@ const Home: React.FC = () => {
                       alignItems: 'center',
                       padding: '1rem',
                       textAlign: 'center',
-                      boxSizing: 'border-box'
+                      boxSizing: 'border-box',
                     }}
                   >
-                    <span style={{ fontSize: '0.9rem', fontWeight: 800, color: 'white', marginBottom: '0.25rem', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>
+                    <span
+                      style={{
+                        fontSize: '0.9rem',
+                        fontWeight: 800,
+                        color: 'white',
+                        marginBottom: '0.25rem',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 3,
+                        WebkitBoxOrient: 'vertical',
+                      }}
+                    >
                       {book.title || 'Título'}
                     </span>
-                    <span style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.8)', fontWeight: 600 }}>
+                    <span
+                      style={{
+                        fontSize: '0.7rem',
+                        color: 'rgba(255,255,255,0.8)',
+                        fontWeight: 600,
+                      }}
+                    >
                       {book.authors?.join(', ') || 'Autor'}
                     </span>
                   </div>
@@ -423,13 +450,22 @@ const Home: React.FC = () => {
           {heroBooks.length === 0 && (
             <>
               <div className="hero-book-card left-book">
-                <div className="book-cover-placeholder modern-cover" style={{ background: 'linear-gradient(135deg, #F5E4F0, #D183BA)' }}></div>
+                <div
+                  className="book-cover-placeholder modern-cover"
+                  style={{ background: 'linear-gradient(135deg, #F5E4F0, #D183BA)' }}
+                ></div>
               </div>
               <div className="hero-book-card center-book">
-                <div className="book-cover-placeholder modern-cover" style={{ background: 'linear-gradient(135deg, #D183BA, #a85890)' }}></div>
+                <div
+                  className="book-cover-placeholder modern-cover"
+                  style={{ background: 'linear-gradient(135deg, #D183BA, #a85890)' }}
+                ></div>
               </div>
               <div className="hero-book-card right-book">
-                <div className="book-cover-placeholder modern-cover" style={{ background: 'linear-gradient(135deg, #fbcfe8, #e0a3cd)' }}></div>
+                <div
+                  className="book-cover-placeholder modern-cover"
+                  style={{ background: 'linear-gradient(135deg, #fbcfe8, #e0a3cd)' }}
+                ></div>
               </div>
             </>
           )}
@@ -476,7 +512,8 @@ const Home: React.FC = () => {
               !user.favoriteAuthors?.length &&
               !user.favoriteCategories?.length ? (
                 <p className="no-following-msg">
-                  Aún no sigues a ningún lector ni has añadido favoritos. ¡Ve a tu perfil para configurar tus gustos!
+                  Aún no sigues a ningún lector ni has añadido favoritos. ¡Ve a tu perfil para
+                  configurar tus gustos!
                 </p>
               ) : (
                 <div className="following-subgrid-vertical">
@@ -491,7 +528,9 @@ const Home: React.FC = () => {
                             </span>
                             <button
                               className="view-followed-btn"
-                              onClick={() => navigate(`/profile/${followedUser._id || followedUser}`)}
+                              onClick={() =>
+                                navigate(`/profile/${followedUser._id || followedUser}`)
+                              }
                             >
                               Ver Perfil
                             </button>
@@ -535,12 +574,24 @@ const Home: React.FC = () => {
               <div className="events-box-header">
                 <h2 className="section-title">Eventos & Mapa local</h2>
                 <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                  <button className="add-book-btn" style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem' }} onClick={() => checkAuthAndOpen(setIsAddEventModalOpen)}>
+                  <button
+                    className="add-book-btn"
+                    style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem' }}
+                    onClick={() => checkAuthAndOpen(setIsAddEventModalOpen)}
+                  >
                     + Nuevo Evento
                   </button>
                   <button
                     className="see-all-btn-link"
-                    style={{ background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600, textDecoration: 'underline' }}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: 'var(--primary)',
+                      cursor: 'pointer',
+                      fontSize: '0.85rem',
+                      fontWeight: 600,
+                      textDecoration: 'underline',
+                    }}
                     onClick={() => navigate('/categorias/events')}
                   >
                     Ver todos
@@ -549,9 +600,22 @@ const Home: React.FC = () => {
               </div>
 
               {/* Map displaying events */}
-              <div className="social-map-wrapper" style={{ height: '260px', width: '100%', borderRadius: '1rem', overflow: 'hidden', border: '1px solid var(--border)' }}>
+              <div
+                className="social-map-wrapper"
+                style={{
+                  height: '260px',
+                  width: '100%',
+                  borderRadius: '1rem',
+                  overflow: 'hidden',
+                  border: '1px solid var(--border)',
+                }}
+              >
                 {userLocation && (
-                  <MapContainer center={userLocation} zoom={13} style={{ height: '100%', width: '100%' }}>
+                  <MapContainer
+                    center={userLocation}
+                    zoom={13}
+                    style={{ height: '100%', width: '100%' }}
+                  >
                     <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                     <Marker position={userLocation} icon={UserIcon}>
                       <Popup>Estás aquí</Popup>
@@ -575,7 +639,15 @@ const Home: React.FC = () => {
               </div>
 
               {/* List of 2 upcoming events */}
-              <div className="social-events-list" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '0.75rem' }}>
+              <div
+                className="social-events-list"
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.75rem',
+                  marginTop: '0.75rem',
+                }}
+              >
                 {eventos && eventos.length > 0 ? (
                   eventos
                     .filter((event: any) => {
@@ -597,25 +669,85 @@ const Home: React.FC = () => {
                       <div
                         key={event._id}
                         className="social-event-row-card"
-                        style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.75rem', background: '#faf5f9', borderRadius: '0.75rem', cursor: 'pointer', border: '1px solid #f1e2f0' }}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '1rem',
+                          padding: '0.75rem',
+                          background: '#faf5f9',
+                          borderRadius: '0.75rem',
+                          cursor: 'pointer',
+                          border: '1px solid #f1e2f0',
+                        }}
                         onClick={() => navigate(`/eventos/${event._id}`)}
                       >
-                        <div className="event-date-badge" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'white', border: '1px solid #d183ba', color: '#d183ba', borderRadius: '0.5rem', width: '45px', height: '45px', flexShrink: 0 }}>
+                        <div
+                          className="event-date-badge"
+                          style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            background: 'white',
+                            border: '1px solid #d183ba',
+                            color: '#d183ba',
+                            borderRadius: '0.5rem',
+                            width: '45px',
+                            height: '45px',
+                            flexShrink: 0,
+                          }}
+                        >
                           <span style={{ fontWeight: '800', fontSize: '1rem', lineHeight: 1 }}>
                             {event.eventDate ? new Date(event.eventDate).getDate() : '---'}
                           </span>
-                          <span style={{ fontSize: '0.65rem', textTransform: 'uppercase', fontWeight: 600 }}>
-                            {event.eventDate ? new Date(event.eventDate).toLocaleString('default', { month: 'short' }) : '---'}
+                          <span
+                            style={{
+                              fontSize: '0.65rem',
+                              textTransform: 'uppercase',
+                              fontWeight: 600,
+                            }}
+                          >
+                            {event.eventDate
+                              ? new Date(event.eventDate).toLocaleString('default', {
+                                  month: 'short',
+                                })
+                              : '---'}
                           </span>
                         </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem', textAlign: 'left' }}>
-                          <span style={{ fontWeight: '700', fontSize: '0.9rem', color: 'var(--text-h)' }}>{event.title}</span>
-                          <span style={{ fontSize: '0.75rem', color: 'var(--text)' }}>📍 {event.direccionExacta}</span>
+                        <div
+                          style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '0.15rem',
+                            textAlign: 'left',
+                          }}
+                        >
+                          <span
+                            style={{
+                              fontWeight: '700',
+                              fontSize: '0.9rem',
+                              color: 'var(--text-h)',
+                            }}
+                          >
+                            {event.title}
+                          </span>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--text)' }}>
+                            📍 {event.direccionExacta}
+                          </span>
                         </div>
                       </div>
                     ))
                 ) : (
-                  <p style={{ color: 'var(--text)', fontStyle: 'italic', fontSize: '0.85rem', margin: 0 }}>No hay eventos próximos en tu zona.</p>
+                  <p
+                    style={{
+                      color: 'var(--text)',
+                      fontStyle: 'italic',
+                      fontSize: '0.85rem',
+                      margin: 0,
+                    }}
+                  >
+                    No hay eventos próximos en tu zona.
+                  </p>
                 )}
               </div>
             </div>
@@ -695,7 +827,7 @@ const Home: React.FC = () => {
                 </div>
                 <div className="card-info">
                   <span className="card-price">
-                    {book.price ? `${book.price} €` : t('consult_price')}
+                    {book.precio !== undefined ? `${book.precio} €` : t('consult_price')}
                   </span>
                   <span className="card-title" title={book.title}>
                     {book.title}
@@ -751,7 +883,7 @@ const Home: React.FC = () => {
                 </div>
                 <div className="card-info">
                   <span className="card-price">
-                    {book.price ? `${book.price} €` : t('consult_price')}
+                    {book.precio !== undefined ? `${book.precio} €` : t('consult_price')}
                   </span>
                   <span className="card-title" title={book.title}>
                     {book.title}
@@ -767,8 +899,6 @@ const Home: React.FC = () => {
           )}
         </div>
       </section>
-
-
 
       {/* Add Book Modal */}
       {isAddBookModalOpen && (
@@ -931,7 +1061,6 @@ const Home: React.FC = () => {
                     required
                   />
                 </div>
-                
               </form>
             )}
           </div>
@@ -941,7 +1070,11 @@ const Home: React.FC = () => {
       {/* Add Event Modal */}
       {isAddEventModalOpen && (
         <div className="modal-overlay" onClick={() => setIsAddEventModalOpen(false)}>
-          <div className="modal-content" style={{ maxWidth: '600px' }} onClick={(e) => e.stopPropagation()}>
+          <div
+            className="modal-content"
+            style={{ maxWidth: '600px' }}
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="modal-header">
               <h2>Crear Nuevo Evento</h2>
               <button className="close-btn" onClick={() => setIsAddEventModalOpen(false)}>
@@ -964,7 +1097,13 @@ const Home: React.FC = () => {
                 <label>Descripción</label>
                 <textarea
                   className="auth-input"
-                  style={{ width: '100%', minHeight: '60px', padding: '10px', borderRadius: '5px', boxSizing: 'border-box' }}
+                  style={{
+                    width: '100%',
+                    minHeight: '60px',
+                    padding: '10px',
+                    borderRadius: '5px',
+                    boxSizing: 'border-box',
+                  }}
                   placeholder="¿De qué trata el evento?"
                   value={newEventDescription}
                   onChange={(e) => setNewEventDescription(e.target.value)}
@@ -995,8 +1134,20 @@ const Home: React.FC = () => {
 
               <div className="form-group">
                 <label>Ubicación en el Mapa (Haz clic para seleccionar)</label>
-                <div style={{ height: '250px', width: '100%', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border)' }}>
-                  <MapContainer center={userLocation || [41.3851, 2.1734]} zoom={13} style={{ height: '100%', width: '100%' }}>
+                <div
+                  style={{
+                    height: '250px',
+                    width: '100%',
+                    borderRadius: '8px',
+                    overflow: 'hidden',
+                    border: '1px solid var(--border)',
+                  }}
+                >
+                  <MapContainer
+                    center={userLocation || [41.3851, 2.1734]}
+                    zoom={13}
+                    style={{ height: '100%', width: '100%' }}
+                  >
                     <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                     <MapClickHandler
                       onMapClick={(lat, lng) => {
@@ -1012,17 +1163,14 @@ const Home: React.FC = () => {
                 </div>
                 {newEventLocation && (
                   <span style={{ fontSize: '0.8rem', color: 'green', marginTop: '0.25rem' }}>
-                    Coordenadas seleccionadas: {newEventLocation[0].toFixed(5)}, {newEventLocation[1].toFixed(5)}
+                    Coordenadas seleccionadas: {newEventLocation[0].toFixed(5)},{' '}
+                    {newEventLocation[1].toFixed(5)}
                   </span>
                 )}
               </div>
 
-              <button
-                type="submit"
-                className="submit-btn"
-                disabled={!newEventLocation}
-              >
-                {!newEventLocation ? "Selecciona ubicación en el mapa" : "Publicar Evento"}
+              <button type="submit" className="submit-btn" disabled={!newEventLocation}>
+                {!newEventLocation ? 'Selecciona ubicación en el mapa' : 'Publicar Evento'}
               </button>
             </form>
           </div>

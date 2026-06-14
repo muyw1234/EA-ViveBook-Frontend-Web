@@ -3,6 +3,8 @@ import api from '../../api';
 import { useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { unwrapApiData } from '../../utils/apiResponse';
+import { normalizeLibros } from '../../utils/libro';
 import './MyBooks.css';
 
 export default function MyBooks() {
@@ -50,9 +52,9 @@ export default function MyBooks() {
           search: searchQuery,
         },
       });
-      const resData = response.data.data || response.data;
+      const resData = unwrapApiData<any>(response.data);
       if (resData) {
-        setBooks(resData.libros || []);
+        setBooks(normalizeLibros(resData.libros));
         const newTotalPages = resData.totalPages || 1;
         setTotalPages(newTotalPages);
         setCounts(resData.counts || { uploaded: 0, bought: 0, rented: 0, wishlist: 0 });
@@ -263,7 +265,13 @@ export default function MyBooks() {
           className="mybooks-search-input"
         />
         {searchQuery && (
-          <button className="clear-search-btn" onClick={() => { setSearchQuery(''); setPage(1); }}>
+          <button
+            className="clear-search-btn"
+            onClick={() => {
+              setSearchQuery('');
+              setPage(1);
+            }}
+          >
             ×
           </button>
         )}
@@ -355,7 +363,10 @@ export default function MyBooks() {
                     </button>
                   ) : category === 'wishlist' ? (
                     <div className="wishlist-actions">
-                      <button className="action-view-btn" onClick={() => navigate(`/libros/${book._id}`)}>
+                      <button
+                        className="action-view-btn"
+                        onClick={() => navigate(`/libros/${book._id}`)}
+                      >
                         👁️ Ver Detalle
                       </button>
                       <button

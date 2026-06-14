@@ -22,7 +22,6 @@ export default function Retos() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'pending' | 'completed'>('all');
-  const [expandedGroups, setExpandedGroups] = useState<{ [key: string]: boolean }>({});
 
   const fetchRetos = async () => {
     setLoading(true);
@@ -47,13 +46,6 @@ export default function Retos() {
   useEffect(() => {
     fetchRetos();
   }, []);
-
-  const toggleGroup = (type: string) => {
-    setExpandedGroups((prev) => ({
-      ...prev,
-      [type]: !prev[type],
-    }));
-  };
 
   const getIcon = (type: string) => {
     switch (type) {
@@ -103,16 +95,6 @@ export default function Retos() {
     return true;
   });
 
-  // Group filtered retos by type
-  const groupedRetos: { [key: string]: IReto[] } = {};
-  filteredRetos.forEach((reto) => {
-    if (!groupedRetos[reto.type]) {
-      groupedRetos[reto.type] = [];
-    }
-    groupedRetos[reto.type].push(reto);
-  });
-
-  const groupTypes = Object.keys(groupedRetos);
   const userLevel = calculateUserLevel(retos);
 
   if (loading && retos.length === 0) {
@@ -149,10 +131,14 @@ export default function Retos() {
             <span className="level-label">Nivel Actual</span>
             <h2 className="level-title">{userLevel.levelName}</h2>
             <p className="level-desc-text">
-              {userLevel.levelName === 'Oro' && '¡Felicidades! Has completado todos los retos de la comunidad. ¡Eres una leyenda! 🌟'}
-              {userLevel.levelName === 'Plata' && '¡Buen trabajo! Has completado la mayoría de los retos. ¡Sigue así! 🚀'}
-              {userLevel.levelName === 'Bronce' && '¡Vas por muy buen camino! Completa más retos para ascender de nivel. 🌱'}
-              {userLevel.levelName === 'Sin nivel' && 'Completa retos para desbloquear tu primera medalla en la comunidad. 📖'}
+              {userLevel.levelName === 'Oro' &&
+                '¡Felicidades! Has completado todos los retos de la comunidad. ¡Eres una leyenda! 🌟'}
+              {userLevel.levelName === 'Plata' &&
+                '¡Buen trabajo! Has completado la mayoría de los retos. ¡Sigue así! 🚀'}
+              {userLevel.levelName === 'Bronce' &&
+                '¡Vas por muy buen camino! Completa más retos para ascender de nivel. 🌱'}
+              {userLevel.levelName === 'Sin nivel' &&
+                'Completa retos para desbloquear tu primera medalla en la comunidad. 📖'}
             </p>
           </div>
         </div>
@@ -176,7 +162,10 @@ export default function Retos() {
               <span>{Math.round(overallPercentage)}%</span>
             </div>
             <div className="progress-gauge-bar-bg">
-              <div className="progress-gauge-bar-fill" style={{ width: `${overallPercentage}%` }}></div>
+              <div
+                className="progress-gauge-bar-fill"
+                style={{ width: `${overallPercentage}%` }}
+              ></div>
             </div>
           </div>
         </div>
@@ -188,7 +177,9 @@ export default function Retos() {
           <span className="celebrate-icon">🎉</span>
           <div className="banner-text">
             <h3>¡Todos los retos completados!</h3>
-            <p>Has conquistado todos los objetivos disponibles. ¡Próximamente añadiremos más retos!</p>
+            <p>
+              Has conquistado todos los objetivos disponibles. ¡Próximamente añadiremos más retos!
+            </p>
           </div>
         </div>
       )}
@@ -223,8 +214,8 @@ export default function Retos() {
         <div className="empty-container">
           <span className="empty-emoji">🔍</span>
           <p className="empty-text">
-            {filter === 'completed' 
-              ? 'Todavía no has completado ningún reto.' 
+            {filter === 'completed'
+              ? 'Todavía no has completado ningún reto.'
               : 'No se encontraron retos que coincidan con el filtro seleccionado.'}
           </p>
         </div>
@@ -238,7 +229,10 @@ export default function Retos() {
             return (
               <div key={reto._id} className={`reto-card ${reto.completado ? 'completed' : ''}`}>
                 <div className="reto-card-header">
-                  <div className="reto-card-icon" style={{ backgroundColor: getBadgeColor(reto.type) }}>
+                  <div
+                    className="reto-card-icon"
+                    style={{ backgroundColor: getBadgeColor(reto.type) }}
+                  >
                     {getIcon(reto.type)}
                   </div>
                   {reto.completado ? (
@@ -249,7 +243,9 @@ export default function Retos() {
                 </div>
 
                 <div className="reto-card-body">
-                  <span className="reto-card-category">{TYPE_TRANSLATIONS[reto.type] || reto.type}</span>
+                  <span className="reto-card-category">
+                    {TYPE_TRANSLATIONS[reto.type] || reto.type}
+                  </span>
                   <h3 className="reto-card-title">{reto.title}</h3>
                   {reto.description && <p className="reto-card-desc">{reto.description}</p>}
                 </div>
@@ -257,7 +253,9 @@ export default function Retos() {
                 <div className="reto-card-footer">
                   <div className="progress-info">
                     <span className="progress-label">Progreso</span>
-                    <span className="progress-value">{reto.progresoActual} / {reto.objetivo}</span>
+                    <span className="progress-value">
+                      {reto.progresoActual} / {reto.objetivo}
+                    </span>
                   </div>
                   <div className="progress-bar-bg">
                     <div

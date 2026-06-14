@@ -1,26 +1,27 @@
-import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { useTranslation } from "react-i18next";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import LibroService from "../Services/Libro";
-import UsuarioService from "../Services/Usuario";
-import ImageFrame from "../HomePage/ImageFrame";
-import "./searchPage.css";
+import React, { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import LibroService from '../Services/Libro';
+import UsuarioService from '../Services/Usuario';
+import ImageFrame from '../HomePage/ImageFrame';
+import type ILibro from '../../Models/Libro';
+import './searchPage.css';
 
 const ALL_CATEGORIES = [
-  "Todas",
-  "Terror",
-  "Misterio",
-  "Aventura",
-  "Juvenil",
-  "Policíaco",
-  "Infantil",
-  "Autoayuda",
-  "Novela",
-  "Biografías",
-  "Cómics",
-  "Otros",
+  'Todas',
+  'Terror',
+  'Misterio',
+  'Aventura',
+  'Juvenil',
+  'Policíaco',
+  'Infantil',
+  'Autoayuda',
+  'Novela',
+  'Biografías',
+  'Cómics',
+  'Otros',
 ];
 
 export default function SearchPage() {
@@ -29,18 +30,18 @@ export default function SearchPage() {
   const navigate = useNavigate();
 
   // Get initial search query from routing state
-  const initialTerm = (location.state?.term as string) || "";
+  const initialTerm = (location.state?.term as string) || '';
 
   // Component States
   const [searchQuery, setSearchQuery] = useState(initialTerm);
-  const [bookResults, setBookResults] = useState<any[]>([]);
+  const [bookResults, setBookResults] = useState<ILibro[]>([]);
   const [userResults, setUserResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
   // Filters State
-  const [filterCategory, setFilterCategory] = useState("");
-  const [filterMaxPrice, setFilterMaxPrice] = useState("");
-  const [filterType, setFilterType] = useState("");
+  const [filterCategory, setFilterCategory] = useState('');
+  const [filterMaxPrice, setFilterMaxPrice] = useState('');
+  const [filterType, setFilterType] = useState('');
   const [showFilters, setShowFilters] = useState(location.state?.openFilters || false);
 
   // Search execution
@@ -55,35 +56,29 @@ export default function SearchPage() {
           UsuarioService.searchUsuarios(term),
         ]);
 
-        if (booksRes.status === "fulfilled") {
-          const resData = booksRes.value.data;
-          const booksArray = Array.isArray(resData)
-            ? resData
-            : Array.isArray(resData?.data)
-            ? resData.data
-            : [];
-          setBookResults(booksArray);
+        if (booksRes.status === 'fulfilled') {
+          setBookResults(booksRes.value);
         } else {
-          console.error("Error searching books:", booksRes.reason);
+          console.error('Error searching books:', booksRes.reason);
           setBookResults([]);
-          toast.error(t("search_books_error", "No se pudieron buscar los libros."));
+          toast.error(t('search_books_error', 'No se pudieron buscar los libros.'));
         }
 
-        if (usersRes.status === "fulfilled") {
+        if (usersRes.status === 'fulfilled') {
           const resData = usersRes.value.data;
           const usersArray = Array.isArray(resData)
             ? resData
             : Array.isArray(resData?.data)
-            ? resData.data
-            : [];
+              ? resData.data
+              : [];
           setUserResults(usersArray);
         } else {
-          console.error("Error searching users:", usersRes.reason);
+          console.error('Error searching users:', usersRes.reason);
           setUserResults([]);
           const status = (usersRes.reason as any).response?.status;
           // De-escalate toast alert if guest/no-session user is hit with auth block, otherwise show error
           if (status !== 401 && status !== 403) {
-            toast.error(t("search_users_error", "No se pudieron buscar los usuarios."));
+            toast.error(t('search_users_error', 'No se pudieron buscar los usuarios.'));
           }
         }
       } else {
@@ -93,8 +88,8 @@ export default function SearchPage() {
         setUserResults([]);
       }
     } catch (error) {
-      console.error("Error during search operation:", error);
-      toast.error(t("search_error", "Ocurrió un error al realizar la búsqueda."));
+      console.error('Error during search operation:', error);
+      toast.error(t('search_error', 'Ocurrió un error al realizar la búsqueda.'));
     } finally {
       setLoading(false);
     }
@@ -103,7 +98,7 @@ export default function SearchPage() {
   // Run search on mount and when initial term changes
   useEffect(() => {
     performSearch(initialTerm);
-    document.title = `${t("search_title", "Buscador")} - ViveBook`;
+    document.title = `${t('search_title', 'Buscador')} - ViveBook`;
     if (location.state?.openFilters) {
       setShowFilters(true);
     }
@@ -126,9 +121,9 @@ export default function SearchPage() {
       return false;
     }
     // Max Price Filter
-    const price = book.precio !== undefined ? book.precio : book.price;
+    const price = book.precio;
     if (filterMaxPrice && !isNaN(parseFloat(filterMaxPrice))) {
-      if (price === undefined || parseFloat(price) > parseFloat(filterMaxPrice)) {
+      if (price === undefined || price > parseFloat(filterMaxPrice)) {
         return false;
       }
     }
@@ -136,9 +131,9 @@ export default function SearchPage() {
   });
 
   const handleClearFilters = () => {
-    setFilterCategory("");
-    setFilterMaxPrice("");
-    setFilterType("");
+    setFilterCategory('');
+    setFilterMaxPrice('');
+    setFilterType('');
   };
 
   const handleUserClick = (userId: string) => {
@@ -151,7 +146,7 @@ export default function SearchPage() {
 
   return (
     <div className="search-page-container">
-      <h1 className="search-page-title">{t("search_title", "Buscador")}</h1>
+      <h1 className="search-page-title">{t('search_title', 'Buscador')}</h1>
 
       {/* Search and Filters Controls */}
       <div className="search-controls-wrapper">
@@ -161,7 +156,7 @@ export default function SearchPage() {
             <input
               type="text"
               className="search-input-field"
-              placeholder={t("search_placeholder")}
+              placeholder={t('search_placeholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -169,16 +164,16 @@ export default function SearchPage() {
               <div className="search-field-divider"></div>
               <button
                 type="button"
-                className={`search-filter-toggle-btn ${showFilters ? "active" : ""}`}
+                className={`search-filter-toggle-btn ${showFilters ? 'active' : ''}`}
                 onClick={() => setShowFilters(!showFilters)}
-                title={t("filters", "Filtros")}
+                title={t('filters', 'Filtros')}
               >
                 ⚙️
               </button>
             </div>
           </div>
           <button type="submit" className="search-action-btn">
-            {t("search_button", "Buscar")}
+            {t('search_button', 'Buscar')}
           </button>
         </form>
 
@@ -187,16 +182,16 @@ export default function SearchPage() {
           <div className="filter-panel">
             {/* Category Filter */}
             <div className="filter-section">
-              <span className="filter-label">{t("category", "Categoría")}:</span>
+              <span className="filter-label">{t('category', 'Categoría')}:</span>
               <div className="category-chips-grid">
                 {ALL_CATEGORIES.map((cat) => {
-                  const isSelected = filterCategory === (cat === "Todas" ? "" : cat);
+                  const isSelected = filterCategory === (cat === 'Todas' ? '' : cat);
                   return (
                     <button
                       key={cat}
                       type="button"
-                      className={`filter-chip ${isSelected ? "selected" : ""}`}
-                      onClick={() => setFilterCategory(cat === "Todas" ? "" : cat)}
+                      className={`filter-chip ${isSelected ? 'selected' : ''}`}
+                      onClick={() => setFilterCategory(cat === 'Todas' ? '' : cat)}
                     >
                       {cat}
                     </button>
@@ -208,32 +203,32 @@ export default function SearchPage() {
             {/* Price and Type Filters Row */}
             <div className="filter-bottom-row">
               <div className="filter-input-group">
-                <span className="filter-label">{t("max_price", "Precio Máximo")} (€):</span>
+                <span className="filter-label">{t('max_price', 'Precio Máximo')} (€):</span>
                 <input
                   type="number"
                   min="0"
                   step="0.01"
                   className="filter-numeric-input"
-                  placeholder={t("max_price_placeholder", "Ej: 20")}
+                  placeholder={t('max_price_placeholder', 'Ej: 20')}
                   value={filterMaxPrice}
                   onChange={(e) => setFilterMaxPrice(e.target.value)}
                 />
               </div>
 
               <div className="filter-input-group">
-                <span className="filter-label">{t("type", "Tipo")}:</span>
+                <span className="filter-label">{t('type', 'Tipo')}:</span>
                 <div className="type-buttons-group">
                   {[
-                    { value: "", label: t("all_types", "Todos") },
-                    { value: "VENTA", label: t("sale", "Venta") },
-                    { value: "ALQUILER", label: t("rent", "Alquiler") },
+                    { value: '', label: t('all_types', 'Todos') },
+                    { value: 'VENTA', label: t('sale', 'Venta') },
+                    { value: 'ALQUILER', label: t('rent', 'Alquiler') },
                   ].map((item) => {
                     const isSelected = filterType === item.value;
                     return (
                       <button
                         key={item.label}
                         type="button"
-                        className={`type-filter-btn ${isSelected ? "selected" : ""}`}
+                        className={`type-filter-btn ${isSelected ? 'selected' : ''}`}
                         onClick={() => setFilterType(item.value)}
                       >
                         {item.label}
@@ -243,12 +238,8 @@ export default function SearchPage() {
                 </div>
               </div>
 
-              <button
-                type="button"
-                className="clear-filters-btn"
-                onClick={handleClearFilters}
-              >
-                {t("clear_filters", "Limpiar Filtros")}
+              <button type="button" className="clear-filters-btn" onClick={handleClearFilters}>
+                {t('clear_filters', 'Limpiar Filtros')}
               </button>
             </div>
           </div>
@@ -259,7 +250,7 @@ export default function SearchPage() {
       {loading ? (
         <div className="search-loading-container">
           <div className="search-spinner"></div>
-          <p>{t("searching", "Buscando resultados...")}</p>
+          <p>{t('searching', 'Buscando resultados...')}</p>
         </div>
       ) : (
         <div className="search-results-content">
@@ -267,9 +258,7 @@ export default function SearchPage() {
           {userResults.length > 0 && (
             <div className="results-section">
               <div className="results-section-header">
-                <h2 className="results-section-title">
-                  {t("users_section", "Usuarios")}
-                </h2>
+                <h2 className="results-section-title">{t('users_section', 'Usuarios')}</h2>
               </div>
               <div className="users-list-grid">
                 {userResults.map((user) => (
@@ -279,7 +268,7 @@ export default function SearchPage() {
                     onClick={() => handleUserClick(user._id)}
                   >
                     <div className="search-user-avatar">
-                      {(user.name || "U").substring(0, 2).toUpperCase()}
+                      {(user.name || 'U').substring(0, 2).toUpperCase()}
                     </div>
                     <div className="search-user-info">
                       <p className="search-user-name">{user.name}</p>
@@ -295,15 +284,12 @@ export default function SearchPage() {
           {/* 2. Books Results Section */}
           <div className="results-section">
             <div className="results-section-header">
-              <h2 className="results-section-title">
-                {t("books_section", "Libros")}
-              </h2>
+              <h2 className="results-section-title">{t('books_section', 'Libros')}</h2>
             </div>
             {filteredBooks.length > 0 ? (
               <div className="books-list-grid">
                 {filteredBooks.map((book) => {
-                  const bookPrice =
-                    book.precio !== undefined ? book.precio : book.price;
+                  const bookPrice = book.precio;
                   return (
                     <div
                       key={book._id}
@@ -312,7 +298,7 @@ export default function SearchPage() {
                       tabIndex={0}
                       onClick={() => handleBookClick(book._id)}
                       onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") {
+                        if (e.key === 'Enter' || e.key === ' ') {
                           handleBookClick(book._id);
                         }
                       }}
@@ -324,13 +310,13 @@ export default function SearchPage() {
                         <span className="card-price">
                           {bookPrice !== undefined && bookPrice !== null
                             ? `${bookPrice} €`
-                            : t("consult_price")}
+                            : t('consult_price')}
                         </span>
                         <span className="card-title" title={book.title}>
                           {book.title}
                         </span>
                         <span className="card-meta">
-                          {book.authors?.join(", ") || t("unknown_author")}
+                          {book.authors?.join(', ') || t('unknown_author')}
                         </span>
                       </div>
                     </div>
@@ -343,12 +329,12 @@ export default function SearchPage() {
                 <p className="search-empty-text">
                   {bookResults.length > 0
                     ? t(
-                        "no_books_found_filters",
-                        "¡No hay ningún libro disponible con esos requisitos por el momento!"
+                        'no_books_found_filters',
+                        '¡No hay ningún libro disponible con esos requisitos por el momento!',
                       )
                     : t(
-                        "search_no_results",
-                        "No se encontraron libros que coincidan con tu búsqueda."
+                        'search_no_results',
+                        'No se encontraron libros que coincidan con tu búsqueda.',
                       )}
                 </p>
               </div>

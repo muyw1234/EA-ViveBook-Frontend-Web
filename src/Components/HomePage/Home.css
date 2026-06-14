@@ -856,7 +856,9 @@
 }
 
 .see-all-btn-link {
-  transition: color 0.2s ease, transform 0.2s ease;
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .see-all-btn-link:hover {
@@ -866,7 +868,9 @@
 
 /* Leaflet Map Wrapper */
 .social-map-wrapper {
-  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  transition:
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
 }
 
 .social-map-wrapper:hover {
@@ -890,7 +894,11 @@
   border: 1px solid #f1e2f0;
   border-radius: 0.75rem;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease,
+    background-color 0.2s ease;
 }
 
 .social-event-row-card:hover {
@@ -912,7 +920,10 @@
   width: 45px;
   height: 45px;
   flex-shrink: 0;
-  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .social-event-row-card:hover .event-date-badge {

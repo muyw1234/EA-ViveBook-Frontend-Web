@@ -1,4 +1,4 @@
-import type ILibro from "./Libro";
+import type ILibro from './Libro';
 
 export default interface IUsuario {
   _id: string;
@@ -16,14 +16,13 @@ export default interface IUsuario {
   favoriteAuthors?: string[];
   favoriteBooks?: ILibro[] | string[] | any[];
   favoriteCategories?: string[];
-  wishlist?:  string[] | any[];
+  wishlist?: string[] | any[];
   followingUsers?: string[];
-  favoritos:  string[];
+  favoritos: string[];
   description?: string;
-  eventos:  string[];
+  eventos: string[];
   IsDeleted?: boolean;
   hasSeenTutorial?: boolean;
   expoPushToken?: string;
-  notificationUsersEnabled?:  string[];
-
+  notificationUsersEnabled?: string[];
 }

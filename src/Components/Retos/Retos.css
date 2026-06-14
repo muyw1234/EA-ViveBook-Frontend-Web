@@ -32,8 +32,12 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .retos-error {
@@ -81,7 +85,7 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .level-medal-emoji {
@@ -298,7 +302,9 @@
   flex-direction: column;
   justify-content: space-between;
   gap: 1.25rem;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+  transition:
+    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.3s ease;
   position: relative;
   overflow: hidden;
 }
@@ -472,7 +478,7 @@
     padding: 1.5rem 1rem 4rem;
     gap: 1.5rem;
   }
-  
+
   .level-summary-card {
     flex-direction: column;
     text-align: center;

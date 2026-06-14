@@ -1,5 +1,6 @@
 import api from '../../api';
 import type { Dispatch, SetStateAction } from 'react';
+import { getApiCollection } from '../../utils/apiResponse';
 
 export interface IPost {
   _id: string;
@@ -16,9 +17,7 @@ async function readAllPosts(setter: Dispatch<SetStateAction<Partial<IPost>[]>>) 
   api
     .get('/posts/')
     .then((response) => {
-      // Soporte tanto para array plano como para objeto paginado { data: [...] }
-      const data = Array.isArray(response.data) ? response.data : response.data.data;
-      setter(data);
+      setter(getApiCollection<Partial<IPost>>(response.data));
     })
     .catch((error) => console.log(error));
 }

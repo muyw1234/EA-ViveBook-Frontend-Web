@@ -197,7 +197,14 @@ export const ProfilePage = () => {
   const renderEventGrid = (events: IEventoSimple[], emptyMessage: string) => {
     if (!events || events.length === 0) {
       return (
-        <p style={{ color: 'var(--text)', fontStyle: 'italic', textAlign: 'center', margin: '3rem 0' }}>
+        <p
+          style={{
+            color: 'var(--text)',
+            fontStyle: 'italic',
+            textAlign: 'center',
+            margin: '3rem 0',
+          }}
+        >
           {emptyMessage}
         </p>
       );
@@ -207,16 +214,25 @@ export const ProfilePage = () => {
     return (
       <div style={{ display: 'grid', gap: '1rem', textAlign: 'left' }}>
         {events.map((ev) => (
-          <div key={ev._id} style={{ padding: '1rem', border: '1px solid var(--border)', borderRadius: '8px' }}>
+          <div
+            key={ev._id}
+            style={{ padding: '1rem', border: '1px solid var(--border)', borderRadius: '8px' }}
+          >
             <h4 style={{ margin: 0, color: 'var(--text-h)' }}>{ev.title}</h4>
-            {ev.location && <p style={{ margin: '0.25rem 0', fontSize: '0.85rem' }}>📍 {ev.location}</p>}
-            {ev.description && <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.9rem', color: 'var(--text)' }}>{ev.description}</p>}
+            {ev.location && (
+              <p style={{ margin: '0.25rem 0', fontSize: '0.85rem' }}>📍 {ev.location}</p>
+            )}
+            {ev.description && (
+              <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.9rem', color: 'var(--text)' }}>
+                {ev.description}
+              </p>
+            )}
           </div>
         ))}
       </div>
     );
   };
-  
+
   return (
     <div
       style={{
@@ -298,8 +314,19 @@ export const ProfilePage = () => {
             </span>
           </div>
           <div style={{ paddingRight: '1rem', borderRight: '1px solid rgba(255, 255, 255, 0.2)' }}>
-            <span style={{ display: 'block', fontSize: '1.3rem', fontWeight: 700, fontFamily: 'var(--mono)' }}>{profile.eventos?.length || 0}</span>
-            <span style={{ fontSize: '0.7rem', opacity: 0.85, textTransform: 'uppercase' }}>Mis Eventos</span>
+            <span
+              style={{
+                display: 'block',
+                fontSize: '1.3rem',
+                fontWeight: 700,
+                fontFamily: 'var(--mono)',
+              }}
+            >
+              {profile.eventos?.length || 0}
+            </span>
+            <span style={{ fontSize: '0.7rem', opacity: 0.85, textTransform: 'uppercase' }}>
+              Mis Eventos
+            </span>
           </div>
           <div>
             <span
@@ -376,7 +403,7 @@ export const ProfilePage = () => {
           renderBookGrid(profile.boughtLibros, 'No has comprado ningún libro todavía.')}
         {activeTab === 'alquilados' &&
           renderBookGrid(profile.rentedLibros, 'No tienes alquileres activos.')}
-        {activeTab === 'eventos' && 
+        {activeTab === 'eventos' &&
           renderEventGrid(profile.eventos, 'No te has apuntado a ningún evento todavía.')}
         {activeTab === 'siguiendo' && (
           <div style={{ textAlign: 'left' }}>

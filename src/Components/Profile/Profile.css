@@ -328,7 +328,7 @@
 
 .tag-chip.wishlist-chip {
   background-color: #e0f2fe; /* Light sky blue */
-  color: #0369a1;            /* Dark sky blue text */
+  color: #0369a1; /* Dark sky blue text */
   border: 1px solid rgba(3, 105, 161, 0.2);
   transition: all 0.2s ease;
 }
@@ -340,7 +340,7 @@
 
 .tag-chip.favorite-chip {
   background-color: #fef3c7; /* Light amber yellow */
-  color: #b45309;            /* Dark amber text */
+  color: #b45309; /* Dark amber text */
   border: 1px solid rgba(180, 83, 9, 0.2);
   transition: all 0.2s ease;
 }

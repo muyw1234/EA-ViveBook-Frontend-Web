@@ -2,11 +2,12 @@ import type { AxiosResponse } from 'axios';
 import api from '../../api';
 import type IUsuario from '../../Models/Usuario';
 import Image from './Image';
+import { unwrapApiData } from '../../utils/apiResponse';
 
 const createUser = async (userData: { name: string; email: string; password: string }) => {
   try {
     const response = await api.post('/auth/signup', userData);
-    const resData = response.data.data || response.data;
+    const resData = unwrapApiData<{ token?: string; user?: IUsuario }>(response.data);
     const token = resData.token;
     const user = resData.user;
     if (token) {
@@ -22,7 +23,7 @@ const createUser = async (userData: { name: string; email: string; password: str
 const getUserByEmail = async (userData: { email: string; password: string }) => {
   try {
     const response = await api.post('/auth/signin', userData);
-    const resData = response.data.data || response.data;
+    const resData = unwrapApiData<{ token?: string; user?: IUsuario }>(response.data);
     const token = resData.token;
     if (token) {
       localStorage.setItem('token', token);
@@ -44,13 +45,13 @@ const getProfile = async () => {
     },
   });
 
-  return (response.data.data || response.data) as Partial<IUsuario>;
+  return unwrapApiData<Partial<IUsuario>>(response.data);
 };
 
 const toggleWishlist = async (bookId: string) => {
   try {
     const response = await api.post(`/usuarios/wishlist/${bookId}`);
-    return response.data.data || response.data;
+    return unwrapApiData(response.data);
   } catch (error) {
     console.error('Error toggling wishlist:', error);
     throw error;
@@ -60,7 +61,7 @@ const toggleWishlist = async (bookId: string) => {
 const toggleFavorite = async (bookId: string) => {
   try {
     const response = await api.post(`/usuarios/favoritos/${bookId}`);
-    return response.data.data || response.data;
+    return unwrapApiData(response.data);
   } catch (error) {
     console.error('Error toggling favorite:', error);
     throw error;
@@ -74,7 +75,7 @@ const searchUsuarios = async (term: string, page: number = 1, limit: number = 10
 const socialLogin = async (socialData: { provider: string; idToken: string; name?: string }) => {
   try {
     const response = await api.post('/auth/social-login', socialData);
-    const resData = response.data.data || response.data;
+    const resData = unwrapApiData<{ token?: string; user?: IUsuario }>(response.data);
     const token = resData.token;
     if (token) {
       localStorage.setItem('token', token);
@@ -86,14 +87,20 @@ const socialLogin = async (socialData: { provider: string; idToken: string; name
   }
 };
 
-async function updateUsuario(userData: Partial<IUsuario> , payload : any) : Promise<AxiosResponse<Partial<IUsuario>>> {
+async function updateUsuario(
+  userData: Partial<IUsuario>,
+  payload: any,
+): Promise<AxiosResponse<Partial<IUsuario>>> {
   return await api.put(`/usuarios/${userData._id}`, payload);
 }
 
-async function changeAvatar(data : FormData, userData : Partial<IUsuario>) : Promise<Partial<IUsuario> | undefined>{
+async function changeAvatar(
+  data: FormData,
+  userData: Partial<IUsuario>,
+): Promise<Partial<IUsuario> | undefined> {
   const url = await Image.upload(data);
 
-  const user = await updateUsuario(userData, {avatar : url});
+  const user = await updateUsuario(userData, { avatar: url });
   return user.data;
 }
 
@@ -106,5 +113,5 @@ export default {
   searchUsuarios,
   socialLogin,
   updateUsuario,
-  changeAvatar
+  changeAvatar,
 };

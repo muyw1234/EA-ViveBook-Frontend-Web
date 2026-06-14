@@ -144,7 +144,7 @@ const EventDetail: React.FC = () => {
     setJoining(true);
     try {
       await EventService.participateInEvento(event._id, currentUserId);
-      
+
       const mockCurrentUser: ParticipantUser = {
         _id: currentUserId,
         name: localStorage.getItem('userName') || 'Tú', // Asegúrate de tener guardado el nombre del usuario logueado en el localStorage al iniciar sesión
@@ -238,7 +238,7 @@ const EventDetail: React.FC = () => {
         <div className="event-detail-info">
           <span className="event-detail-status">Próximamente</span>
           <h1>{event.title || 'Evento sin título'}</h1>
-          <p className="event-detail-author">Organizado por: {event.creator?.name || "Anónimo"}</p>
+          <p className="event-detail-author">Organizado por: {event.creator?.name || 'Anónimo'}</p>
 
           <dl className="event-detail-meta">
             <div>
