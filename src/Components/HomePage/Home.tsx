@@ -16,6 +16,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { toast, ToastContainer } from 'react-toastify';
 import ImageFrame from './ImageFrame';
+import { getSessionToken } from '../../utils/session';
 
 // Icono para el Usuario (Azul)
 const UserIcon = L.icon({
@@ -73,7 +74,7 @@ const Home: React.FC = () => {
   const [isAddEventModalOpen, setIsAddEventModalOpen] = useState(false);
 
   // Guardamos dinámicamente si hay un token en el localStorage para escuchar cambios
-  const [authToken, setAuthToken] = useState<string | null>(localStorage.getItem('token'));
+  const [authToken, setAuthToken] = useState<string | null>(() => getSessionToken());
 
   const latestBooks = [...books].reverse();
   const heroBooks = latestBooks.slice(0, 3);
@@ -99,7 +100,7 @@ const Home: React.FC = () => {
   const navigate = useNavigate();
 
   const checkAuthAndOpen = (openModalSetter: React.Dispatch<React.SetStateAction<boolean>>) => {
-    if (!localStorage.getItem('token')) {
+    if (!getSessionToken()) {
       toast.warn('Inicia sesión para usar esta función');
       navigate('/login');
     } else {
@@ -126,13 +127,13 @@ const Home: React.FC = () => {
   // 2. Efecto periódico para verificar si el usuario inició o cerró sesión en otra vista
   useEffect(() => {
     const handleStorageChange = () => {
-      setAuthToken(localStorage.getItem('token'));
+      setAuthToken(getSessionToken());
     };
 
     // Escucha cambios en el mismo componente y entre pestañas
     window.addEventListener('storage', handleStorageChange);
     const interval = setInterval(() => {
-      const currentToken = localStorage.getItem('token');
+      const currentToken = getSessionToken();
       if (currentToken !== authToken) {
         setAuthToken(currentToken);
       }
@@ -155,7 +156,6 @@ const Home: React.FC = () => {
             setUser(userData);
           } catch (err) {
             console.error('Error fetching user profile:', err);
-            localStorage.removeItem('token');
             setUser(null);
           }
         } else {

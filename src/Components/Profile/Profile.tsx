@@ -10,6 +10,7 @@ import type IUsuario from '../../Models/Usuario';
 import AvatarFrame from './AvatarFrame';
 import Usuario from '../Services/Usuario';
 import { unwrapApiData } from '../../utils/apiResponse';
+import { clearSession } from '../../utils/session';
 
 export default function Profile() {
   const { userId } = useParams();
@@ -215,7 +216,7 @@ export default function Profile() {
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
+    clearSession();
     navigate('/');
   };
 

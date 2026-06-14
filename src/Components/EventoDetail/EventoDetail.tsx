@@ -7,6 +7,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { toast } from 'react-toastify';
 import { jwtDecode } from 'jwt-decode';
+import { getSessionToken } from '../../utils/session';
 
 export interface IGeoJSONPoint {
   type: 'Point';
@@ -39,7 +40,7 @@ type Event = {
 };
 
 const getUserIdFromToken = (): string => {
-  const token = localStorage.getItem('token');
+  const token = getSessionToken();
   if (!token) return '';
 
   try {
@@ -134,7 +135,7 @@ const EventDetail: React.FC = () => {
   }, [id]);
 
   const handleParticipate = async () => {
-    if (!localStorage.getItem('token')) {
+    if (!getSessionToken()) {
       toast.warn('Inicia sesión para usar esta función');
       navigate('/login');
       return;
@@ -168,7 +169,7 @@ const EventDetail: React.FC = () => {
   };
 
   const handleLeave = async () => {
-    if (!localStorage.getItem('token')) {
+    if (!getSessionToken()) {
       toast.warn('Inicia sesión para usar esta función');
       navigate('/login');
       return;

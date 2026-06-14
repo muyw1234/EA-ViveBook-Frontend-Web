@@ -22,14 +22,16 @@ import Retos from './Components/Retos/Retos';
 import ProtectedRoute from './Components/ProtectedRoute';
 import Discover from './Components/Discover/Discover';
 import Buzon from './Components/Buzon/Buzon';
+import { clearSession } from './utils/session';
+import { useSessionToken } from './hooks/useSessionToken';
 
 function Navigation() {
   useLocation(); // Triggers re-render on route changes
-  const token = localStorage.getItem('token');
+  const token = useSessionToken();
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    window.location.href = '/';
+    clearSession();
+    window.location.assign('/');
   };
 
   return (

@@ -3,6 +3,7 @@ import api from '../../api';
 import type IUsuario from '../../Models/Usuario';
 import Image from './Image';
 import { unwrapApiData } from '../../utils/apiResponse';
+import { setSessionToken } from '../../utils/session';
 
 const createUser = async (userData: { name: string; email: string; password: string }) => {
   try {
@@ -11,7 +12,7 @@ const createUser = async (userData: { name: string; email: string; password: str
     const token = resData.token;
     const user = resData.user;
     if (token) {
-      localStorage.setItem('token', token);
+      setSessionToken(token);
     }
     return user;
   } catch (error) {
@@ -26,7 +27,7 @@ const getUserByEmail = async (userData: { email: string; password: string }) => 
     const resData = unwrapApiData<{ token?: string; user?: IUsuario }>(response.data);
     const token = resData.token;
     if (token) {
-      localStorage.setItem('token', token);
+      setSessionToken(token);
     } else {
       console.warn('No se recibió el token en la respuesta del backend:', response.data);
     }
@@ -38,12 +39,7 @@ const getUserByEmail = async (userData: { email: string; password: string }) => 
 };
 
 const getProfile = async () => {
-  const token = localStorage.getItem('token');
-  const response = await api.get('/auth/profile', {
-    headers: {
-      Authorization: token ? `Bearer ${token}` : '',
-    },
-  });
+  const response = await api.get('/auth/profile');
 
   return unwrapApiData<Partial<IUsuario>>(response.data);
 };
@@ -78,7 +74,7 @@ const socialLogin = async (socialData: { provider: string; idToken: string; name
     const resData = unwrapApiData<{ token?: string; user?: IUsuario }>(response.data);
     const token = resData.token;
     if (token) {
-      localStorage.setItem('token', token);
+      setSessionToken(token);
     }
     return resData.user || resData;
   } catch (error) {

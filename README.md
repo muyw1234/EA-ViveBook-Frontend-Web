@@ -1,5 +1,30 @@
 # Mínim 2: Llista de Desitjos (Wishlist), Favorits i Paginació de Biblioteca
 
+## Configuración del Backend
+
+La Web obtiene las direcciones HTTP y Socket.IO desde variables públicas de Vite:
+
+```env
+VITE_API_URL=http://localhost:1337
+VITE_SOCKET_URL=http://localhost:1337
+```
+
+Para desarrollo local, las variables base están definidas en `.env`. Puedes sobrescribirlas en
+`.env.local`, que permanece ignorado por Git. Si no se definen, ambas conexiones usan
+`http://localhost:1337`.
+
+En Docker estas variables se proporcionan durante la construcción de la imagen:
+
+```powershell
+docker build `
+  --build-arg VITE_API_URL=https://api.example.com `
+  --build-arg VITE_SOCKET_URL=https://api.example.com `
+  -t vivebook-web .
+```
+
+El workflow de GitHub utiliza las variables de repositorio `VITE_API_URL` y `VITE_SOCKET_URL`.
+Al ser configuración pública incluida en el bundle, no deben utilizarse para almacenar secretos.
+
 **Autor:** Marc (Grup G3)
 **Tasca:** Implementar la llista de desitjos (wishlist), la llista de preferits (favorites) de llibres, i optimitzar la biblioteca mitjançant paginació al backend.
 

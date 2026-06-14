@@ -8,6 +8,7 @@ import UsuarioService from '../Services/Usuario';
 import type ILibro from '../../Models/Libro';
 import { getApiCollection } from '../../utils/apiResponse';
 import { formatAuthors } from '../../utils/libro';
+import { getSessionToken } from '../../utils/session';
 import './BookDetail.css';
 
 type Book = Partial<ILibro> & {
@@ -68,7 +69,7 @@ const BookDetail: React.FC = () => {
         setBook(data);
 
         // Check if user is logged in and book is in wishlist/favorites
-        const token = localStorage.getItem('token');
+        const token = getSessionToken();
         if (token) {
           try {
             const profile = await UsuarioService.getProfile();
@@ -107,7 +108,7 @@ const BookDetail: React.FC = () => {
   }, [id]);
 
   const handleWishlistToggle = async () => {
-    const token = localStorage.getItem('token');
+    const token = getSessionToken();
     if (!token) {
       toast.warn('Debes iniciar sesión para añadir libros a tu lista de deseos.');
       return;
@@ -134,7 +135,7 @@ const BookDetail: React.FC = () => {
   };
 
   const handleFavoriteToggle = async () => {
-    const token = localStorage.getItem('token');
+    const token = getSessionToken();
     if (!token) {
       toast.warn('Debes iniciar sesión para añadir libros a tus favoritos.');
       return;
@@ -161,7 +162,7 @@ const BookDetail: React.FC = () => {
   };
 
   const handleReserve = async () => {
-    const token = localStorage.getItem('token');
+    const token = getSessionToken();
     if (!token) {
       toast.warn('Debes iniciar sesión para reservar un libro.');
       return;

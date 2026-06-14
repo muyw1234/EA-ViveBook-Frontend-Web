@@ -3,6 +3,12 @@ FROM node:20-alpine AS build-step
 
 WORKDIR /app
 
+ARG VITE_API_URL=http://localhost:1337
+ARG VITE_SOCKET_URL=http://localhost:1337
+
+ENV VITE_API_URL=$VITE_API_URL
+ENV VITE_SOCKET_URL=$VITE_SOCKET_URL
+
 # Copiamos dependencias
 COPY package*.json ./
 

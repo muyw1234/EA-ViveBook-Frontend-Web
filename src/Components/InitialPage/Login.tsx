@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import UsuarioService from '../Services/Usuario';
+import { consumeSessionReason } from '../../utils/session';
 import './Auth.css';
 
 const Login: React.FC = () => {
@@ -9,6 +10,7 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [sessionMessage, setSessionMessage] = useState('');
 
   // Mock social login state
   const [showMockModal, setShowMockModal] = useState(false);
@@ -17,9 +19,19 @@ const Login: React.FC = () => {
   const [mockEmail, setMockEmail] = useState('');
   const [mockLoading, setMockLoading] = useState(false);
 
+  useEffect(() => {
+    const reason = consumeSessionReason();
+    if (reason === 'expired') {
+      setSessionMessage('Tu sesión ha expirado. Inicia sesión de nuevo para continuar.');
+    } else if (reason === 'rejected') {
+      setSessionMessage('El Backend ha rechazado tu sesión. Inicia sesión de nuevo.');
+    }
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSessionMessage('');
     setLoading(true);
 
     try {
@@ -38,6 +50,7 @@ const Login: React.FC = () => {
     setMockProvider(provider);
     setShowMockModal(true);
     setError('');
+    setSessionMessage('');
   };
 
   const handleSocialSubmit = async (e: React.FormEvent) => {
@@ -73,6 +86,8 @@ const Login: React.FC = () => {
       <div className="auth-card">
         <h2 className="auth-title">Bienvenido de nuevo</h2>
         <p className="auth-subtitle">Inicia sesión y continúa tu lectura.</p>
+
+        {sessionMessage && <div className="auth-message error">{sessionMessage}</div>}
 
         <form className="auth-form" onSubmit={handleSubmit}>
           <div className="input-group">
