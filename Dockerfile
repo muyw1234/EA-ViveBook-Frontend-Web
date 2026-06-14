@@ -12,8 +12,8 @@ ENV VITE_SOCKET_URL=$VITE_SOCKET_URL
 # Copiamos dependencias
 COPY package*.json ./
 
-# Instalamos
-RUN npm install
+# Instalamos exactamente las versiones fijadas en package-lock.json
+RUN npm ci
 
 # Copiamos el resto del código
 COPY . .
@@ -23,6 +23,8 @@ RUN npm run build
 
 # ETAPA 2: Servidor de producción (Nginx)
 FROM nginx:stable-alpine
+
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # En Vite, el resultado del build va por defecto a la carpeta /dist
 COPY --from=build-step /app/dist /usr/share/nginx/html
