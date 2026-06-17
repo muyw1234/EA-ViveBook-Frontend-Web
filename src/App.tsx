@@ -1,11 +1,4 @@
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Link,
-  useLocation,
-  Navigate,
-} from 'react-router-dom';
+import { Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
 import Login from './Components/InitialPage/Login';
 import Register from './Components/InitialPage/Register';
 import Home from './Components/HomePage/Home';
@@ -103,12 +96,8 @@ function App() {
   const location = useLocation();
   const currentPath = location.pathname + location.search + location.hash;
   return (
-      // No os preocupeis, Router esta en 'main.ts'
-      <MatomoProvider
-      urlBase="https://ea3upc.matomo.cloud"
-      siteId="1"
-      path={currentPath}
-    >
+    // No os preocupeis, Router esta en 'main.ts'
+    <MatomoProvider urlBase="https://ea3upc.matomo.cloud" siteId="1" path={currentPath}>
       <Navigation />
 
       <Routes>
@@ -134,7 +123,7 @@ function App() {
           <Route path="/profile-old" element={<ProfilePage />} />
         </Route>
       </Routes>
-      </MatomoProvider>
+    </MatomoProvider>
   );
 }
 
