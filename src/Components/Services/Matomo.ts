@@ -1,5 +1,5 @@
 // Legacy code
-export default "https://ea3upc.matomo.cloud";
+export default 'https://ea3upc.matomo.cloud';
 /*
 import { useEffect } from 'react';
 import type ILibro from '../../Models/Libro';
@@ -20,4 +20,3 @@ async function AddingBook(data : Partial<ILibro>){
 }
 
 export default {AddingBook}; */
-

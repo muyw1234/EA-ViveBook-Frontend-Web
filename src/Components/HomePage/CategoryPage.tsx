@@ -36,7 +36,7 @@ const CategoryPage: React.FC = () => {
           setHasMore(response.length === limit);
         } else if (type === 'events') {
           const response = await EventService.getAllEventos(currentPage, limit, timeFilter);
-          const dataArray = response.data ? response.data : response; 
+          const dataArray = response.data ? response.data : response;
           setItems(dataArray);
           setHasMore(dataArray.length === limit);
         }
