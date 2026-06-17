@@ -13,7 +13,8 @@ const CategoryPage: React.FC = () => {
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // --- ESTADOS PARA LA PAGINACIÓN ---
+  const [timeFilter, setTimeFilter] = useState<'upcoming' | 'expired'>('upcoming');
+
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [limit] = useState<number>(6);
   const [hasMore, setHasMore] = useState<boolean>(true);
@@ -21,7 +22,7 @@ const CategoryPage: React.FC = () => {
   useEffect(() => {
     setCurrentPage(1);
     setHasMore(true);
-  }, [type]);
+  }, [type, timeFilter]); // Reiniciar página si cambia el tipo o el filtro de tiempo
 
   useEffect(() => {
     const fetchData = async () => {
@@ -31,14 +32,13 @@ const CategoryPage: React.FC = () => {
         if (type === 'rentals' || type === 'sales') {
           const backendType = type === 'rentals' ? 'ALQUILER' : 'VENTA';
           const response = await LibroService.getAllLibros(currentPage, limit, backendType);
-
           setItems(response);
           setHasMore(response.length === limit);
         } else if (type === 'events') {
-          const response = await EventService.getAllEventos(currentPage, limit);
-
-          setItems(response);
-          setHasMore(response.length === limit);
+          const response = await EventService.getAllEventos(currentPage, limit, timeFilter);
+          const dataArray = response.data ? response.data : response; 
+          setItems(dataArray);
+          setHasMore(dataArray.length === limit);
         }
       } catch (error) {
         console.error('Error al cargar los datos paginados:', error);
@@ -50,7 +50,7 @@ const CategoryPage: React.FC = () => {
     };
 
     fetchData();
-  }, [type, currentPage, limit]);
+  }, [type, currentPage, limit, timeFilter]);
 
   const handleNextPage = () => {
     if (hasMore) setCurrentPage((prev) => prev + 1);
@@ -78,6 +78,26 @@ const CategoryPage: React.FC = () => {
         {type === 'events' && 'Eventos'}
         {type === 'posts' && 'Posts'}
       </h1>
+
+      {/* --- SELECTOR DE EVENTOS PRÓXIMOS / EXPIRADOS --- */}
+      {type === 'events' && (
+        <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
+          <button
+            onClick={() => setTimeFilter('upcoming')}
+            className="add-book-btn"
+            style={{ backgroundColor: timeFilter === 'upcoming' ? '#007bff' : '#ccc' }}
+          >
+            Próximos
+          </button>
+          <button
+            onClick={() => setTimeFilter('expired')}
+            className="add-book-btn"
+            style={{ backgroundColor: timeFilter === 'expired' ? '#007bff' : '#ccc' }}
+          >
+            Expirados
+          </button>
+        </div>
+      )}
 
       {/* CONTROL DINÁMICO DE DISEÑO */}
       {items.length > 0 ? (

@@ -11,6 +11,7 @@ import AvatarFrame from './AvatarFrame';
 import Usuario from '../Services/Usuario';
 import { unwrapApiData } from '../../utils/apiResponse';
 import { clearSession } from '../../utils/session';
+import socket from '../../Services/socket';
 
 export default function Profile() {
   const { userId } = useParams();
@@ -217,6 +218,9 @@ export default function Profile() {
 
   const logout = () => {
     clearSession();
+    if (socket.connected) {
+    socket.disconnect();
+    }
     navigate('/');
   };
 
