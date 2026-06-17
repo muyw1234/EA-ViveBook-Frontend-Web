@@ -7,7 +7,7 @@ import { getApiCollection, unwrapApiData } from '../../utils/apiResponse';
 import './Buzon.css';
 
 const Buzon: React.FC = () => {
-  const [tab, setTab] = useState<'chats' | 'reservas'>('chats');
+  const [tab, setTab] = useState<'chats' | 'reservas' | 'eventos'>('chats');
   const [userId, setUserId] = useState<string | null>(null);
 
   // Lists state
@@ -34,6 +34,9 @@ const Buzon: React.FC = () => {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  const [eventChats, setEventChats] = useState<any[]>([]);
+  const [isEventChat, setIsEventChat] = useState<boolean>(false);
+
   // Setup user and socket on mount
   useEffect(() => {
     const fetchUser = async () => {
@@ -42,9 +45,12 @@ const Buzon: React.FC = () => {
         const user = unwrapApiData<any>(profileRes.data);
         setUserId(user._id);
 
-        if (!socket.connected) {
-          socket.connect();
+        if (socket.connected) {
+        socket.disconnect();
         }
+
+        socket.connect();
+        socket.removeAllListeners();
         socket.emit('register_user', user._id);
       } catch (err) {
         console.error('Error fetching profile for buzon:', err);
@@ -60,22 +66,23 @@ const Buzon: React.FC = () => {
       socket.off('newChatNotification');
       socket.off('newMessageRequestUpdate');
     };
-  }, []);
+  }, [tab]);
 
   // Fetch all lists data
   const fetchBuzonData = async () => {
     if (!userId) return;
     try {
       // Chats and requests
-      const [chatsRes, receivedReqRes, sentReqRes] = await Promise.all([
+      const [chatsRes, receivedReqRes, sentReqRes, eventChatsRes] = await Promise.all([
         api.get('/chats'),
         api.get('/message-requests/received'),
         api.get('/message-requests/sent'),
+        api.get('/chats/eventos/mis-chats'),
       ]);
       setPrivateChats(getApiCollection(chatsRes.data));
       setReceivedMsgRequests(getApiCollection(receivedReqRes.data));
       setSentMsgRequests(getApiCollection(sentReqRes.data));
-
+      setEventChats(getApiCollection(eventChatsRes.data));
       // Reservations
       const [recRes, sentRes, resMsgs] = await Promise.all([
         api.get('/reservas/recibidas'),
@@ -136,42 +143,50 @@ const Buzon: React.FC = () => {
 
   // Load messages when activeChatId changes
   useEffect(() => {
-    if (!activeChatId) {
-      setMessages([]);
-      setActiveChat(null);
-      return;
+  if (!activeChatId) {
+    setMessages([]);
+    setActiveChat(null);
+    return;
+  }
+
+  socket.emit('join_chat', activeChatId);
+
+  if (activeChatId === '000000000000000000000001') {
+      setActiveChat({ title: 'Chat Global' });
+    } else if (isEventChat) {
+      const currentEventChat = eventChats.find((c) => c._id === activeChatId);
+      setActiveChat(currentEventChat || null);
+    } else {
+      const currentPrivateChat = privateChats.find((c) => c._id === activeChatId);
+      setActiveChat(currentPrivateChat || null);
     }
 
-    // Join room
-    socket.emit('join_chat', activeChatId);
-
-    const loadMessages = async () => {
+    const loadMessages = async (chatId: string) => {
       setLoadingMessages(true);
       try {
-        const [messagesRes, chatRes] = await Promise.all([
-          api.get(`/chats/${activeChatId}/messages`),
-          // Fetch specific chat info if needed, or find in list
-          Promise.resolve(privateChats.find((c) => c._id === activeChatId)),
-        ]);
+        const response = await api.get(`/chats/${chatId}/messages`);
+        
+        const dataLimpia = response.data?.data || response.data || [];
+        
+        setMessages(Array.isArray(dataLimpia) ? dataLimpia : []);
 
-        setMessages(getApiCollection(messagesRes.data));
-        setActiveChat(chatRes || null);
-
-        // Mark as read
-        await api.patch(`/chats/${activeChatId}/read`);
+        if (!isEventChat && chatId !== '000000000000000000000001') {
+          await api.patch(`/chats/${chatId}/read`);
+        }
       } catch (err) {
-        console.error('Error loading chat messages:', err);
+        console.error('Error loading messages:', err);
         toast.error('No se pudieron cargar los mensajes');
       } finally {
         setLoadingMessages(false);
       }
     };
-    loadMessages();
+    
+    loadMessages(activeChatId);
 
     return () => {
       socket.emit('leave_chat', activeChatId);
     };
-  }, [activeChatId, privateChats]);
+  }, [activeChatId, isEventChat, privateChats, eventChats]);
 
   // Scroll to bottom of chat
   useEffect(() => {
@@ -186,6 +201,7 @@ const Buzon: React.FC = () => {
       chatId: activeChatId,
       senderId: userId,
       content: newMessage.trim(),
+      isEventChat: isEventChat
     });
 
     setNewMessage('');
@@ -298,7 +314,7 @@ const Buzon: React.FC = () => {
 
   const notices = sentMsgRequests.filter((req) => req.status !== 'pending');
 
-  return (
+return (
     <div className="buzon-container">
       <ToastContainer />
 
@@ -325,7 +341,10 @@ const Buzon: React.FC = () => {
               {/* Chat Global card */}
               <div
                 className={`global-chat-card-item ${activeChatId === '000000000000000000000001' ? 'active' : ''}`}
-                onClick={() => setActiveChatId('000000000000000000000001')}
+                onClick={() => {
+                  setIsEventChat(false);
+                  setActiveChatId('000000000000000000000001');
+                }}
               >
                 <div className="global-chat-avatar">🌍</div>
                 <div className="global-chat-details">
@@ -397,6 +416,37 @@ const Buzon: React.FC = () => {
                 </div>
               )}
 
+              {/* NUEVA SECCIÓN: Chats grupales de Eventos */}
+              <div className="sidebar-section">
+                <h5>Chats de Eventos</h5>
+                {eventChats.length === 0 ? (
+                  <p className="sidebar-empty">No estás participando en ningún evento.</p>
+                ) : (
+                  eventChats.map((chat) => {
+                    const isSelected = activeChatId === chat._id;
+                    const eventoTitle = chat.evento?.title || 'Evento';
+                    return (
+                      <div
+                        key={chat._id}
+                        className={`chat-item-row event-chat-row ${isSelected ? 'active' : ''}`}
+                        onClick={() => {
+                          setIsEventChat(true);
+                          setActiveChatId(chat._id);
+                        }}
+                      >
+                        <div className="chat-row-avatar" style={{ backgroundColor: '#e0f2fe', color: '#0369a1' }}>
+                          📢
+                        </div>
+                        <div className="chat-row-details">
+                          <strong>{eventoTitle}</strong>
+                          <span>👥 {chat.participants?.length || 0} asistentes</span>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+
               {/* Active Private Chats */}
               <div className="sidebar-section">
                 <h5>Chats Privados</h5>
@@ -406,12 +456,15 @@ const Buzon: React.FC = () => {
                   privateChats.map((chat) => {
                     const other = chat.participants?.find((p: any) => p._id !== userId) || {};
                     const otherName = other.name || 'Usuario';
-                    const isSelected = activeChatId === chat._id;
+                    const isSelected = activeChatId === chat._id && !isEventChat;
                     return (
                       <div
                         key={chat._id}
                         className={`chat-item-row ${isSelected ? 'active' : ''}`}
-                        onClick={() => setActiveChatId(chat._id)}
+                        onClick={() => {
+                          setIsEventChat(false);
+                          setActiveChatId(chat._id);
+                        }}
                       >
                         <div className="chat-row-avatar">
                           {otherName.substring(0, 2).toUpperCase()}
@@ -559,6 +612,15 @@ const Buzon: React.FC = () => {
                     <span>Comunidad general de lectores</span>
                   </div>
                 </>
+              ) : isEventChat ? (
+                /* RENDERIZADO CABECERA DE EVENTO GRUPAL */
+                <>
+                  <div className="chat-header-avatar" style={{ backgroundColor: '#e0f2fe', color: '#0369a1' }}>📢</div>
+                  <div className="chat-header-details">
+                    <h3>{activeChat?.evento?.title || 'Chat del Evento'}</h3>
+                    <span>📍 Ubicación: {activeChat?.evento?.direccionExacta || 'Consultar mapa'}</span>
+                  </div>
+                </>
               ) : (
                 <>
                   <div className="chat-header-avatar">
@@ -587,7 +649,7 @@ const Buzon: React.FC = () => {
                 </div>
               ) : (
                 <>
-                  {messages.map((msg) => {
+                  {messages?.map((msg) => {
                     const isMine = msg.sender?._id === userId || msg.sender === userId;
                     const senderName = msg.sender?.name || 'Usuario';
                     return (
