@@ -180,10 +180,12 @@ const Home: React.FC = () => {
         }
 
         try {
-          const eventosData = await EventoService.getAllEventos();
-          setEventos(eventosData);
+          const response = await EventoService.getAllEventos();
+          const eventosData = response && response.data ? response.data : response;
+          setEventos(Array.isArray(eventosData) ? eventosData : []);
         } catch (eventErr) {
           console.error('Error fetching events:', eventErr);
+          setEventos([]);
         }
       } catch (error) {
         console.error('General error in Home fetchData:', error);

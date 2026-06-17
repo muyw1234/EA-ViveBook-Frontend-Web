@@ -27,12 +27,26 @@ const createEvento = async (eventoData: IEventoData) => {
   }
 };
 
-const getAllEventos = async (page: number = 1, limit: number = 10) => {
+export const getAllEventos = async (
+  page: number = 1,
+  limit: number = 10,
+  timeFilter?: 'upcoming' | 'expired'
+): Promise<any> => { 
   try {
-    const response = await api.get('/eventos', { params: { page, limit } });
-    return getApiCollection<IEventoData>(response.data);
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+    });
+
+    if (timeFilter) {
+      params.append('timeFilter', timeFilter);
+    }
+
+    const response = await api.get(`/eventos?${params.toString()}`);
+    
+    return response.data; 
   } catch (error) {
-    console.error('Error fetching eventos:', error);
+    console.error('Error en getAllEventos Service:', error);
     throw error;
   }
 };
