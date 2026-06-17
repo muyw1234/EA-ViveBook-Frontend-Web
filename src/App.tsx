@@ -24,6 +24,7 @@ import Discover from './Components/Discover/Discover';
 import Buzon from './Components/Buzon/Buzon';
 import { clearSession } from './utils/session';
 import { useSessionToken } from './hooks/useSessionToken';
+import { MatomoProvider } from 'matomo-tracker-for-react';
 
 function Navigation() {
   useLocation(); // Triggers re-render on route changes
@@ -99,8 +100,15 @@ function Navigation() {
 }
 
 function App() {
+  const location = useLocation();
+  const currentPath = location.pathname + location.search + location.hash;
   return (
-    <Router>
+      // No os preocupeis, Router esta en 'main.ts'
+      <MatomoProvider
+      urlBase="https://ea3upc.matomo.cloud"
+      siteId="1"
+      path={currentPath}
+    >
       <Navigation />
 
       <Routes>
@@ -126,7 +134,7 @@ function App() {
           <Route path="/profile-old" element={<ProfilePage />} />
         </Route>
       </Routes>
-    </Router>
+      </MatomoProvider>
   );
 }
 

@@ -1,6 +1,7 @@
 import api from '../../api';
 import type ILibro from '../../Models/Libro';
 import { normalizeLibro, normalizeLibros } from '../../utils/libro';
+import Matomo from './Matomo';
 
 const getAllLibros = async (
   page: number = 1,
@@ -46,7 +47,9 @@ const addLibroListing = async (bookData: {
   imageUrl?: string | null;
 }) => {
   try {
+
     const response = await api.post('/libros', bookData);
+    /* await Matomo.AddingBook(bookData as Partial<ILibro>); // observer o event dispatcher o callback, llamalo como quieras. */
     return normalizeLibro(response.data);
   } catch (error: any) {
     if (error.response) {

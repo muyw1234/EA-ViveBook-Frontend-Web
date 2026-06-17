@@ -17,6 +17,8 @@ import L from 'leaflet';
 import { toast, ToastContainer } from 'react-toastify';
 import ImageFrame from './ImageFrame';
 import { getSessionToken } from '../../utils/session';
+import { useMatomo } from 'matomo-tracker-for-react';
+import type ILibro from '../../Models/Libro';
 
 // Icono para el Usuario (Azul)
 const UserIcon = L.icon({
@@ -96,6 +98,22 @@ const Home: React.FC = () => {
   const [newEventDate, setNewEventDate] = useState('');
   const [newEventLocation, setNewEventLocation] = useState<[number, number] | null>(null);
   const [newEventDireccionExacta, setNewEventDireccionExacta] = useState('');
+
+  function AddingBookInput(data : Partial<ILibro>){
+    const { trackEvent } = useMatomo();
+    console.log('Sending metrics of Adding Book to Matomo.');
+    trackEvent('Libro', 'Adding Book', data.type as string);
+
+    return(
+        <input
+                  type="submit"
+                  className="submit-btn"
+                  value={t('submit_book_btn')}
+                  onClick={(e) => handleAddBookSubmit(e)}
+                />
+    )
+}
+
 
   const navigate = useNavigate();
 
@@ -944,6 +962,18 @@ const Home: React.FC = () => {
                     </label>
                   </div>
                 </div>
+              {/* He vuelto a poner estos campos obligatorios, no lo volveis a borrar indiscriminadamente. */}
+                <div className="form-group">
+                  <label>{t('label_book_title')}</label>
+                  <input
+                    type="text"
+                    placeholder="Ej: Cien años de soledad"
+                    value={newBookTitle}
+                    onChange={(e) => setNewBookTitle(e.target.value)}
+                    required
+                  />
+                </div>
+
                 <div className="form-group">
                   <label>{t('label_id_data')}</label>
                   <div style={{ display: 'flex', gap: '1rem' }}>
@@ -965,6 +995,23 @@ const Home: React.FC = () => {
                       />
                     </div>
                   </div>
+                </div>
+                <div
+                  style={{
+                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.5rem',
+                  }}
+                >
+                  <label style={{ fontSize: '0.8rem' }}>{t('label_author')}</label>
+                  <input
+                    type="text"
+                    placeholder="Ej: Gabriel García Márquez"
+                    value={newBookAuthor}
+                    onChange={(e) => setNewBookAuthor(e.target.value)}
+                    required
+                  />
                 </div>
                 <div className="form-group">
                   <label>{t('label_book_state')}</label>
@@ -1013,17 +1060,24 @@ const Home: React.FC = () => {
                   />
                 </div>
 
-                <button
+                {/* <button  // repetido? Creo que si, en la Linea 211 ya hay algo asi. Confuso? Si.
                   className="submit-btn"
                   disabled={!newBookIsbn || !newBookPrice}
                   onClick={async () => {
                     setOnlyISBN(false);
-                    await LibroService.addLibroByIsbn(newBookIsbn);
+                    await LibroService.addLibroListing()
                     setIsAddBookModalOpen(false);
                   }}
                 >
                   {t('submit_book_btn')}
-                </button>
+                </button> */}
+                {/* <input
+                  type="submit"
+                  className="submit-btn"
+                  value={t('submit_book_btn')}
+                  onClick={(e) => handleAddBookSubmit(e)}
+                /> */}
+                <AddingBookInput/>
               </div>
             ) : (
               <form className="add-book-form" onSubmit={handleAddBookSubmit}>
@@ -1061,6 +1115,18 @@ const Home: React.FC = () => {
                     required
                   />
                 </div>
+
+                <button
+                  className="submit-btn"
+                  disabled={!newBookIsbn || !newBookPrice}
+                  onClick={async () => {
+                    setOnlyISBN(false);
+                    await LibroService.addLibroByIsbn(newBookIsbn);
+                    setIsAddBookModalOpen(false);
+                  }}
+                >
+                  {t('submit_book_btn')}
+                </button>
               </form>
             )}
           </div>

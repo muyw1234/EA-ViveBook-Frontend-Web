@@ -19,6 +19,7 @@
     "i18next": "^26.0.10",
     "jwt-decode": "^4.0.0",
     "leaflet": "^1.9.4",
+    "matomo-tracker-for-react": "^2.1.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-i18next": "^17.0.7",
