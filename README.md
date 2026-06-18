@@ -588,31 +588,31 @@ Para que GitHub lo ejecute, el archivo debe estar commiteado y subido al reposit
 
 ### Rutas publicas
 
-| Ruta | Descripcion |
-| --- | --- |
-| `/` | Home |
-| `/home` | Redireccion a `/` |
-| `/register` | Registro |
-| `/login` | Login |
-| `/libros/:id` | Detalle de libro |
-| `/eventos/:id` | Detalle de evento |
+| Ruta                | Descripcion                  |
+| ------------------- | ---------------------------- |
+| `/`                 | Home                         |
+| `/home`             | Redireccion a `/`            |
+| `/register`         | Registro                     |
+| `/login`            | Login                        |
+| `/libros/:id`       | Detalle de libro             |
+| `/eventos/:id`      | Detalle de evento            |
 | `/categorias/:type` | Listado por categoria o tipo |
-| `/search` | Buscador |
+| `/search`           | Buscador                     |
 
 ### Rutas privadas
 
 Estas rutas estan protegidas por `ProtectedRoute` y requieren token de sesion valido.
 
-| Ruta | Descripcion |
-| --- | --- |
-| `/ia` | Chat IA |
-| `/discover` | Descubrimiento social |
-| `/buzon` | Mensajes, reservas y chats |
-| `/my-books` | Biblioteca personal |
-| `/retos` | Retos y progreso |
-| `/profile` | Perfil propio |
-| `/profile/:userId` | Perfil de usuario |
-| `/profile-old` | Perfil legacy |
+| Ruta               | Descripcion                |
+| ------------------ | -------------------------- |
+| `/ia`              | Chat IA                    |
+| `/discover`        | Descubrimiento social      |
+| `/buzon`           | Mensajes, reservas y chats |
+| `/my-books`        | Biblioteca personal        |
+| `/retos`           | Retos y progreso           |
+| `/profile`         | Perfil propio              |
+| `/profile/:userId` | Perfil de usuario          |
+| `/profile-old`     | Perfil legacy              |
 
 ## Integracion Con Backend
 
@@ -681,7 +681,7 @@ Idiomas incluidos:
 El idioma por defecto es:
 
 ```ts
-lng: 'es'
+lng: 'es';
 ```
 
 Los componentes usan `useTranslation` para textos traducibles. Algunas pantallas aun contienen textos hardcodeados, por lo que una mejora futura seria centralizar mas cadenas en `i18n.ts`.
