@@ -1,7 +1,6 @@
 import api from '../../api';
 import type ILibro from '../../Models/Libro';
 import { normalizeLibro, normalizeLibros } from '../../utils/libro';
-import Matomo from './Matomo';
 
 const getAllLibros = async (
   page: number = 1,

@@ -9,4 +9,5 @@ export const environment = {
     import.meta.env.VITE_SOCKET_URL,
     import.meta.env.VITE_API_URL || LOCAL_BACKEND_URL,
   ),
+  googleClientId: import.meta.env.VITE_GOOGLE_CLIENT_ID || '',
 } as const;
