@@ -19,6 +19,7 @@ import ImageFrame from './ImageFrame';
 import { getSessionToken } from '../../utils/session';
 import { useMatomo } from 'matomo-tracker-for-react';
 import type ILibro from '../../Models/Libro';
+import AccessibilityMenu from '../Accessibility/AccessibilityMenu';
 
 // Icono para el Usuario (Azul)
 const UserIcon = L.icon({
@@ -99,21 +100,20 @@ const Home: React.FC = () => {
   const [newEventLocation, setNewEventLocation] = useState<[number, number] | null>(null);
   const [newEventDireccionExacta, setNewEventDireccionExacta] = useState('');
 
-  function AddingBookInput(data : Partial<ILibro>){
+  function AddingBookInput(data: Partial<ILibro>) {
     const { trackEvent } = useMatomo();
     console.log('Sending metrics of Adding Book to Matomo.');
     trackEvent('Libro', 'Adding Book', data.type as string);
 
-    return(
-        <input
-                  type="submit"
-                  className="submit-btn"
-                  value={t('submit_book_btn')}
-                  onClick={(e) => handleAddBookSubmit(e)}
-                />
-    )
-}
-
+    return (
+      <input
+        type="submit"
+        className="submit-btn"
+        value={t('submit_book_btn')}
+        onClick={(e) => handleAddBookSubmit(e)}
+      />
+    );
+  }
 
   const navigate = useNavigate();
 
@@ -964,7 +964,7 @@ const Home: React.FC = () => {
                     </label>
                   </div>
                 </div>
-              {/* He vuelto a poner estos campos obligatorios, no lo volveis a borrar indiscriminadamente. */}
+                {/* He vuelto a poner estos campos obligatorios, no lo volveis a borrar indiscriminadamente. */}
                 <div className="form-group">
                   <label>{t('label_book_title')}</label>
                   <input
@@ -1079,7 +1079,7 @@ const Home: React.FC = () => {
                   value={t('submit_book_btn')}
                   onClick={(e) => handleAddBookSubmit(e)}
                 /> */}
-                <AddingBookInput/>
+                <AddingBookInput />
               </div>
             ) : (
               <form className="add-book-form" onSubmit={handleAddBookSubmit}>
@@ -1246,6 +1246,7 @@ const Home: React.FC = () => {
       )}
 
       <ToastContainer />
+      <AccessibilityMenu />
     </div>
   );
 };

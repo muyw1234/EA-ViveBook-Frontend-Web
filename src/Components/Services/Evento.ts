@@ -30,8 +30,8 @@ const createEvento = async (eventoData: IEventoData) => {
 export const getAllEventos = async (
   page: number = 1,
   limit: number = 10,
-  timeFilter?: 'upcoming' | 'expired'
-): Promise<any> => { 
+  timeFilter?: 'upcoming' | 'expired',
+): Promise<any> => {
   try {
     const params = new URLSearchParams({
       page: page.toString(),
@@ -43,8 +43,8 @@ export const getAllEventos = async (
     }
 
     const response = await api.get(`/eventos?${params.toString()}`);
-    
-    return response.data; 
+
+    return response.data;
   } catch (error) {
     console.error('Error en getAllEventos Service:', error);
     throw error;

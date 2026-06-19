@@ -219,7 +219,7 @@ export default function Profile() {
   const logout = () => {
     clearSession();
     if (socket.connected) {
-    socket.disconnect();
+      socket.disconnect();
     }
     navigate('/');
   };

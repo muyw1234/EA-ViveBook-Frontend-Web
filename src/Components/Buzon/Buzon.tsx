@@ -46,7 +46,7 @@ const Buzon: React.FC = () => {
         setUserId(user._id);
 
         if (socket.connected) {
-        socket.disconnect();
+          socket.disconnect();
         }
 
         socket.connect();
@@ -143,15 +143,15 @@ const Buzon: React.FC = () => {
 
   // Load messages when activeChatId changes
   useEffect(() => {
-  if (!activeChatId) {
-    setMessages([]);
-    setActiveChat(null);
-    return;
-  }
+    if (!activeChatId) {
+      setMessages([]);
+      setActiveChat(null);
+      return;
+    }
 
-  socket.emit('join_chat', activeChatId);
+    socket.emit('join_chat', activeChatId);
 
-  if (activeChatId === '000000000000000000000001') {
+    if (activeChatId === '000000000000000000000001') {
       setActiveChat({ title: 'Chat Global' });
     } else if (isEventChat) {
       const currentEventChat = eventChats.find((c) => c._id === activeChatId);
@@ -165,9 +165,9 @@ const Buzon: React.FC = () => {
       setLoadingMessages(true);
       try {
         const response = await api.get(`/chats/${chatId}/messages`);
-        
+
         const dataLimpia = response.data?.data || response.data || [];
-        
+
         setMessages(Array.isArray(dataLimpia) ? dataLimpia : []);
 
         if (!isEventChat && chatId !== '000000000000000000000001') {
@@ -180,7 +180,7 @@ const Buzon: React.FC = () => {
         setLoadingMessages(false);
       }
     };
-    
+
     loadMessages(activeChatId);
 
     return () => {
@@ -201,7 +201,7 @@ const Buzon: React.FC = () => {
       chatId: activeChatId,
       senderId: userId,
       content: newMessage.trim(),
-      isEventChat: isEventChat
+      isEventChat: isEventChat,
     });
 
     setNewMessage('');
@@ -314,7 +314,7 @@ const Buzon: React.FC = () => {
 
   const notices = sentMsgRequests.filter((req) => req.status !== 'pending');
 
-return (
+  return (
     <div className="buzon-container">
       <ToastContainer />
 
@@ -434,7 +434,10 @@ return (
                           setActiveChatId(chat._id);
                         }}
                       >
-                        <div className="chat-row-avatar" style={{ backgroundColor: '#e0f2fe', color: '#0369a1' }}>
+                        <div
+                          className="chat-row-avatar"
+                          style={{ backgroundColor: '#e0f2fe', color: '#0369a1' }}
+                        >
                           📢
                         </div>
                         <div className="chat-row-details">
@@ -615,10 +618,17 @@ return (
               ) : isEventChat ? (
                 /* RENDERIZADO CABECERA DE EVENTO GRUPAL */
                 <>
-                  <div className="chat-header-avatar" style={{ backgroundColor: '#e0f2fe', color: '#0369a1' }}>📢</div>
+                  <div
+                    className="chat-header-avatar"
+                    style={{ backgroundColor: '#e0f2fe', color: '#0369a1' }}
+                  >
+                    📢
+                  </div>
                   <div className="chat-header-details">
                     <h3>{activeChat?.evento?.title || 'Chat del Evento'}</h3>
-                    <span>📍 Ubicación: {activeChat?.evento?.direccionExacta || 'Consultar mapa'}</span>
+                    <span>
+                      📍 Ubicación: {activeChat?.evento?.direccionExacta || 'Consultar mapa'}
+                    </span>
                   </div>
                 </>
               ) : (
