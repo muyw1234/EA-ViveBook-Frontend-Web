@@ -20,6 +20,7 @@ import { getSessionToken } from '../../utils/session';
 import { useMatomo } from 'matomo-tracker-for-react';
 import type ILibro from '../../Models/Libro';
 import AccessibilityMenu from '../Accessibility/AccessibilityMenu';
+import Libro from '../Services/Libro';
 
 // Icono para el Usuario (Azul)
 const UserIcon = L.icon({
@@ -102,16 +103,41 @@ const Home: React.FC = () => {
 
   function AddingBookInput(data: Partial<ILibro>) {
     const { trackEvent } = useMatomo();
-    console.log('Sending metrics of Adding Book to Matomo.');
-    trackEvent('Libro', 'Adding Book', data.type as string);
+    function callback(e: React.MouseEvent<HTMLInputElement, MouseEvent>) {
+      console.log('Sending metrics of Adding Book to Matomo.');
+      trackEvent('Libro', 'Adding Book', data.type as string);
+      handleAddBookSubmit(e);
+    }
 
     return (
-      <input
-        type="submit"
+      <button
+        type="button"
         className="submit-btn"
         value={t('submit_book_btn')}
-        onClick={(e) => handleAddBookSubmit(e)}
-      />
+        onClick={async (e) => await callback(e)}
+      >
+        {t('submit_book_btn')}
+      </button>
+    );
+  }
+
+  function AddingBookInputByIsbn() {
+    const { trackEvent } = useMatomo();
+    async function callback() {
+      console.log('Sending metrics of Adding Book to Matomo.');
+      const data = await Libro.addLibroByIsbn(newBookIsbn);
+      trackEvent('Libro', 'Adding Book', data.type as string);
+    }
+
+    return (
+      <button
+        type="button"
+        className="submit-btn"
+        value={t('submit_book_btn')}
+        onClick={async () => await callback()}
+      >
+        {t('submit_book_btn')}
+      </button>
     );
   }
 
@@ -1076,7 +1102,7 @@ const Home: React.FC = () => {
                 <AddingBookInput />
               </div>
             ) : (
-              <form className="add-book-form" onSubmit={handleAddBookSubmit}>
+              <form className="add-book-form">
                 <div className="form-group">
                   <label>{t('label_operation_type')}</label>
                   <div className="radio-group">
@@ -1102,27 +1128,40 @@ const Home: React.FC = () => {
                 </div>
 
                 <div className="form-group">
-                  <label>{t('label_book_title')}</label>
-                  <input
-                    type="text"
-                    placeholder="Ej: Cien años de soledad"
-                    value={newBookTitle}
-                    onChange={(e) => setNewBookTitle(e.target.value)}
-                    required
-                  />
+                  <label>{t('label_id_data')}</label>
+                  <div style={{ display: 'flex', gap: '1rem' }}>
+                    <div
+                      style={{
+                        flex: 1,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '0.5rem',
+                      }}
+                    >
+                      <label style={{ fontSize: '0.8rem' }}>ISBN</label>
+                      <input
+                        type="text"
+                        placeholder="Ej: 978-3-16-148410-0"
+                        value={newBookIsbn}
+                        onChange={(e) => setNewBookIsbn(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
                 </div>
 
-                <button
+                {/* <button
                   className="submit-btn"
                   disabled={!newBookIsbn || !newBookPrice}
-                  onClick={async () => {
+                  onClick={() => {
                     setOnlyISBN(false);
-                    await LibroService.addLibroByIsbn(newBookIsbn);
+                    LibroService.addLibroByIsbn(newBookIsbn);
                     setIsAddBookModalOpen(false);
                   }}
                 >
                   {t('submit_book_btn')}
-                </button>
+                </button> */}
+                <AddingBookInputByIsbn />
               </form>
             )}
           </div>
