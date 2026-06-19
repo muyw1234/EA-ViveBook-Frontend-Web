@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import api from '../../api';
 import socket from '../../Services/socket';
 import { toast, ToastContainer } from 'react-toastify';
@@ -7,6 +8,7 @@ import { getApiCollection, unwrapApiData } from '../../utils/apiResponse';
 import './Buzon.css';
 
 const Buzon: React.FC = () => {
+  const { t } = useTranslation();
   const [tab, setTab] = useState<'chats' | 'reservas' | 'eventos'>('chats');
   const [userId, setUserId] = useState<string | null>(null);
 
@@ -152,7 +154,7 @@ const Buzon: React.FC = () => {
     socket.emit('join_chat', activeChatId);
 
     if (activeChatId === '000000000000000000000001') {
-      setActiveChat({ title: 'Chat Global' });
+      setActiveChat({ title: t('buzon_global_chat_title') });
     } else if (isEventChat) {
       const currentEventChat = eventChats.find((c) => c._id === activeChatId);
       setActiveChat(currentEventChat || null);
@@ -175,7 +177,7 @@ const Buzon: React.FC = () => {
         }
       } catch (err) {
         console.error('Error loading messages:', err);
-        toast.error('No se pudieron cargar los mensajes');
+        toast.error(t('buzon_toast_load_msg_error'));
       } finally {
         setLoadingMessages(false);
       }
@@ -186,7 +188,7 @@ const Buzon: React.FC = () => {
     return () => {
       socket.emit('leave_chat', activeChatId);
     };
-  }, [activeChatId, isEventChat, privateChats, eventChats]);
+  }, [activeChatId, isEventChat, privateChats, eventChats, t]);
 
   // Scroll to bottom of chat
   useEffect(() => {
@@ -211,7 +213,7 @@ const Buzon: React.FC = () => {
   const handleAcceptMsgRequest = async (reqId: string) => {
     try {
       const res = await api.patch(`/message-requests/${reqId}/accept`);
-      toast.success('Solicitud de mensaje aceptada');
+      toast.success(t('buzon_toast_accept_req_success'));
       fetchBuzonData();
       const chat = res.data?.data || res.data;
       if (chat && chat._id) {
@@ -219,19 +221,19 @@ const Buzon: React.FC = () => {
       }
     } catch (err) {
       console.error(err);
-      toast.error('Error al aceptar la solicitud');
+      toast.error(t('buzon_toast_accept_req_error'));
     }
   };
 
   const handleDenyMsgRequest = async (reqId: string) => {
-    if (!window.confirm('¿Seguro que quieres rechazar esta solicitud?')) return;
+    if (!window.confirm(t('buzon_confirm_deny_req'))) return;
     try {
       await api.patch(`/message-requests/${reqId}/deny`);
-      toast.success('Solicitud rechazada');
+      toast.success(t('buzon_toast_deny_req_success'));
       fetchBuzonData();
     } catch (err) {
       console.error(err);
-      toast.error('Error al rechazar la solicitud');
+      toast.error(t('buzon_toast_deny_req_error'));
     }
   };
 
@@ -260,38 +262,38 @@ const Buzon: React.FC = () => {
       await api.post(`/reservas/aceptar/${selectedResId}`, {
         dias: rentalDays,
       });
-      toast.success('Reserva aceptada correctamente');
+      toast.success(t('buzon_toast_accept_res_success'));
       setShowAcceptResModal(false);
       fetchBuzonData();
     } catch (err) {
       console.error(err);
-      toast.error('Error al aceptar la reserva');
+      toast.error(t('buzon_toast_accept_res_error'));
     } finally {
       setSubmittingAcceptRes(false);
     }
   };
 
   const handleRejectReservation = async (resId: string) => {
-    if (!window.confirm('¿Seguro que quieres rechazar esta reserva?')) return;
+    if (!window.confirm(t('buzon_confirm_deny_res'))) return;
     try {
       await api.post(`/reservas/rechazar/${resId}`);
-      toast.success('Reserva rechazada');
+      toast.success(t('buzon_toast_deny_res_success'));
       fetchBuzonData();
     } catch (err) {
       console.error(err);
-      toast.error('Error al rechazar la reserva');
+      toast.error(t('buzon_toast_deny_res_error'));
     }
   };
 
   const handleDeleteReservation = async (resId: string) => {
-    if (!window.confirm('¿Seguro que quieres eliminar esta reserva?')) return;
+    if (!window.confirm(t('buzon_confirm_delete_res'))) return;
     try {
       await api.delete(`/reservas/${resId}`);
-      toast.success('Reserva eliminada');
+      toast.success(t('buzon_toast_delete_res_success'));
       fetchBuzonData();
     } catch (err) {
       console.error(err);
-      toast.error('Error al eliminar la reserva');
+      toast.error(t('buzon_toast_delete_res_error'));
     }
   };
 
@@ -306,9 +308,12 @@ const Buzon: React.FC = () => {
 
   const getStatusBadge = (status: string) => {
     const s = status.toUpperCase();
-    if (s === 'PENDIENTE') return <span className="status-badge pending">Pendiente</span>;
-    if (s === 'ACEPTADA') return <span className="status-badge accepted">Aceptada</span>;
-    if (s === 'RECHAZADA') return <span className="status-badge rejected">Rechazada</span>;
+    if (s === 'PENDIENTE')
+      return <span className="status-badge pending">{t('buzon_status_pending')}</span>;
+    if (s === 'ACEPTADA')
+      return <span className="status-badge accepted">{t('buzon_status_accepted')}</span>;
+    if (s === 'RECHAZADA')
+      return <span className="status-badge rejected">{t('buzon_status_rejected')}</span>;
     return <span className="status-badge">{status}</span>;
   };
 
@@ -325,13 +330,13 @@ const Buzon: React.FC = () => {
             className={`sidebar-tab-btn ${tab === 'chats' ? 'active' : ''}`}
             onClick={() => setTab('chats')}
           >
-            💬 Mensajes
+            {t('buzon_tab_messages')}
           </button>
           <button
             className={`sidebar-tab-btn ${tab === 'reservas' ? 'active' : ''}`}
             onClick={() => setTab('reservas')}
           >
-            📅 Reservas
+            {t('buzon_tab_reservations')}
           </button>
         </div>
 
@@ -348,15 +353,15 @@ const Buzon: React.FC = () => {
               >
                 <div className="global-chat-avatar">🌍</div>
                 <div className="global-chat-details">
-                  <h4>Chat Global</h4>
-                  <p>Comunidad ViveBook en tiempo real</p>
+                  <h4>{t('buzon_global_chat_title')}</h4>
+                  <p>{t('buzon_global_chat_desc')}</p>
                 </div>
               </div>
 
               {/* Notices */}
               {notices.length > 0 && (
                 <div className="sidebar-section">
-                  <h5>Avisos de solicitudes</h5>
+                  <h5>{t('buzon_section_notices')}</h5>
                   {notices.map((notice) => {
                     const isAccepted = notice.status === 'accepted';
                     return (
@@ -365,11 +370,13 @@ const Buzon: React.FC = () => {
                         className={`notice-item ${isAccepted ? 'accepted' : 'rejected'}`}
                       >
                         <div className="notice-body">
-                          <strong>{isAccepted ? 'Aceptada 🎉' : 'Rechazada ❌'}</strong>
+                          <strong>
+                            {isAccepted ? t('buzon_notice_accepted') : t('buzon_notice_rejected')}
+                          </strong>
                           <p>
                             {isAccepted
-                              ? `Contacto aprobado para "${notice.book?.title}".`
-                              : `Contacto rechazado para "${notice.book?.title}".`}
+                              ? t('buzon_notice_msg_accepted', { title: notice.book?.title })
+                              : t('buzon_notice_msg_rejected', { title: notice.book?.title })}
                           </p>
                         </div>
                         <button
@@ -387,12 +394,12 @@ const Buzon: React.FC = () => {
               {/* Message Requests Received */}
               {receivedMsgRequests.length > 0 && (
                 <div className="sidebar-section">
-                  <h5>Solicitudes Recibidas</h5>
+                  <h5>{t('buzon_section_received_reqs')}</h5>
                   {receivedMsgRequests.map((req) => (
                     <div key={req._id} className="msg-req-item">
                       <div className="msg-req-header">
                         <strong>{req.requester?.name}</strong>
-                        <span>Libro: {req.book?.title}</span>
+                        <span>{t('buzon_req_book', { title: req.book?.title })}</span>
                       </div>
                       {req.initialMessage && (
                         <p className="msg-req-text">&quot;{req.initialMessage}&quot;</p>
@@ -402,13 +409,13 @@ const Buzon: React.FC = () => {
                           className="msg-req-deny"
                           onClick={() => handleDenyMsgRequest(req._id)}
                         >
-                          Rechazar
+                          {t('buzon_btn_deny')}
                         </button>
                         <button
                           className="msg-req-accept"
                           onClick={() => handleAcceptMsgRequest(req._id)}
                         >
-                          Aceptar
+                          {t('buzon_btn_accept')}
                         </button>
                       </div>
                     </div>
@@ -418,9 +425,9 @@ const Buzon: React.FC = () => {
 
               {/* NUEVA SECCIÓN: Chats grupales de Eventos */}
               <div className="sidebar-section">
-                <h5>Chats de Eventos</h5>
+                <h5>{t('buzon_section_event_chats')}</h5>
                 {eventChats.length === 0 ? (
-                  <p className="sidebar-empty">No estás participando en ningún evento.</p>
+                  <p className="sidebar-empty">{t('buzon_empty_events')}</p>
                 ) : (
                   eventChats.map((chat) => {
                     const isSelected = activeChatId === chat._id;
@@ -442,7 +449,9 @@ const Buzon: React.FC = () => {
                         </div>
                         <div className="chat-row-details">
                           <strong>{eventoTitle}</strong>
-                          <span>👥 {chat.participants?.length || 0} asistentes</span>
+                          <span>
+                            {t('buzon_event_attendees', { count: chat.participants?.length || 0 })}
+                          </span>
                         </div>
                       </div>
                     );
@@ -452,9 +461,9 @@ const Buzon: React.FC = () => {
 
               {/* Active Private Chats */}
               <div className="sidebar-section">
-                <h5>Chats Privados</h5>
+                <h5>{t('buzon_section_private_chats')}</h5>
                 {privateChats.length === 0 ? (
-                  <p className="sidebar-empty">No hay conversaciones activas.</p>
+                  <p className="sidebar-empty">{t('buzon_empty_private')}</p>
                 ) : (
                   privateChats.map((chat) => {
                     const other = chat.participants?.find((p: any) => p._id !== userId) || {};
@@ -474,7 +483,11 @@ const Buzon: React.FC = () => {
                         </div>
                         <div className="chat-row-details">
                           <strong>{otherName}</strong>
-                          <span>Libro: {chat.libro?.title || 'General'}</span>
+                          <span>
+                            {t('buzon_req_book', {
+                              title: chat.libro?.title || t('buzon_chat_general'),
+                            })}
+                          </span>
                         </div>
                       </div>
                     );
@@ -486,9 +499,9 @@ const Buzon: React.FC = () => {
             <div className="tab-pane">
               {/* Received reservations */}
               <div className="sidebar-section">
-                <h5>Solicitudes Recibidas</h5>
+                <h5>{t('buzon_section_received_reqs')}</h5>
                 {receivedReservations.length === 0 ? (
-                  <p className="sidebar-empty">No tienes solicitudes pendientes.</p>
+                  <p className="sidebar-empty">{t('buzon_empty_reservations')}</p>
                 ) : (
                   receivedReservations.map((res) => (
                     <div key={res._id} className="reserva-item-card">
@@ -496,14 +509,18 @@ const Buzon: React.FC = () => {
                         <strong>{res.libro?.title}</strong>
                         {getStatusBadge(res.estado)}
                       </div>
-                      <p>Solicitante: {res.usuarioSolicitante?.name}</p>
+                      <p>{t('buzon_res_requester', { name: res.usuarioSolicitante?.name })}</p>
                       <p className="reserva-card-date">
-                        Fecha: {new Date(res.fechaSolicitud).toLocaleDateString()}
+                        {t('buzon_res_date', {
+                          date: new Date(res.fechaSolicitud).toLocaleDateString(),
+                        })}
                       </p>
 
                       {res.estado === 'ACEPTADA' && res.fechaLimite && (
                         <p className="reserva-card-limit">
-                          Límite: {new Date(res.fechaLimite).toLocaleDateString()}
+                          {t('buzon_res_limit', {
+                            date: new Date(res.fechaLimite).toLocaleDateString(),
+                          })}
                         </p>
                       )}
 
@@ -513,13 +530,13 @@ const Buzon: React.FC = () => {
                             className="reserva-deny"
                             onClick={() => handleRejectReservation(res._id)}
                           >
-                            Rechazar
+                            {t('buzon_btn_deny')}
                           </button>
                           <button
                             className="reserva-accept"
                             onClick={() => handleOpenAcceptRes(res._id)}
                           >
-                            Aceptar
+                            {t('buzon_btn_accept')}
                           </button>
                         </div>
                       )}
@@ -529,7 +546,7 @@ const Buzon: React.FC = () => {
                           className="reserva-delete-btn"
                           onClick={() => handleDeleteReservation(res._id)}
                         >
-                          Eliminar Reserva
+                          {t('buzon_btn_delete_res')}
                         </button>
                       )}
                     </div>
@@ -539,9 +556,9 @@ const Buzon: React.FC = () => {
 
               {/* Sent reservations */}
               <div className="sidebar-section">
-                <h5>Solicitudes Enviadas</h5>
+                <h5>{t('buzon_section_sent_reservations')}</h5>
                 {sentReservations.length === 0 ? (
-                  <p className="sidebar-empty">No has enviado ninguna solicitud.</p>
+                  <p className="sidebar-empty">{t('buzon_empty_sent_res')}</p>
                 ) : (
                   sentReservations.map((res) => (
                     <div key={res._id} className="reserva-item-card">
@@ -549,14 +566,18 @@ const Buzon: React.FC = () => {
                         <strong>{res.libro?.title}</strong>
                         {getStatusBadge(res.estado)}
                       </div>
-                      <p>Propietario: {res.propietario?.name}</p>
+                      <p>{t('buzon_res_owner', { name: res.propietario?.name })}</p>
                       <p className="reserva-card-date">
-                        Fecha: {new Date(res.fechaSolicitud).toLocaleDateString()}
+                        {t('buzon_res_date', {
+                          date: new Date(res.fechaSolicitud).toLocaleDateString(),
+                        })}
                       </p>
 
                       {res.estado === 'ACEPTADA' && res.fechaLimite && (
                         <p className="reserva-card-limit">
-                          Límite: {new Date(res.fechaLimite).toLocaleDateString()}
+                          {t('buzon_res_limit', {
+                            date: new Date(res.fechaLimite).toLocaleDateString(),
+                          })}
                         </p>
                       )}
 
@@ -564,7 +585,7 @@ const Buzon: React.FC = () => {
                         className="reserva-delete-btn"
                         onClick={() => handleDeleteReservation(res._id)}
                       >
-                        Eliminar Reserva
+                        {t('buzon_btn_delete_res')}
                       </button>
                     </div>
                   ))
@@ -573,9 +594,9 @@ const Buzon: React.FC = () => {
 
               {/* Reservation system logs/messages */}
               <div className="sidebar-section">
-                <h5>Mensajes de Reservas</h5>
+                <h5>{t('buzon_section_res_messages')}</h5>
                 {reservationMessages.length === 0 ? (
-                  <p className="sidebar-empty">No hay avisos del sistema.</p>
+                  <p className="sidebar-empty">{t('buzon_empty_system_notices')}</p>
                 ) : (
                   reservationMessages.map((msg) => {
                     const isMine = msg.sender?._id === userId || msg.sender === userId;
@@ -585,7 +606,7 @@ const Buzon: React.FC = () => {
                         className={`reserva-msg-item ${isMine ? 'mine' : 'theirs'}`}
                       >
                         <div className="res-msg-body">
-                          <strong>{msg.sender?.name || 'Sistema'}</strong>
+                          <strong>{msg.sender?.name || t('buzon_system_sender')}</strong>
                           <p>{msg.content}</p>
                         </div>
                         <button className="res-msg-del" onClick={() => handleDeleteResMsg(msg._id)}>
@@ -611,8 +632,8 @@ const Buzon: React.FC = () => {
                 <>
                   <div className="chat-header-avatar">🌍</div>
                   <div className="chat-header-details">
-                    <h3>Chat Global</h3>
-                    <span>Comunidad general de lectores</span>
+                    <h3>{t('buzon_global_chat_title')}</h3>
+                    <span>{t('buzon_chat_community_span')}</span>
                   </div>
                 </>
               ) : isEventChat ? (
@@ -625,9 +646,12 @@ const Buzon: React.FC = () => {
                     📢
                   </div>
                   <div className="chat-header-details">
-                    <h3>{activeChat?.evento?.title || 'Chat del Evento'}</h3>
+                    <h3>{activeChat?.evento?.title || t('buzon_chat_event_fallback')}</h3>
                     <span>
-                      📍 Ubicación: {activeChat?.evento?.direccionExacta || 'Consultar mapa'}
+                      {t('buzon_chat_location', {
+                        location:
+                          activeChat?.evento?.direccionExacta || t('buzon_chat_location_fallback'),
+                      })}
                     </span>
                   </div>
                 </>
@@ -644,7 +668,11 @@ const Buzon: React.FC = () => {
                       {activeChat?.participants?.find((p: any) => p._id !== userId)?.name ||
                         'Usuario'}
                     </h3>
-                    <span>Libro: {activeChat?.libro?.title || 'General'}</span>
+                    <span>
+                      {t('buzon_req_book', {
+                        title: activeChat?.libro?.title || t('buzon_chat_general'),
+                      })}
+                    </span>
                   </div>
                 </>
               )}
@@ -655,7 +683,7 @@ const Buzon: React.FC = () => {
               {loadingMessages ? (
                 <div className="chat-messages-loading">
                   <div className="spinner"></div>
-                  <p>Cargando mensajes...</p>
+                  <p>{t('buzon_loading_messages')}</p>
                 </div>
               ) : (
                 <>
@@ -689,25 +717,22 @@ const Buzon: React.FC = () => {
             <form className="chat-room-input-form" onSubmit={handleSendMessage}>
               <input
                 type="text"
-                placeholder="Escribe un mensaje..."
+                placeholder={t('buzon_input_placeholder')}
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
                 className="chat-room-input"
                 required
               />
               <button type="submit" className="chat-room-send-btn" disabled={!newMessage.trim()}>
-                Enviar
+                {t('buzon_btn_send')}
               </button>
             </form>
           </div>
         ) : (
           <div className="chat-pane-placeholder">
             <span className="placeholder-icon">📬</span>
-            <h3>Tu Buzón de Mensajes</h3>
-            <p>
-              Selecciona una conversación del menú lateral para empezar a chatear o gestionar tus
-              solicitudes.
-            </p>
+            <h3>{t('buzon_placeholder_title')}</h3>
+            <p>{t('buzon_placeholder_desc')}</p>
           </div>
         )}
       </div>
@@ -716,15 +741,15 @@ const Buzon: React.FC = () => {
       {showAcceptResModal && (
         <div className="accept-res-modal-overlay" onClick={() => setShowAcceptResModal(false)}>
           <div className="accept-res-modal" onClick={(e) => e.stopPropagation()}>
-            <h3>Aceptar Reserva de Libro</h3>
-            <p>Introduce el número de días para la duración del préstamo/alquiler.</p>
+            <h3>{t('buzon_modal_res_title')}</h3>
+            <p>{t('buzon_modal_res_desc')}</p>
             <form
               onSubmit={handleConfirmAcceptRes}
               style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}
             >
               <div className="input-group" style={{ textAlign: 'left' }}>
                 <label style={{ fontWeight: '600', color: '#1e293b', fontSize: '0.9rem' }}>
-                  Días de alquiler
+                  {t('buzon_modal_res_label')}
                 </label>
                 <input
                   type="number"
@@ -745,7 +770,7 @@ const Buzon: React.FC = () => {
                   style={{ flex: 1, margin: 0, justifyContent: 'center' }}
                   disabled={submittingAcceptRes}
                 >
-                  Cancelar
+                  {t('buzon_modal_res_cancel')}
                 </button>
                 <button
                   type="submit"
@@ -753,7 +778,9 @@ const Buzon: React.FC = () => {
                   style={{ flex: 2, margin: 0, justifyContent: 'center' }}
                   disabled={submittingAcceptRes}
                 >
-                  {submittingAcceptRes ? 'Aceptando...' : 'Aceptar Reserva'}
+                  {submittingAcceptRes
+                    ? t('buzon_modal_res_submitting')
+                    : t('buzon_modal_res_submit')}
                 </button>
               </div>
             </form>

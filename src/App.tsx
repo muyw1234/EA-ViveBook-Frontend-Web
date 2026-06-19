@@ -1,11 +1,5 @@
-import {
-  //BrowserRouter, //as Router,
-  Routes,
-  Route,
-  Link,
-  useLocation,
-  Navigate,
-} from 'react-router-dom';
+import { Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import Login from './Components/InitialPage/Login';
 import Register from './Components/InitialPage/Register';
 import Home from './Components/HomePage/Home';
@@ -27,6 +21,7 @@ import { useSessionToken } from './hooks/useSessionToken';
 import { MatomoProvider } from 'matomo-tracker-for-react';
 
 function Navigation() {
+  const { t } = useTranslation();
   useLocation(); // Triggers re-render on route changes
   const token = useSessionToken();
 
@@ -38,43 +33,43 @@ function Navigation() {
   return (
     <nav className="main-nav">
       <Link to="/" className="nav-link">
-        Inicio
+        {t('nav.home')}
       </Link>
       <Link to="/categorias/sales" className="nav-link">
-        Libros
+        {t('nav.books')}
       </Link>
       <Link to="/categorias/events" className="nav-link">
-        Eventos
+        {t('nav.events')}
       </Link>
 
       {!token ? (
         <>
           <Link to="/register" className="nav-link">
-            Crear Cuenta
+            {t('nav.register')}
           </Link>
           <Link to="/login" className="nav-link">
-            Login
+            {t('nav.login')}
           </Link>
         </>
       ) : (
         <>
           <Link to="/discover" className="nav-link">
-            Descubrir
+            {t('nav.discover')}
           </Link>
           <Link to="/buzon" className="nav-link">
-            Buzón
+            {t('nav.mailbox')}
           </Link>
           <Link to="/my-books" className="nav-link">
-            Mis Libros
+            {t('nav.myBooks')}
           </Link>
           <Link to="/retos" className="nav-link">
-            Retos
+            {t('nav.challenges')}
           </Link>
           <Link to="/profile" className="nav-link">
-            Mi Perfil
+            {t('nav.profile')}
           </Link>
           <Link to="/ia" className="nav-link highlight">
-            IA
+            {t('nav.ai')}
           </Link>
 
           <button
@@ -91,7 +86,7 @@ function Navigation() {
               borderRadius: '99px',
             }}
           >
-            Cerrar Sesión
+            {t('nav.logout')}
           </button>
         </>
       )}
@@ -103,7 +98,6 @@ function App() {
   const location = useLocation();
   const currentPath = location.pathname + location.search + location.hash;
   return (
-    // No os preocupeis, Router esta en 'main.ts'
     <MatomoProvider urlBase="https://ea3upc.matomo.cloud" siteId="1" path={currentPath}>
       <Navigation />
 

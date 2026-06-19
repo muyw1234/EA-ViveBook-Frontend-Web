@@ -119,7 +119,7 @@ const Home: React.FC = () => {
 
   const checkAuthAndOpen = (openModalSetter: React.Dispatch<React.SetStateAction<boolean>>) => {
     if (!getSessionToken()) {
-      toast.warn('Inicia sesión para usar esta función');
+      toast.warn(t('home_login_required'));
       navigate('/login');
     } else {
       openModalSetter(true);
@@ -248,7 +248,7 @@ const Home: React.FC = () => {
 
       setBooks((prev) => [...prev, addedBook]);
 
-      alert('Libro añadido con éxito');
+      toast.success(t('home_book_success'));
       setIsAddBookModalOpen(false);
 
       setNewBookTitle('');
@@ -257,19 +257,19 @@ const Home: React.FC = () => {
       setNewBookPrice('');
     } catch (error) {
       console.error('Error submitting book:', error);
-      alert('Error al añadir el libro. Revisa la consola del navegador y del backend.');
+      toast.error(t('home_book_error'));
     }
   };
 
   const handleAddEventSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !user._id) {
-      alert('Debes estar autenticado para crear un evento.');
+      toast.error(t('home_event_auth_required'));
       return;
     }
 
     if (!newEventLocation) {
-      alert('Por favor, selecciona una ubicación haciendo clic en el mapa.');
+      toast.error(t('home_event_location_required'));
       return;
     }
 
@@ -294,7 +294,7 @@ const Home: React.FC = () => {
         newEventResponse || { ...eventData, _id: Date.now().toString() },
       ]);
 
-      alert('¡Evento creado con éxito!');
+      toast.success(t('home_event_success'));
       setIsAddEventModalOpen(false);
 
       setNewEventTitle('');
@@ -304,7 +304,7 @@ const Home: React.FC = () => {
       setNewEventLocation(null);
     } catch (error) {
       console.error('Error submitting event:', error);
-      alert('Error al añadir el evento.');
+      toast.error(t('home_event_error'));
     }
   };
 
@@ -318,7 +318,7 @@ const Home: React.FC = () => {
   };
 
   if (loading) {
-    return <div className="home-container">Cargando ViveBook...</div>;
+    return <div className="home-container">{t('loading')}</div>;
   }
 
   function search() {
@@ -374,7 +374,7 @@ const Home: React.FC = () => {
                 onClick={() =>
                   navigate('/search', { state: { term: searchQuery, openFilters: true } })
                 }
-                title={t('filters', 'Filtros')}
+                title={t('filters')}
               >
                 ⚙️
               </button>
@@ -382,7 +382,7 @@ const Home: React.FC = () => {
           </div>
 
           <button className="add-book-btn" onClick={() => search()}>
-            Buscar
+            {t('search_btn')}
           </button>
         </div>
       </header>
@@ -390,13 +390,10 @@ const Home: React.FC = () => {
       {/* Hero Banner */}
       <section className="hero-banner-bookshub">
         <div className="hero-content">
-          <h1>Libros del Mes</h1>
-          <p>
-            Descubre las lecturas más recientes subidas por nuestra comunidad de lectores y atrévete
-            con una nueva historia.
-          </p>
+          <h1>{t('home_hero_title')}</h1>
+          <p>{t('home_hero_subtitle')}</p>
           <button className="read-more-btn" onClick={() => navigate('/categorias/sales')}>
-            Explorar Catálogo
+            {t('home_explore_catalog')}
           </button>
         </div>
         <div className="hero-books-display">
@@ -495,27 +492,27 @@ const Home: React.FC = () => {
       {/* Dashboard Section */}
       {user && (
         <section className="content-section dashboard-section">
-          <h2 className="section-title">Mi Panel de Control</h2>
+          <h2 className="section-title">{t('home_dashboard_title')}</h2>
           <div className="dashboard-grid">
             <div className="dashboard-card" onClick={() => navigate('/categorias/sales')}>
               <div className="dash-icon">🛍️</div>
-              <h3>Libros en Venta</h3>
-              <p>Explora el catálogo de libros disponibles para compra directa.</p>
-              <span className="dash-action-link">Ver catálogo →</span>
+              <h3>{t('home_dashboard_sales')}</h3>
+              <p>{t('home_dashboard_sales_desc')}</p>
+              <span className="dash-action-link">{t('home_dashboard_sales_link')}</span>
             </div>
 
             <div className="dashboard-card" onClick={() => navigate('/categorias/rentals')}>
               <div className="dash-icon">🔑</div>
-              <h3>Libros en Alquiler</h3>
-              <p>Encuentra lecturas para alquilar por periodos de tiempo flexibles.</p>
-              <span className="dash-action-link">Explorar alquileres →</span>
+              <h3>{t('home_dashboard_rentals')}</h3>
+              <p>{t('home_dashboard_rentals_desc')}</p>
+              <span className="dash-action-link">{t('home_dashboard_rentals_link')}</span>
             </div>
 
             <div className="dashboard-card" onClick={() => setIsAddBookModalOpen(true)}>
               <div className="dash-icon">➕</div>
-              <h3>Subir Libro</h3>
-              <p>Comparte tus libros con otros usuarios vendiéndolos o alquilándolos.</p>
-              <span className="dash-action-link">Añadir ahora →</span>
+              <h3>{t('home_dashboard_upload')}</h3>
+              <p>{t('home_dashboard_upload_desc')}</p>
+              <span className="dash-action-link">{t('home_dashboard_upload_link')}</span>
             </div>
           </div>
         </section>
@@ -527,19 +524,16 @@ const Home: React.FC = () => {
           <div className="social-dashboard-grid">
             {/* Left Column: Mi Red & Preferencias */}
             <div className="following-container-box">
-              <h2 className="section-title">Mi Red & Preferencias</h2>
+              <h2 className="section-title">{t('home_social_title')}</h2>
               {!user.followingUsers?.length &&
               !user.favoriteAuthors?.length &&
               !user.favoriteCategories?.length ? (
-                <p className="no-following-msg">
-                  Aún no sigues a ningún lector ni has añadido favoritos. ¡Ve a tu perfil para
-                  configurar tus gustos!
-                </p>
+                <p className="no-following-msg">{t('home_social_empty')}</p>
               ) : (
                 <div className="following-subgrid-vertical">
                   {user.followingUsers && user.followingUsers.length > 0 && (
                     <div className="following-group">
-                      <h3>👥 Lectores que sigues</h3>
+                      <h3>{t('home_social_following')}</h3>
                       <div className="following-list">
                         {user.followingUsers.map((followedUser: any) => (
                           <div key={followedUser._id || followedUser} className="followed-user-row">
@@ -552,7 +546,7 @@ const Home: React.FC = () => {
                                 navigate(`/profile/${followedUser._id || followedUser}`)
                               }
                             >
-                              Ver Perfil
+                              {t('home_social_view_profile')}
                             </button>
                           </div>
                         ))}
@@ -562,7 +556,7 @@ const Home: React.FC = () => {
 
                   {user.favoriteAuthors && user.favoriteAuthors.length > 0 && (
                     <div className="following-group">
-                      <h3>✍️ Autores Favoritos</h3>
+                      <h3>{t('home_social_authors')}</h3>
                       <div className="fav-items-list">
                         {user.favoriteAuthors.map((author: string, idx: number) => (
                           <span key={idx} className="fav-item-badge author">
@@ -575,7 +569,7 @@ const Home: React.FC = () => {
 
                   {user.favoriteCategories && user.favoriteCategories.length > 0 && (
                     <div className="following-group">
-                      <h3>🏷️ Géneros Favoritos</h3>
+                      <h3>{t('home_social_categories')}</h3>
                       <div className="fav-items-list">
                         {user.favoriteCategories.map((cat: string, idx: number) => (
                           <span key={idx} className="fav-item-badge category">
@@ -592,14 +586,14 @@ const Home: React.FC = () => {
             {/* Right Column: Eventos y Mapa */}
             <div className="events-map-container-box">
               <div className="events-box-header">
-                <h2 className="section-title">Eventos & Mapa local</h2>
+                <h2 className="section-title">{t('home_events_map_title')}</h2>
                 <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                   <button
                     className="add-book-btn"
                     style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem' }}
                     onClick={() => checkAuthAndOpen(setIsAddEventModalOpen)}
                   >
-                    + Nuevo Evento
+                    {t('home_events_new')}
                   </button>
                   <button
                     className="see-all-btn-link"
@@ -614,7 +608,7 @@ const Home: React.FC = () => {
                     }}
                     onClick={() => navigate('/categorias/events')}
                   >
-                    Ver todos
+                    {t('see_all')}
                   </button>
                 </div>
               </div>
@@ -638,7 +632,7 @@ const Home: React.FC = () => {
                   >
                     <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                     <Marker position={userLocation} icon={UserIcon}>
-                      <Popup>Estás aquí</Popup>
+                      <Popup>{t('home_events_map_user_location')}</Popup>
                     </Marker>
                     {eventos.map((evt: any) => (
                       <Marker
@@ -766,7 +760,7 @@ const Home: React.FC = () => {
                       margin: 0,
                     }}
                   >
-                    No hay eventos próximos en tu zona.
+                    {t('home_events_no_upcoming')}
                   </p>
                 )}
               </div>
@@ -1039,7 +1033,7 @@ const Home: React.FC = () => {
                 </div>
 
                 <div className="form-group">
-                  <label> Subir Foto</label>
+                  <label>{t('home_book_upload_photo')}</label>
                   <input
                     type="file"
                     src="./"
@@ -1144,17 +1138,17 @@ const Home: React.FC = () => {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="modal-header">
-              <h2>Crear Nuevo Evento</h2>
+              <h2>{t('home_event_create_title')}</h2>
               <button className="close-btn" onClick={() => setIsAddEventModalOpen(false)}>
                 ×
               </button>
             </div>
             <form className="add-book-form" onSubmit={handleAddEventSubmit}>
               <div className="form-group">
-                <label>Título del Evento</label>
+                <label>{t('home_event_title_label')}</label>
                 <input
                   type="text"
-                  placeholder="Ej: Club de lectura semanal"
+                  placeholder={t('home_event_title_placeholder')}
                   value={newEventTitle}
                   onChange={(e) => setNewEventTitle(e.target.value)}
                   required
@@ -1162,7 +1156,7 @@ const Home: React.FC = () => {
               </div>
 
               <div className="form-group">
-                <label>Descripción</label>
+                <label>{t('home_event_description_label')}</label>
                 <textarea
                   className="auth-input"
                   style={{
@@ -1172,7 +1166,7 @@ const Home: React.FC = () => {
                     borderRadius: '5px',
                     boxSizing: 'border-box',
                   }}
-                  placeholder="¿De qué trata el evento?"
+                  placeholder={t('home_event_description_placeholder')}
                   value={newEventDescription}
                   onChange={(e) => setNewEventDescription(e.target.value)}
                   required
@@ -1180,7 +1174,7 @@ const Home: React.FC = () => {
               </div>
 
               <div className="form-group">
-                <label>Fecha y Hora</label>
+                <label>{t('home_event_date_label')}</label>
                 <input
                   type="datetime-local"
                   value={newEventDate}
@@ -1190,10 +1184,10 @@ const Home: React.FC = () => {
               </div>
 
               <div className="form-group">
-                <label>Dirección Exacta</label>
+                <label>{t('home_event_address_label')}</label>
                 <input
                   type="text"
-                  placeholder="Ej: Calle Mayor 12, Planta 1"
+                  placeholder={t('home_event_address_placeholder')}
                   value={newEventDireccionExacta}
                   onChange={(e) => setNewEventDireccionExacta(e.target.value)}
                   required
@@ -1201,7 +1195,7 @@ const Home: React.FC = () => {
               </div>
 
               <div className="form-group">
-                <label>Ubicación en el Mapa (Haz clic para seleccionar)</label>
+                <label>{t('home_event_map_label')}</label>
                 <div
                   style={{
                     height: '250px',
@@ -1224,21 +1218,22 @@ const Home: React.FC = () => {
                     />
                     {newEventLocation && (
                       <Marker position={newEventLocation} icon={EventIcon}>
-                        <Popup>Ubicación seleccionada</Popup>
+                        <Popup>{t('home_event_map_selected')}</Popup>
                       </Marker>
                     )}
                   </MapContainer>
                 </div>
                 {newEventLocation && (
                   <span style={{ fontSize: '0.8rem', color: 'green', marginTop: '0.25rem' }}>
-                    Coordenadas seleccionadas: {newEventLocation[0].toFixed(5)},{' '}
-                    {newEventLocation[1].toFixed(5)}
+                    {t('home_event_map_coordinates', {
+                      coords: `${newEventLocation[0].toFixed(5)}, ${newEventLocation[1].toFixed(5)}`,
+                    })}
                   </span>
                 )}
               </div>
 
               <button type="submit" className="submit-btn" disabled={!newEventLocation}>
-                {!newEventLocation ? 'Selecciona ubicación en el mapa' : 'Publicar Evento'}
+                {!newEventLocation ? t('home_event_map_not_selected') : t('home_event_publish')}
               </button>
             </form>
           </div>

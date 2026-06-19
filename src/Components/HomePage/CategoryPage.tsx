@@ -8,7 +8,7 @@ import './Home.css';
 const CategoryPage: React.FC = () => {
   const { type } = useParams();
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -22,7 +22,7 @@ const CategoryPage: React.FC = () => {
   useEffect(() => {
     setCurrentPage(1);
     setHasMore(true);
-  }, [type, timeFilter]); // Reiniciar página si cambia el tipo o el filtro de tiempo
+  }, [type, timeFilter]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -67,16 +67,16 @@ const CategoryPage: React.FC = () => {
   });
 
   if (loading) {
-    return <div className="home-container">Cargando...</div>;
+    return <div className="home-container">{t('category_page.loading')}</div>;
   }
 
   return (
     <div className="home-container">
       <h1 style={{ marginBottom: '2rem' }}>
-        {type === 'rentals' && 'Libros en alquiler'}
-        {type === 'sales' && 'Libros en venta'}
-        {type === 'events' && 'Eventos'}
-        {type === 'posts' && 'Posts'}
+        {type === 'rentals' && t('category_page.title_rentals')}
+        {type === 'sales' && t('category_page.title_sales')}
+        {type === 'events' && t('category_page.title_events')}
+        {type === 'posts' && t('category_page.title_posts')}
       </h1>
 
       {/* --- SELECTOR DE EVENTOS PRÓXIMOS / EXPIRADOS --- */}
@@ -87,14 +87,14 @@ const CategoryPage: React.FC = () => {
             className="add-book-btn"
             style={{ backgroundColor: timeFilter === 'upcoming' ? '#007bff' : '#ccc' }}
           >
-            Próximos
+            {t('category_page.filter_upcoming')}
           </button>
           <button
             onClick={() => setTimeFilter('expired')}
             className="add-book-btn"
             style={{ backgroundColor: timeFilter === 'expired' ? '#007bff' : '#ccc' }}
           >
-            Expirados
+            {t('category_page.filter_expired')}
           </button>
         </div>
       )}
@@ -120,7 +120,7 @@ const CategoryPage: React.FC = () => {
                     </span>
                     <span className="month">
                       {event.eventDate || event.date
-                        ? new Date(event.eventDate || event.date).toLocaleString('default', {
+                        ? new Date(event.eventDate || event.date).toLocaleString(i18n.language, {
                             month: 'short',
                           })
                         : '---'}
@@ -179,7 +179,7 @@ const CategoryPage: React.FC = () => {
               className="add-book-btn"
               style={buttonStyle(currentPage === 1)}
             >
-              Anterior
+              {t('category_page.btn_prev')}
             </button>
 
             <button
@@ -188,14 +188,14 @@ const CategoryPage: React.FC = () => {
               className="add-book-btn"
               style={buttonStyle(!hasMore)}
             >
-              Siguiente
+              {t('category_page.btn_next')}
             </button>
           </div>
         </>
       ) : (
         <div style={{ textAlign: 'center' }}>
           <p className="no-data-msg">
-            {type === 'events' ? 'No hay eventos disponibles' : t('no_sales_available')}
+            {type === 'events' ? t('category_page.no_events') : t('category_page.no_books')}
           </p>
           {currentPage > 1 && (
             <button
@@ -203,7 +203,7 @@ const CategoryPage: React.FC = () => {
               className="add-book-btn"
               style={{ marginTop: '1.5rem' }}
             >
-              Volver a la página anterior
+              {t('category_page.btn_back_prev')}
             </button>
           )}
         </div>

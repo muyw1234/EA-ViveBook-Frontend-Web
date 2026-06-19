@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import EventService from '../Services/Evento';
 import './EventoDetail.css';
 import 'leaflet/dist/leaflet.css';
@@ -78,10 +79,10 @@ const RecenterMap = ({ coords }: { coords: [number, number] }) => {
   return null;
 };
 
-const formatDate = (dateInput: Date | string) => {
-  if (!dateInput) return 'No indicada';
+const formatDate = (dateInput: Date | string, lng: string) => {
+  if (!dateInput) return '';
   const date = new Date(dateInput);
-  return date.toLocaleDateString('es-ES', {
+  return date.toLocaleDateString(lng === 'cat' ? 'ca-ES' : lng === 'en' ? 'en-US' : 'es-ES', {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
@@ -91,6 +92,7 @@ const formatDate = (dateInput: Date | string) => {
 };
 
 const EventDetail: React.FC = () => {
+  const { t, i18n } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [event, setEvent] = useState<Event | null>(null);
@@ -115,7 +117,7 @@ const EventDetail: React.FC = () => {
 
     const fetchEvent = async () => {
       if (!id) {
-        setError('No se encontró el identificador del evento.');
+        setError(t('event_detail.error_id'));
         setLoading(false);
         return;
       }
@@ -125,18 +127,18 @@ const EventDetail: React.FC = () => {
         setEvent(data);
       } catch (fetchError) {
         console.error('Error fetching event detail:', fetchError);
-        setError('No se pudo cargar el detalle del evento.');
+        setError(t('event_detail.error_fetch'));
       } finally {
         setLoading(false);
       }
     };
 
     fetchEvent();
-  }, [id]);
+  }, [id, t]);
 
   const handleParticipate = async () => {
     if (!getSessionToken()) {
-      toast.warn('Inicia sesión para usar esta función');
+      toast.warn(t('event_detail.toast_login_required'));
       navigate('/login');
       return;
     }
@@ -148,7 +150,7 @@ const EventDetail: React.FC = () => {
 
       const mockCurrentUser: ParticipantUser = {
         _id: currentUserId,
-        name: localStorage.getItem('userName') || 'Tú', // Asegúrate de tener guardado el nombre del usuario logueado en el localStorage al iniciar sesión
+        name: localStorage.getItem('userName') || 'Tú',
       };
 
       setEvent((prevEvent) => {
@@ -159,10 +161,10 @@ const EventDetail: React.FC = () => {
         };
       });
 
-      toast.success('¡Te has apuntado al evento con éxito!');
+      toast.success(t('event_detail.toast_join_success'));
     } catch (err) {
       console.error('Error al unirse al evento:', err);
-      toast.error('No se pudo registrar tu participación.');
+      toast.error(t('event_detail.toast_join_error'));
     } finally {
       setJoining(false);
     }
@@ -170,7 +172,7 @@ const EventDetail: React.FC = () => {
 
   const handleLeave = async () => {
     if (!getSessionToken()) {
-      toast.warn('Inicia sesión para usar esta función');
+      toast.warn(t('event_detail.toast_login_required'));
       navigate('/login');
       return;
     }
@@ -184,7 +186,7 @@ const EventDetail: React.FC = () => {
 
       if (updatedEvent && (updatedEvent._id || updatedEvent.id)) {
         setEvent(updatedEvent);
-        toast.info('Has cancelado tu participación en el evento.');
+        toast.info(t('event_detail.toast_leave_success'));
       } else {
         setEvent((prevEvent) => {
           if (!prevEvent) return null;
@@ -193,27 +195,27 @@ const EventDetail: React.FC = () => {
             participant: prevEvent.participant.filter((p) => p && p._id !== currentUserId),
           };
         });
-        toast.info('Has cancelado tu participación.');
+        toast.info(t('event_detail.toast_leave_success'));
       }
     } catch (err) {
       console.error('Error al salir del evento:', err);
-      toast.error('No se pudo cancelar tu participación.');
+      toast.error(t('event_detail.toast_leave_error'));
     } finally {
       setJoining(false);
     }
   };
 
   if (loading) {
-    return <div className="event-detail-page">Cargando detalle del evento...</div>;
+    return <div className="event-detail-page">{t('event_detail.loading')}</div>;
   }
 
   if (error || !event) {
     return (
       <div className="event-detail-page">
         <button className="back-button" onClick={() => navigate('/')}>
-          Volver
+          {t('event_detail.back')}
         </button>
-        <p className="event-detail-error">{error || 'Evento no encontrado.'}</p>
+        <p className="event-detail-error">{error || t('event_detail.error_not_found')}</p>
       </div>
     );
   }
@@ -228,41 +230,51 @@ const EventDetail: React.FC = () => {
   return (
     <main className="event-detail-page">
       <button className="back-button" onClick={() => navigate('/')}>
-        ← Volver
+        ← {t('event_detail.back')}
       </button>
 
       <section className="event-detail-layout">
-        <div className="event-detail-cover" aria-label="Portada del evento">
+        <div className="event-detail-cover" aria-label={t('event_detail.cover_alt')}>
           <span>📅</span>
         </div>
 
         <div className="event-detail-info">
-          <span className="event-detail-status">Próximamente</span>
-          <h1>{event.title || 'Evento sin título'}</h1>
-          <p className="event-detail-author">Organizado por: {event.creator?.name || 'Anónimo'}</p>
+          <span className="event-detail-status">{t('event_detail.status_upcoming')}</span>
+          <h1>{event.title || t('event_detail.title_fallback')}</h1>
+          <p className="event-detail-author">
+            {event.creator?.name
+              ? t('event_detail.organized_by', { name: event.creator.name })
+              : t('event_detail.organized_by', { name: t('event_detail.organized_by_anon') })}
+          </p>
 
           <dl className="event-detail-meta">
             <div>
-              <dt>Fecha del Evento</dt>
-              <dd>{formatDate(event.eventDate)}</dd>
+              <dt>{t('event_detail.label_date')}</dt>
+              <dd>
+                {formatDate(event.eventDate, i18n.language) || t('event_detail.address_fallback')}
+              </dd>
             </div>
             <div>
-              <dt>Dirección</dt>
-              <dd>{event.direccionExacta || 'No especificada'}</dd>
+              <dt>{t('event_detail.label_address')}</dt>
+              <dd>{event.direccionExacta || t('event_detail.address_fallback')}</dd>
             </div>
             <div>
-              <dt>Participantes</dt>
-              <dd>{event.participant?.length || 0} inscritos</dd>
+              <dt>{t('event_detail.label_participants')}</dt>
+              <dd>
+                {t('event_detail.participants_count', { count: event.participant?.length || 0 })}
+              </dd>
             </div>
             <div>
-              <dt>Publicado el</dt>
-              <dd>{formatDate(event.createdDate)}</dd>
+              <dt>{t('event_detail.label_published')}</dt>
+              <dd>
+                {formatDate(event.createdDate, i18n.language) || t('event_detail.address_fallback')}
+              </dd>
             </div>
           </dl>
 
           {event.description && (
             <div className="event-detail-description">
-              <h2>Descripción</h2>
+              <h2>{t('event_detail.label_description')}</h2>
               <p>{event.description}</p>
             </div>
           )}
@@ -275,18 +287,20 @@ const EventDetail: React.FC = () => {
                 disabled={joining}
                 className="participate-button joined"
               >
-                {joining ? 'Procesando...' : '✓ Ya participas (Click para salir)'}
+                {joining ? t('event_detail.btn_processing') : t('event_detail.btn_joined')}
               </button>
             ) : (
               <button onClick={handleParticipate} disabled={joining} className="participate-button">
-                {joining ? 'Procesando...' : 'Quiero participar'}
+                {joining ? t('event_detail.btn_processing') : t('event_detail.btn_join')}
               </button>
             )}
           </div>
 
           {/* Sección de Participantes */}
           <div className="event-detail-participants">
-            <h2>Personas inscritas ({event.participant?.length || 0})</h2>
+            <h2>
+              {t('event_detail.participants_title', { count: event.participant?.length || 0 })}
+            </h2>
 
             {event.participant && event.participant.length > 0 ? (
               <ul className="participants-list">
@@ -302,7 +316,7 @@ const EventDetail: React.FC = () => {
                 ))}
               </ul>
             ) : (
-              <p className="no-participants">Sé el primero en apuntarte a este evento.</p>
+              <p className="no-participants">{t('event_detail.participants_empty')}</p>
             )}
           </div>
         </div>
@@ -310,7 +324,7 @@ const EventDetail: React.FC = () => {
 
       {/* Sección del Mapa */}
       <section className="map-section">
-        <h2>Ubicación en el mapa</h2>
+        <h2>{t('event_detail.map_title')}</h2>
         <div className="map-wrapper">
           <MapContainer
             center={eventCoordinates}
@@ -321,15 +335,15 @@ const EventDetail: React.FC = () => {
 
             {userLocation && (
               <Marker position={userLocation} icon={UserIcon}>
-                <Popup>Tu ubicación actual</Popup>
+                <Popup>{t('event_detail.map_user_location')}</Popup>
               </Marker>
             )}
 
             <Marker position={eventCoordinates} icon={EventIcon}>
               <Popup>
-                <strong>{event.title}</strong>
+                <strong>{event.title || t('event_detail.title_fallback')}</strong>
                 <br />
-                {event.direccionExacta}
+                {event.direccionExacta || t('event_detail.address_fallback')}
               </Popup>
             </Marker>
 

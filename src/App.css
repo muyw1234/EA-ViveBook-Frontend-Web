@@ -1,5 +1,5 @@
 :root {
-  /* ViveBook Mobile App Brand Colors (Updated to match the latest commit) */
+  /* ViveBook Mobile App Brand Colors */
   --primary: #d183ba; /* Main Pink-Violet Accent Color */
   --secondary: #a85890; /* Darker Pink-Violet for hover/active states */
   --bg: #faf5f9; /* Soft off-white pastel lavender-pink background */
@@ -86,13 +86,11 @@ h1 {
   letter-spacing: -0.03em;
   margin: 2rem 0;
 }
-
 h2 {
   font-size: 1.75rem;
   letter-spacing: -0.02em;
   margin-bottom: 1rem;
 }
-
 p {
   margin: 0 0 1rem;
   line-height: 1.6;
@@ -113,7 +111,6 @@ code {
   background: var(--code-bg);
 }
 
-/* --- Global Navbar Styles --- */
 .main-nav {
   padding: 1rem 2rem;
   background-color: var(--surface);
@@ -161,11 +158,10 @@ code {
   color: var(--secondary);
 }
 
-/* --- Global Footer Styles --- */
 .bookshub-footer {
   background-color: var(--surface);
   padding: 0;
-  margin-top: auto; /* Empuja el footer hacia abajo si el contenido es corto */
+  margin-top: auto;
   border-top: 1px solid var(--border);
   width: 100%;
   box-shadow: 0 -10px 40px rgba(61, 26, 60, 0.03);
@@ -183,13 +179,11 @@ code {
   font-size: 1.5rem;
   color: var(--bg);
 }
-
 .newsletter-input-group {
   display: flex;
   max-width: 500px;
   margin: 0 auto;
 }
-
 .newsletter-input-group input {
   flex: 1;
   padding: 0.8rem 1rem;
@@ -199,7 +193,6 @@ code {
   background: var(--bg);
   color: var(--text-h);
 }
-
 .newsletter-input-group button {
   background-color: var(--primary);
   color: white;
@@ -210,7 +203,6 @@ code {
   font-weight: 600;
   transition: background-color 0.2s ease;
 }
-
 .newsletter-input-group button:hover {
   background-color: var(--secondary);
 }
@@ -233,14 +225,12 @@ code {
   margin-bottom: 1rem;
   font-size: 1.5rem;
 }
-
 .footer-brand p {
   color: var(--text);
   font-size: 0.9rem;
   margin-bottom: 1rem;
   line-height: 1.5;
 }
-
 .footer-logo {
   font-size: 2rem;
   font-weight: 800;
@@ -253,7 +243,6 @@ code {
   gap: 1rem;
   margin-top: 1rem;
 }
-
 .social-links-modern a {
   color: var(--text);
   font-weight: 600;
@@ -265,7 +254,6 @@ code {
   border: 1px solid var(--border);
   transition: all 0.3s;
 }
-
 .social-links-modern a:hover {
   background: var(--primary);
   color: white;
@@ -278,7 +266,6 @@ code {
   font-size: 1.1rem;
   font-weight: 700;
 }
-
 .footer-col a,
 .footer-col p {
   display: block;
@@ -287,7 +274,6 @@ code {
   margin-bottom: 0.75rem;
   font-size: 0.9rem;
 }
-
 .footer-col a:hover {
   color: var(--primary);
   text-decoration: underline;

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import UsuarioService from '../Services/Usuario';
 import { toast } from 'react-toastify';
 
@@ -9,7 +10,7 @@ interface ILibroSimple {
   isbn?: string;
   precio?: number;
   type?: 'VENTA' | 'ALQUILER';
-  owner?: { _id: string; name: string } | string | any; // Ajustado por seguridad
+  owner?: { _id: string; name: string } | string | any;
 }
 
 interface IEventoSimple {
@@ -32,6 +33,7 @@ interface IUsuarioProfile {
 }
 
 export const ProfilePage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<IUsuarioProfile | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -46,7 +48,7 @@ export const ProfilePage = () => {
         setProfile(data as any);
       } catch (error: any) {
         console.error('Error cargando el perfil:', error);
-        toast.error('No se pudo cargar la información del perfil');
+        toast.error(t('Userprofile.messages.errorLoading'));
         if (error.response?.status === 401) {
           navigate('/');
         }
@@ -55,7 +57,7 @@ export const ProfilePage = () => {
       }
     };
     fetchProfileData();
-  }, [navigate]);
+  }, [navigate, t]);
 
   if (loading) {
     return (
@@ -69,7 +71,7 @@ export const ProfilePage = () => {
           fontWeight: 600,
         }}
       >
-        Cargando tu perfil de ViveBook...
+        {t('Userprofile.loading')}
       </div>
     );
   }
@@ -77,17 +79,17 @@ export const ProfilePage = () => {
   if (!profile) {
     return (
       <div style={{ textAlign: 'center', marginTop: '3rem' }}>
-        <p style={{ color: 'var(--error)', fontWeight: 'bold' }}>Usuario no encontrado.</p>
+        <p style={{ color: 'var(--error)', fontWeight: 'bold' }}>{t('Userprofile.userNotFound')}</p>
       </div>
     );
   }
 
-  // Helper para renderizar el nombre del propietario de forma segura
   const renderOwnerName = (owner: any) => {
     if (!owner) return null;
-    if (typeof owner === 'string') return owner;
-    if (typeof owner === 'object' && owner.name) return owner.name;
-    return 'Desconocido';
+    if (typeof owner === 'string') return t('Userprofile.owner', { name: owner });
+    if (typeof owner === 'object' && owner.name)
+      return t('Userprofile.owner', { name: owner.name });
+    return t('Userprofile.owner', { name: t('Userprofile.unknownOwner') });
   };
 
   const renderBookGrid = (books: ILibroSimple[], emptyMessage: string) => {
@@ -124,7 +126,7 @@ export const ProfilePage = () => {
               padding: '1.25rem',
               display: 'flex',
               flexDirection: 'column',
-              justifyContent: 'space-between', // Corregido: era 'between' y lo correcto en CSS es 'space-between'
+              justifyContent: 'space-between',
               textAlign: 'left',
               boxShadow: 'var(--shadow)',
             }}
@@ -154,7 +156,7 @@ export const ProfilePage = () => {
                     fontWeight: 600,
                   }}
                 >
-                  Propietario: {renderOwnerName(libro.owner)}
+                  {renderOwnerName(libro.owner)}
                 </p>
               )}
             </div>
@@ -182,7 +184,7 @@ export const ProfilePage = () => {
                       : '1px solid var(--accent-border)',
                 }}
               >
-                {libro.type || 'VENTA'}
+                {libro.type === 'ALQUILER' ? t('Userprofile.rent') : t('Userprofile.sale')}
               </span>
               <span style={{ fontWeight: 700, color: 'var(--text-h)', fontSize: '1.1rem' }}>
                 {libro.precio !== undefined ? `${libro.precio}€` : '0€'}
@@ -210,7 +212,6 @@ export const ProfilePage = () => {
       );
     }
 
-    // CORRECCIÓN: Ahora sí retorna la estructura JSX en caso de que existan eventos
     return (
       <div style={{ display: 'grid', gap: '1rem', textAlign: 'left' }}>
         {events.map((ev) => (
@@ -295,7 +296,7 @@ export const ProfilePage = () => {
               {profile.libros?.length || 0}
             </span>
             <span style={{ fontSize: '0.7rem', opacity: 0.85, textTransform: 'uppercase' }}>
-              Subidos
+              {t('Userprofile.stats.uploaded')}
             </span>
           </div>
           <div style={{ paddingRight: '1rem', borderRight: '1px solid rgba(255, 255, 255, 0.2)' }}>
@@ -310,7 +311,7 @@ export const ProfilePage = () => {
               {profile.boughtLibros?.length || 0}
             </span>
             <span style={{ fontSize: '0.7rem', opacity: 0.85, textTransform: 'uppercase' }}>
-              Comprados
+              {t('Userprofile.stats.bought')}
             </span>
           </div>
           <div style={{ paddingRight: '1rem', borderRight: '1px solid rgba(255, 255, 255, 0.2)' }}>
@@ -325,7 +326,7 @@ export const ProfilePage = () => {
               {profile.eventos?.length || 0}
             </span>
             <span style={{ fontSize: '0.7rem', opacity: 0.85, textTransform: 'uppercase' }}>
-              Mis Eventos
+              {t('Userprofile.stats.events')}
             </span>
           </div>
           <div>
@@ -340,7 +341,7 @@ export const ProfilePage = () => {
               {profile.followingUsers?.length || 0}
             </span>
             <span style={{ fontSize: '0.7rem', opacity: 0.85, textTransform: 'uppercase' }}>
-              Siguiendo
+              {t('Userprofile.stats.following')}
             </span>
           </div>
         </div>
@@ -357,11 +358,11 @@ export const ProfilePage = () => {
         }}
       >
         {[
-          { id: 'mis-libros', label: 'Mis Libros' },
-          { id: 'comprados', label: 'Comprados' },
-          { id: 'alquilados', label: 'Alquilados' },
-          { id: 'eventos', label: 'Mis Eventos' },
-          { id: 'siguiendo', label: 'Siguiendo' },
+          { id: 'mis-libros', label: t('Userprofile.tabs.myBooks') },
+          { id: 'comprados', label: t('Userprofile.tabs.bought') },
+          { id: 'alquilados', label: t('Userprofile.tabs.rented') },
+          { id: 'eventos', label: t('Userprofile.tabs.events') },
+          { id: 'siguiendo', label: t('Userprofile.tabs.following') },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -398,13 +399,13 @@ export const ProfilePage = () => {
         }}
       >
         {activeTab === 'mis-libros' &&
-          renderBookGrid(profile.libros, 'No has publicado libros aún.')}
+          renderBookGrid(profile.libros, t('Userprofile.messages.emptyMyBooks'))}
         {activeTab === 'comprados' &&
-          renderBookGrid(profile.boughtLibros, 'No has comprado ningún libro todavía.')}
+          renderBookGrid(profile.boughtLibros, t('Userprofile.messages.emptyBought'))}
         {activeTab === 'alquilados' &&
-          renderBookGrid(profile.rentedLibros, 'No tienes alquileres activos.')}
+          renderBookGrid(profile.rentedLibros, t('Userprofile.messages.emptyRented'))}
         {activeTab === 'eventos' &&
-          renderEventGrid(profile.eventos, 'No te has apuntado a ningún evento todavía.')}
+          renderEventGrid(profile.eventos, t('Userprofile.messages.emptyEvents'))}
         {activeTab === 'siguiendo' && (
           <div style={{ textAlign: 'left' }}>
             {profile.followingUsers && profile.followingUsers.length > 0 ? (
@@ -441,7 +442,7 @@ export const ProfilePage = () => {
                         cursor: 'pointer',
                       }}
                     >
-                      Ver Perfil
+                      {t('Userprofile.tabs.viewProfile')}
                     </button>
                   </li>
                 ))}
@@ -455,7 +456,7 @@ export const ProfilePage = () => {
                   margin: '3rem 0',
                 }}
               >
-                No estás siguiendo a ningún lector todavía.
+                {t('Userprofile.messages.emptyFollowing')}
               </p>
             )}
           </div>

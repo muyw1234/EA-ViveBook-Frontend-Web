@@ -1,82 +1,192 @@
-/* --- AccessibilityMenu.css --- */
-
-/* Container positioned in the bottom right corner */
+/* Contenedor flotante */
 .a11y-menu-container {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
+  bottom: 24px;
+  right: 24px;
   z-index: 9999;
   font-family: var(--sans);
 }
 
-/* Floating Action Button */
+/* Botón flotante de acción (FAB) */
 .a11y-trigger-btn {
   width: 56px;
   height: 56px;
   border-radius: 50%;
   background-color: var(--primary);
-  color: white;
-  border: none;
-  font-size: 24px;
+  color: var(--surface);
+  border: 1px solid transparent;
   cursor: pointer;
   box-shadow: var(--shadow);
-  transition:
-    transform 0.2s ease,
-    background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.a11y-icon {
+  width: 26px;
+  height: 26px;
 }
 
 .a11y-trigger-btn:hover {
-  transform: scale(1.05);
+  transform: translateY(-2px);
+  background-color: var(--secondary);
+  box-shadow: 0 12px 20px -3px rgba(61, 26, 60, 0.15);
+}
+
+.a11y-trigger-btn.active {
+  transform: rotate(90deg);
   background-color: var(--secondary);
 }
 
 .a11y-trigger-btn:focus-visible {
   outline: 3px solid var(--primary);
-  outline-offset: 2px;
+  outline-offset: 3px;
 }
 
-/* Settings Panel */
+/* Panel de Ajustes */
 .a11y-panel {
   position: absolute;
-  bottom: 70px;
+  bottom: 72px;
   right: 0;
-  width: 280px;
+  width: 300px;
   background-color: var(--surface);
   color: var(--text);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 16px;
+  border-radius: 16px;
+  padding: 20px;
   box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: a11y-fade-in 0.2s ease-out;
 }
 
-.a11y-panel h3 {
-  margin-top: 0;
-  margin-bottom: 10px;
-  font-size: 18px;
+@keyframes a11y-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.a11y-panel-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
   color: var(--text-h);
+  letter-spacing: -0.01em;
+  text-align: left;
 }
 
-.a11y-panel hr {
-  border: 0;
-  border-top: 1px solid var(--border);
-  margin-bottom: 15px;
+.a11y-panel-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
+/* Opciones de accesibilidad individuales */
 .a11y-option {
-  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: left;
+  padding: 14px;
+  background-color: var(--bg);
+  border-radius: 12px;
+  border: 1px solid var(--outline);
 }
 
-/* Close Button styling */
+.a11y-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-h);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* =======================================================
+   ✨ NUEVO: Estilos Inyectados para Botones e Inputs Internos 
+   ======================================================= */
+
+/* Estilo para botones internos (ej. botón de ThemeToggle) */
+.a11y-option button {
+  width: 100%;
+  padding: 10px 14px;
+  background-color: var(--surface);
+  color: var(--text-h);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(61, 26, 60, 0.02);
+}
+
+.a11y-option button:hover {
+  background-color: var(--accent-bg);
+  border-color: var(--primary);
+  color: var(--secondary);
+}
+
+/* Estilo para menús desplegables (ej. el select de LanguageSelector) */
+.a11y-option select {
+  width: 100%;
+  padding: 10px 14px;
+  background-color: var(--surface);
+  color: var(--text-h);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+  /* Reemplaza la flecha por defecto por una más estética */
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='%233d1a3c'><path d='M7 10l5 5 5-5z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 18px;
+}
+
+.a11y-option select:shadow,
+.a11y-option select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--accent-bg);
+}
+
+/* Cambia el color de la flecha del select automáticamente en Alto Contraste */
+[data-theme='high-contrast'] .a11y-option select {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='%23ffff00'><path d='M7 10l5 5 5-5z'/></svg>");
+}
+
+/* Botón de cerrar integrado principal */
 .a11y-close-btn {
   width: 100%;
-  padding: 8px;
-  background-color: var(--social-bg);
+  padding: 11px;
+  background-color: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 4px;
+  color: var(--text);
+  border-radius: 8px;
   cursor: pointer;
-  font-weight: bold;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
 }
 
 .a11y-close-btn:hover {
-  background-color: var(--border);
+  background-color: var(--code-bg);
+  color: var(--text-h);
+  border-color: var(--primary);
+}
+
+.a11y-close-btn:focus-visible {
+  outline: 2px solid var(--primary);
 }

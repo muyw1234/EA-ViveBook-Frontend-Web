@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import api from '../../api';
@@ -22,15 +23,8 @@ type Book = Partial<ILibro> & {
   publishedDate?: string;
 };
 
-const formatPrice = (price?: string | number) => {
-  if (price === undefined || price === null || price === '') {
-    return 'Consultar precio';
-  }
-
-  return `${price} EUR`;
-};
-
 const BookDetail: React.FC = () => {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [book, setBook] = useState<Book | null>(null);
@@ -56,10 +50,17 @@ const BookDetail: React.FC = () => {
   const [initialMessage, setInitialMessage] = useState('');
   const [submittingContact, setSubmittingContact] = useState(false);
 
+  const formatPrice = (price?: string | number) => {
+    if (price === undefined || price === null || price === '') {
+      return t('consult_price');
+    }
+    return `${price} EUR`;
+  };
+
   useEffect(() => {
     const fetchBookAndWishlist = async () => {
       if (!id) {
-        setError('No se encontro el identificador del libro.');
+        setError(t('detail_error_id'));
         setLoading(false);
         return;
       }
@@ -98,19 +99,19 @@ const BookDetail: React.FC = () => {
         }
       } catch (fetchError) {
         console.error('Error fetching book detail:', fetchError);
-        setError('No se pudo cargar el detalle del libro.');
+        setError(t('detail_error_fetch'));
       } finally {
         setLoading(false);
       }
     };
 
     fetchBookAndWishlist();
-  }, [id]);
+  }, [id, t]);
 
   const handleWishlistToggle = async () => {
     const token = getSessionToken();
     if (!token) {
-      toast.warn('Debes iniciar sesión para añadir libros a tu lista de deseos.');
+      toast.warn(t('toast_login_wishlist'));
       return;
     }
 
@@ -122,13 +123,13 @@ const BookDetail: React.FC = () => {
       const nextState = !isInWishlist;
       setIsInWishlist(nextState);
       if (nextState) {
-        toast.success('¡Libro añadido a tu lista de deseos!');
+        toast.success(t('toast_wishlist_success'));
       } else {
-        toast.info('Libro eliminado de tu lista de deseos.');
+        toast.info(t('toast_wishlist_removed'));
       }
     } catch (toggleError) {
       console.error('Error toggling wishlist:', toggleError);
-      toast.error('No se pudo actualizar la lista de deseos.');
+      toast.error(t('toast_wishlist_error'));
     } finally {
       setTogglingWishlist(false);
     }
@@ -137,7 +138,7 @@ const BookDetail: React.FC = () => {
   const handleFavoriteToggle = async () => {
     const token = getSessionToken();
     if (!token) {
-      toast.warn('Debes iniciar sesión para añadir libros a tus favoritos.');
+      toast.warn(t('toast_login_favorites'));
       return;
     }
 
@@ -149,13 +150,13 @@ const BookDetail: React.FC = () => {
       const nextState = !isInFavorites;
       setIsInFavorites(nextState);
       if (nextState) {
-        toast.success('¡Libro añadido a tus favoritos!');
+        toast.success(t('toast_favorite_success'));
       } else {
-        toast.info('Libro eliminado de tus favoritos.');
+        toast.info(t('toast_favorite_removed'));
       }
     } catch (toggleError) {
       console.error('Error toggling favorites:', toggleError);
-      toast.error('No se pudo actualizar los favoritos.');
+      toast.error(t('toast_favorite_error'));
     } finally {
       setTogglingFavorites(false);
     }
@@ -164,17 +165,17 @@ const BookDetail: React.FC = () => {
   const handleReserve = async () => {
     const token = getSessionToken();
     if (!token) {
-      toast.warn('Debes iniciar sesión para reservar un libro.');
+      toast.warn(t('toast_login_reserve'));
       return;
     }
     setSubmittingReserve(true);
     try {
       await api.post('/reservas', { libroId: id });
       setIsReserved(true);
-      toast.success('¡Solicitud de reserva enviada con éxito!');
+      toast.success(t('toast_reserve_success'));
     } catch (err: any) {
       console.error(err);
-      const msg = err.response?.data?.message || 'Error al realizar la reserva';
+      const msg = err.response?.data?.message || t('toast_reserve_error');
       toast.error(msg);
     } finally {
       setSubmittingReserve(false);
@@ -191,12 +192,12 @@ const BookDetail: React.FC = () => {
         bookId: id,
         initialMessage: initialMessage.trim(),
       });
-      toast.success('¡Solicitud de contacto enviada con éxito!');
+      toast.success(t('toast_contact_success'));
       setShowContactModal(false);
       setInitialMessage('');
     } catch (err: any) {
       console.error(err);
-      const msg = err.response?.data?.message || 'Error al enviar la solicitud de mensaje';
+      const msg = err.response?.data?.message || t('toast_contact_error');
       toast.error(msg);
     } finally {
       setSubmittingContact(false);
@@ -204,16 +205,16 @@ const BookDetail: React.FC = () => {
   };
 
   if (loading) {
-    return <div className="book-detail-page">Cargando detalle del libro...</div>;
+    return <div className="book-detail-page">{t('detail_loading')}</div>;
   }
 
   if (error || !book) {
     return (
       <div className="book-detail-page">
         <button className="back-button" onClick={() => navigate('/')}>
-          Volver
+          {t('detail_back')}
         </button>
-        <p className="book-detail-error">{error || 'Libro no encontrado.'}</p>
+        <p className="book-detail-error">{error || t('detail_title_fallback')}</p>
       </div>
     );
   }
@@ -221,17 +222,17 @@ const BookDetail: React.FC = () => {
   return (
     <main className="book-detail-page">
       <button className="back-button" onClick={() => navigate('/')}>
-        Volver
+        {t('detail_back')}
       </button>
 
       <section className="book-detail-layout">
-        <div className="book-detail-cover" aria-label="Portada del libro">
-          <span>Libro</span>
+        <div className="book-detail-cover" aria-label={t('detail_cover_alt')}>
+          <span>{t('detail_cover_text')}</span>
         </div>
 
         <div className="book-detail-info">
-          <span className="book-detail-status">{book.status || 'Disponible'}</span>
-          <h1>{book.title || 'Titulo sin nombre'}</h1>
+          <span className="book-detail-status">{book.status || t('detail_status_available')}</span>
+          <h1>{book.title || t('detail_title_fallback')}</h1>
           <p className="book-detail-author">
             {formatAuthors(book.authors, book.autor || book.author)}
           </p>
@@ -250,9 +251,9 @@ const BookDetail: React.FC = () => {
               <span className="heart-icon">{isInWishlist ? (isHovered ? '💔' : '❤️') : '🤍'}</span>
               {isInWishlist
                 ? isHovered
-                  ? 'Quitar de lista'
-                  : 'En lista de deseos'
-                : 'Añadir a lista'}
+                  ? t('btn_wishlist_remove')
+                  : t('btn_wishlist_added')
+                : t('btn_wishlist_add')}
             </button>
 
             <button
@@ -265,13 +266,17 @@ const BookDetail: React.FC = () => {
               <span className="star-icon">
                 {isInFavorites ? (isFavHovered ? '❌' : '⭐') : '☆'}
               </span>
-              {isInFavorites ? (isFavHovered ? 'Quitar' : 'Favorito') : 'Favorito'}
+              {isInFavorites
+                ? isFavHovered
+                  ? t('btn_favorite_remove')
+                  : t('btn_favorite_add')
+                : t('btn_favorite_add')}
             </button>
 
             {currentUser &&
             book.owner &&
             (typeof book.owner === 'object' ? book.owner._id : book.owner) === currentUser._id ? (
-              <span className="owner-listing-tag">👤 Publicación propia</span>
+              <span className="owner-listing-tag">{t('detail_own_listing')}</span>
             ) : (
               <>
                 <button
@@ -279,7 +284,7 @@ const BookDetail: React.FC = () => {
                   onClick={handleReserve}
                   disabled={isReserved || submittingReserve}
                 >
-                  {isReserved ? 'Reserva Solicitada' : 'Solicitar Reserva'}
+                  {isReserved ? t('btn_reserve_requested') : t('btn_reserve_request')}
                 </button>
 
                 <button
@@ -287,7 +292,7 @@ const BookDetail: React.FC = () => {
                   onClick={() => setShowContactModal(true)}
                   disabled={submittingContact}
                 >
-                  Contactar Vendedor
+                  {t('btn_contact_seller')}
                 </button>
               </>
             )}
@@ -295,26 +300,26 @@ const BookDetail: React.FC = () => {
 
           <dl className="book-detail-meta">
             <div>
-              <dt>ISBN</dt>
-              <dd>{book.isbn || 'No disponible'}</dd>
+              <dt>{t('detail_isbn')}</dt>
+              <dd>{book.isbn || t('detail_not_available')}</dd>
             </div>
             <div>
-              <dt>Estado</dt>
-              <dd>{book.estado || 'No indicado'}</dd>
+              <dt>{t('detail_state')}</dt>
+              <dd>{book.estado || t('detail_not_indicated')}</dd>
             </div>
             <div>
-              <dt>Editorial</dt>
-              <dd>{book.editorial || book.publisher || 'No indicada'}</dd>
+              <dt>{t('detail_editorial')}</dt>
+              <dd>{book.editorial || book.publisher || t('detail_not_indicated')}</dd>
             </div>
             <div>
-              <dt>Publicacion</dt>
-              <dd>{book.publicationDate || book.publishedDate || 'No indicada'}</dd>
+              <dt>{t('detail_publication')}</dt>
+              <dd>{book.publicationDate || book.publishedDate || t('detail_not_indicated')}</dd>
             </div>
           </dl>
 
           {book.description && (
             <div className="book-detail-description">
-              <h2>Descripcion</h2>
+              <h2>{t('detail_description_title')}</h2>
               <p>{book.description}</p>
             </div>
           )}
@@ -325,14 +330,14 @@ const BookDetail: React.FC = () => {
       {showContactModal && (
         <div className="contact-modal-overlay" onClick={() => setShowContactModal(false)}>
           <div className="contact-modal" onClick={(e) => e.stopPropagation()}>
-            <h3>Contactar al Vendedor</h3>
-            <p>Envía un mensaje inicial para iniciar la conversación sobre este libro.</p>
+            <h3>{t('modal_contact_title')}</h3>
+            <p>{t('modal_contact_subtitle')}</p>
             <form
               onSubmit={handleContactSubmit}
               style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}
             >
               <textarea
-                placeholder="Hola, me interesa tu libro y me gustaría..."
+                placeholder={t('modal_contact_placeholder')}
                 value={initialMessage}
                 onChange={(e) => setInitialMessage(e.target.value)}
                 className="contact-textarea"
@@ -346,7 +351,7 @@ const BookDetail: React.FC = () => {
                   style={{ flex: 1, textAlign: 'center', justifyContent: 'center', margin: 0 }}
                   disabled={submittingContact}
                 >
-                  Cancelar
+                  {t('modal_contact_cancel')}
                 </button>
                 <button
                   type="submit"
@@ -354,7 +359,7 @@ const BookDetail: React.FC = () => {
                   style={{ flex: 2, margin: 0, justifyContent: 'center' }}
                   disabled={submittingContact}
                 >
-                  {submittingContact ? 'Enviando...' : 'Enviar Solicitud'}
+                  {submittingContact ? t('modal_contact_sending') : t('modal_contact_send')}
                 </button>
               </div>
             </form>
