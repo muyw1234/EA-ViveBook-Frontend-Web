@@ -138,7 +138,10 @@ export default function MyBooks() {
     try {
       await api.put(`/libros/${editingBook._id}`, {
         title: editTitle,
-        authors: [editAutor],
+        authors: editAutor
+          .split(',')
+          .map((author) => author.trim())
+          .filter((author) => Boolean(author)),
         isbn: editIsbn,
         precio: parseFloat(editPrice),
         estado: editState,
@@ -337,6 +340,13 @@ export default function MyBooks() {
                     {book.type}
                   </div>
                   <div className="book-price">{book.precio}€</div>
+                </div>
+                <div className={`mybooks-card-cover ${book.imageUrl ? 'has-image' : ''}`}>
+                  {book.imageUrl ? (
+                    <img src={book.imageUrl} alt={book.title || 'Portada del libro'} />
+                  ) : (
+                    <span>Sin imagen</span>
+                  )}
                 </div>
                 <div className="card-mid">
                   <h3 className="book-title" title={book.title}>

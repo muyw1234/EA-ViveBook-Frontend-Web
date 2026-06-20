@@ -20,7 +20,6 @@ import { getSessionToken } from '../../utils/session';
 import { useMatomo } from 'matomo-tracker-for-react';
 import type ILibro from '../../Models/Libro';
 import AccessibilityMenu from '../Accessibility/AccessibilityMenu';
-import Libro from '../Services/Libro';
 
 // Icono para el Usuario (Azul)
 const UserIcon = L.icon({
@@ -64,6 +63,8 @@ const MapClickHandler = ({ onMapClick }: { onMapClick: (lat: number, lng: number
   return null;
 };
 
+const isOpenLibraryCoverUrl = (url: string) => url.includes('covers.openlibrary.org');
+
 const Home: React.FC = () => {
   const { t } = useTranslation();
 
@@ -90,9 +91,22 @@ const Home: React.FC = () => {
   const [newBookAuthor, setNewBookAuthor] = useState('');
   const [newBookState, setNewBookState] = useState('nuevo');
   const [newBookPrice, setNewBookPrice] = useState('');
-  const [onlyISBN, setOnlyISBN] = useState<boolean>(false);
+  const [isIsbnLookupLoading, setIsIsbnLookupLoading] = useState(false);
 
   const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const parsedBookAuthors = newBookAuthor
+    .split(',')
+    .map((author) => author.trim())
+    .filter((author) => Boolean(author));
+  const hasOpenLibraryCover = Boolean(imageUrl && isOpenLibraryCoverUrl(imageUrl));
+  const hasCloudinaryCover = Boolean(imageUrl && imageUrl.includes('res.cloudinary.com'));
+  const coverStatusText = hasOpenLibraryCover
+    ? 'Portada lista para subir a Cloudinary'
+    : hasCloudinaryCover
+      ? 'Portada subida a Cloudinary'
+      : imageUrl
+        ? 'Portada seleccionada'
+        : 'Sin portada seleccionada';
 
   // Form state corresponding to event fields
   const [newEventTitle, setNewEventTitle] = useState('');
@@ -115,26 +129,6 @@ const Home: React.FC = () => {
         className="submit-btn"
         value={t('submit_book_btn')}
         onClick={async (e) => await callback(e)}
-      >
-        {t('submit_book_btn')}
-      </button>
-    );
-  }
-
-  function AddingBookInputByIsbn() {
-    const { trackEvent } = useMatomo();
-    async function callback() {
-      console.log('Sending metrics of Adding Book to Matomo.');
-      const data = await Libro.addLibroByIsbn(newBookIsbn);
-      trackEvent('Libro', 'Adding Book', data.type as string);
-    }
-
-    return (
-      <button
-        type="button"
-        className="submit-btn"
-        value={t('submit_book_btn')}
-        onClick={async () => await callback()}
       >
         {t('submit_book_btn')}
       </button>
@@ -244,14 +238,24 @@ const Home: React.FC = () => {
   const handleAddBookSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      const authors = parsedBookAuthors;
+
+      let finalImageUrl = imageUrl || undefined;
+
+      if (finalImageUrl && isOpenLibraryCoverUrl(finalImageUrl)) {
+        toast.info('Subiendo portada a Cloudinary...');
+        finalImageUrl = await ImageService.uploadRemote(finalImageUrl);
+        setImageUrl(finalImageUrl);
+      }
+
       const bookData = {
         isbn: newBookIsbn,
         title: newBookTitle,
-        authors: [newBookAuthor],
+        authors,
         type: newBookType,
         precio: Number(newBookPrice),
         estado: newBookState,
-        imageUrl: imageUrl || undefined,
+        imageUrl: finalImageUrl,
       };
 
       const newBookResponse = await LibroService.addLibroListing(bookData);
@@ -262,12 +266,12 @@ const Home: React.FC = () => {
               ...newBookResponse,
               type: newBookType,
               precio: Number(newBookPrice),
-              authors: [newBookAuthor],
+              authors,
             }
           : {
               _id: Date.now().toString(),
               title: newBookTitle,
-              authors: [newBookAuthor],
+              authors,
               precio: Number(newBookPrice),
               type: newBookType,
             };
@@ -281,9 +285,40 @@ const Home: React.FC = () => {
       setNewBookIsbn('');
       setNewBookAuthor('');
       setNewBookPrice('');
+      setImageUrl(null);
     } catch (error) {
       console.error('Error submitting book:', error);
       toast.error(t('home_book_error'));
+    }
+  };
+
+  const handleSearchBookByIsbn = async () => {
+    const isbn = newBookIsbn.trim();
+
+    if (!isbn) {
+      toast.warn('Introduce un ISBN antes de buscar.');
+      return;
+    }
+
+    setIsIsbnLookupLoading(true);
+
+    try {
+      const metadata = await LibroService.getLibroMetadataByIsbn(isbn);
+      const foundAuthors = (metadata.authors || []).filter(Boolean).join(', ');
+
+      setNewBookIsbn((current) => current.trim() || metadata.isbn || isbn);
+      setNewBookTitle((current) => current.trim() || metadata.title || '');
+      if (foundAuthors) {
+        setNewBookAuthor(foundAuthors);
+      }
+      setImageUrl((current) => current || metadata.imageUrl || null);
+
+      toast.success('Datos del libro encontrados.');
+    } catch (error) {
+      console.error('Error searching book by ISBN:', error);
+      toast.error('No se pudo encontrar informacion para ese ISBN.');
+    } finally {
+      setIsIsbnLookupLoading(false);
     }
   };
 
@@ -950,220 +985,179 @@ const Home: React.FC = () => {
                 ×
               </button>
             </div>
-            <div className="form-check">
-              <input
-                className="form-check-input"
-                type="checkbox"
-                id="flexCheckDefault"
-                onChange={(e) => setOnlyISBN(e.target.checked)}
-              />
-              <label className="form-check-label">{t('use_openlibrary')}</label>
-            </div>
-            {!onlyISBN ? (
-              <div className="add-book-form">
-                <div className="form-group">
-                  <label>{t('label_operation_type')}</label>
-                  <div className="radio-group">
-                    <label className="radio-label">
-                      <input
-                        type="radio"
-                        value="VENTA"
-                        checked={newBookType === 'VENTA'}
-                        onChange={(e) => setNewBookType(e.target.value)}
-                      />
-                      {t('for_sale')}
-                    </label>
-                    <label className="radio-label">
-                      <input
-                        type="radio"
-                        value="ALQUILER"
-                        checked={newBookType === 'ALQUILER'}
-                        onChange={(e) => setNewBookType(e.target.value)}
-                      />
-                      {t('for_rent')}
-                    </label>
-                  </div>
+            <div className="add-book-form">
+              <div className="form-group">
+                <label>{t('label_operation_type')}</label>
+                <div className="radio-group">
+                  <label className="radio-label">
+                    <input
+                      type="radio"
+                      value="VENTA"
+                      checked={newBookType === 'VENTA'}
+                      onChange={(e) => setNewBookType(e.target.value)}
+                    />
+                    {t('for_sale')}
+                  </label>
+                  <label className="radio-label">
+                    <input
+                      type="radio"
+                      value="ALQUILER"
+                      checked={newBookType === 'ALQUILER'}
+                      onChange={(e) => setNewBookType(e.target.value)}
+                    />
+                    {t('for_rent')}
+                  </label>
                 </div>
-                {/* He vuelto a poner estos campos obligatorios, no lo volveis a borrar indiscriminadamente. */}
-                <div className="form-group">
-                  <label>{t('label_book_title')}</label>
-                  <input
-                    type="text"
-                    placeholder="Ej: Cien años de soledad"
-                    value={newBookTitle}
-                    onChange={(e) => setNewBookTitle(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>{t('label_id_data')}</label>
-                  <div style={{ display: 'flex', gap: '1rem' }}>
-                    <div
-                      style={{
-                        flex: 1,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '0.5rem',
-                      }}
-                    >
-                      <label style={{ fontSize: '0.8rem' }}>ISBN</label>
-                      <input
-                        type="text"
-                        placeholder="Ej: 978-3-16-148410-0"
-                        value={newBookIsbn}
-                        onChange={(e) => setNewBookIsbn(e.target.value)}
-                        required
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div
-                  style={{
-                    flex: 1,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '0.5rem',
-                  }}
-                >
-                  <label style={{ fontSize: '0.8rem' }}>{t('label_author')}</label>
-                  <input
-                    type="text"
-                    placeholder="Ej: Gabriel García Márquez"
-                    value={newBookAuthor}
-                    onChange={(e) => setNewBookAuthor(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label>{t('label_book_state')}</label>
-                  <select value={newBookState} onChange={(e) => setNewBookState(e.target.value)}>
-                    <option value="nuevo">{t('state_new')}</option>
-                    <option value="como_nuevo">{t('state_like_new')}</option>
-                    <option value="buen_estado">{t('state_good')}</option>
-                    <option value="usado">{t('state_used')}</option>
-                  </select>
-                </div>
-
-                <div className="form-group">
-                  <label>{t('label_price')}</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    placeholder="Ej: 15.50"
-                    value={newBookPrice}
-                    onChange={(e) => setNewBookPrice(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>{t('home_book_upload_photo')}</label>
-                  <input
-                    type="file"
-                    src="./"
-                    id="imageSelector"
-                    alt="Subir foto"
-                    /* T-T Por favor comprobad el codigo antes de subir al repositorio, lo he tenido que volver a añadir. */
-                    onChange={(e) => {
-                      const file = e.target.files![0];
-                      //toast(JSON.stringify(path)); // aqui no aparece
-                      //console.log(path);
-                      const formData: FormData = new FormData();
-                      formData.append('file', file);
-                      // no es lo mejor ponerlo asi, la subida de la imagen tendria que hacerlo al Subir el Libro
-                      ImageService.upload(formData)
-                        .then((url) => setImageUrl(url!))
-                        .catch((error) => {
-                          toast.error(JSON.stringify(error));
-                        });
-                    }}
-                  />
-                </div>
-
-                {/* <button  // repetido? Creo que si, en la Linea 211 ya hay algo asi. Confuso? Si.
-                  className="submit-btn"
-                  disabled={!newBookIsbn || !newBookPrice}
-                  onClick={async () => {
-                    setOnlyISBN(false);
-                    await LibroService.addLibroListing()
-                    setIsAddBookModalOpen(false);
-                  }}
-                >
-                  {t('submit_book_btn')}
-                </button> */}
-                {/* <input
-                  type="submit"
-                  className="submit-btn"
-                  value={t('submit_book_btn')}
-                  onClick={(e) => handleAddBookSubmit(e)}
-                /> */}
-                <AddingBookInput />
               </div>
-            ) : (
-              <form className="add-book-form">
-                <div className="form-group">
-                  <label>{t('label_operation_type')}</label>
-                  <div className="radio-group">
-                    <label className="radio-label">
-                      <input
-                        type="radio"
-                        value="VENTA"
-                        checked={newBookType === 'VENTA'}
-                        onChange={(e) => setNewBookType(e.target.value)}
-                      />
-                      {t('for_sale')}
-                    </label>
-                    <label className="radio-label">
-                      <input
-                        type="radio"
-                        value="ALQUILER"
-                        checked={newBookType === 'ALQUILER'}
-                        onChange={(e) => setNewBookType(e.target.value)}
-                      />
-                      {t('for_rent')}
-                    </label>
-                  </div>
-                </div>
+              {/* He vuelto a poner estos campos obligatorios, no lo volveis a borrar indiscriminadamente. */}
+              <div className="form-group">
+                <label>{t('label_book_title')}</label>
+                <input
+                  type="text"
+                  placeholder="Ej: Cien años de soledad"
+                  value={newBookTitle}
+                  onChange={(e) => setNewBookTitle(e.target.value)}
+                  required
+                />
+              </div>
 
-                <div className="form-group">
-                  <label>{t('label_id_data')}</label>
-                  <div style={{ display: 'flex', gap: '1rem' }}>
-                    <div
-                      style={{
-                        flex: 1,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '0.5rem',
-                      }}
+              <div className="form-group">
+                <label>{t('label_id_data')}</label>
+                <div style={{ display: 'flex', gap: '1rem' }}>
+                  <div
+                    style={{
+                      flex: 1,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '0.5rem',
+                    }}
+                  >
+                    <label style={{ fontSize: '0.8rem' }}>ISBN</label>
+                    <input
+                      type="text"
+                      placeholder="Ej: 978-3-16-148410-0"
+                      value={newBookIsbn}
+                      onChange={(e) => setNewBookIsbn(e.target.value)}
+                      required
+                    />
+                    <button
+                      type="button"
+                      className="isbn-search-btn"
+                      onClick={handleSearchBookByIsbn}
+                      disabled={isIsbnLookupLoading || !newBookIsbn.trim()}
                     >
-                      <label style={{ fontSize: '0.8rem' }}>ISBN</label>
-                      <input
-                        type="text"
-                        placeholder="Ej: 978-3-16-148410-0"
-                        value={newBookIsbn}
-                        onChange={(e) => setNewBookIsbn(e.target.value)}
-                        required
-                      />
-                    </div>
+                      {isIsbnLookupLoading ? 'Buscando...' : 'Buscar por ISBN'}
+                    </button>
                   </div>
                 </div>
+              </div>
+              <div
+                style={{
+                  flex: 1,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.5rem',
+                }}
+              >
+                <label style={{ fontSize: '0.8rem' }}>{t('label_author')}</label>
+                <input
+                  type="text"
+                  placeholder="Ej: Gabriel García Márquez"
+                  value={newBookAuthor}
+                  onChange={(e) => setNewBookAuthor(e.target.value)}
+                  required
+                />
+                <small className="form-hint">
+                  Se autocompleta al buscar por ISBN. Si hay varios autores, separalos por comas.
+                </small>
+                {parsedBookAuthors.length > 0 && (
+                  <div className="authors-preview-list" aria-label="Autores detectados">
+                    {parsedBookAuthors.map((author) => (
+                      <span className="author-chip" key={author}>
+                        {author}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className="form-group">
+                <label>{t('label_book_state')}</label>
+                <select value={newBookState} onChange={(e) => setNewBookState(e.target.value)}>
+                  <option value="nuevo">{t('state_new')}</option>
+                  <option value="como_nuevo">{t('state_like_new')}</option>
+                  <option value="buen_estado">{t('state_good')}</option>
+                  <option value="usado">{t('state_used')}</option>
+                </select>
+              </div>
 
-                {/* <button
-                  className="submit-btn"
-                  disabled={!newBookIsbn || !newBookPrice}
-                  onClick={() => {
-                    setOnlyISBN(false);
-                    LibroService.addLibroByIsbn(newBookIsbn);
-                    setIsAddBookModalOpen(false);
+              <div className="form-group">
+                <label>{t('label_price')}</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  placeholder="Ej: 15.50"
+                  value={newBookPrice}
+                  onChange={(e) => setNewBookPrice(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <div className={`book-cover-preview ${imageUrl ? 'has-cover' : ''}`}>
+                  {imageUrl ? (
+                    <img src={imageUrl} alt="Vista previa de la portada del libro" />
+                  ) : (
+                    <div className="book-cover-preview-empty">Sin portada</div>
+                  )}
+                  <div className="book-cover-preview-info">
+                    <strong>Vista previa de portada</strong>
+                    <span className={hasOpenLibraryCover ? 'cover-status-ready' : ''}>
+                      {coverStatusText}
+                    </span>
+                    <small>
+                      {hasOpenLibraryCover
+                        ? 'Se subira automaticamente a Cloudinary al guardar el libro.'
+                        : imageUrl
+                          ? 'Esta portada se guardara junto con el libro.'
+                          : 'Busca por ISBN o sube una portada manualmente.'}
+                    </small>
+                  </div>
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label>{t('home_book_upload_photo')}</label>
+                <input
+                  type="file"
+                  src="./"
+                  id="imageSelector"
+                  alt="Subir foto"
+                  /* T-T Por favor comprobad el codigo antes de subir al repositorio, lo he tenido que volver a añadir. */
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) {
+                      return;
+                    }
+                    //toast(JSON.stringify(path)); // aqui no aparece
+                    //console.log(path);
+                    const formData: FormData = new FormData();
+                    formData.append('file', file);
+                    // no es lo mejor ponerlo asi, la subida de la imagen tendria que hacerlo al Subir el Libro
+                    ImageService.upload(formData)
+                      .then((url) => {
+                        setImageUrl(url!);
+                        toast.success('Portada subida a Cloudinary.');
+                      })
+                      .catch((error) => {
+                        toast.error(JSON.stringify(error));
+                      });
                   }}
-                >
-                  {t('submit_book_btn')}
-                </button> */}
-                <AddingBookInputByIsbn />
-              </form>
-            )}
+                />
+              </div>
+
+              <AddingBookInput />
+            </div>
           </div>
         </div>
       )}

@@ -229,6 +229,28 @@
   box-shadow: 0 12px 24px rgba(61, 26, 60, 0.1);
 }
 
+.mybooks-card-cover {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  max-height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.85rem;
+  border: 1px solid var(--outline);
+  background: var(--code-bg);
+  color: var(--text);
+  overflow: hidden;
+  font-weight: 700;
+}
+
+.mybooks-card-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
 .card-top {
   display: flex;
   justify-content: space-between;

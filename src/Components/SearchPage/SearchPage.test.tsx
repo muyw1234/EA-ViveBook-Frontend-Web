@@ -30,7 +30,7 @@ describe('SearchPage', () => {
 
     renderSearchPage();
 
-    const searchInput = await screen.findByPlaceholderText(/busca libros/i);
+    const searchInput = await screen.findByPlaceholderText(/buscar libros/i);
     await user.clear(searchInput);
     await user.type(searchInput, 'Usuario');
     await user.click(screen.getByRole('button', { name: /buscar/i }));

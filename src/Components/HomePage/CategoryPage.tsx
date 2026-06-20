@@ -18,11 +18,12 @@ const CategoryPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [limit] = useState<number>(6);
   const [hasMore, setHasMore] = useState<boolean>(true);
+  const [excludeOwnBooks, setExcludeOwnBooks] = useState(false);
 
   useEffect(() => {
     setCurrentPage(1);
     setHasMore(true);
-  }, [type, timeFilter]);
+  }, [type, timeFilter, excludeOwnBooks]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -31,7 +32,12 @@ const CategoryPage: React.FC = () => {
 
         if (type === 'rentals' || type === 'sales') {
           const backendType = type === 'rentals' ? 'ALQUILER' : 'VENTA';
-          const response = await LibroService.getAllLibros(currentPage, limit, backendType);
+          const response = await LibroService.getAllLibros(
+            currentPage,
+            limit,
+            backendType,
+            excludeOwnBooks,
+          );
           setItems(response);
           setHasMore(response.length === limit);
         } else if (type === 'events') {
@@ -50,7 +56,7 @@ const CategoryPage: React.FC = () => {
     };
 
     fetchData();
-  }, [type, currentPage, limit, timeFilter]);
+  }, [type, currentPage, limit, timeFilter, excludeOwnBooks]);
 
   const handleNextPage = () => {
     if (hasMore) setCurrentPage((prev) => prev + 1);
@@ -66,6 +72,8 @@ const CategoryPage: React.FC = () => {
     pointerEvents: isDisabled ? 'none' : 'auto',
   });
 
+  const isBookCategory = type === 'rentals' || type === 'sales';
+
   if (loading) {
     return <div className="home-container">{t('category_page.loading')}</div>;
   }
@@ -78,6 +86,36 @@ const CategoryPage: React.FC = () => {
         {type === 'events' && t('category_page.title_events')}
         {type === 'posts' && t('category_page.title_posts')}
       </h1>
+
+      {isBookCategory && (
+        <div className="category-controls">
+          <div className="category-switcher" aria-label="Cambiar categoria de libros">
+            <button
+              type="button"
+              className={`category-switch-btn ${type === 'sales' ? 'active' : ''}`}
+              onClick={() => navigate('/categorias/sales')}
+            >
+              {t('category_page.title_sales')}
+            </button>
+            <button
+              type="button"
+              className={`category-switch-btn ${type === 'rentals' ? 'active' : ''}`}
+              onClick={() => navigate('/categorias/rentals')}
+            >
+              {t('category_page.title_rentals')}
+            </button>
+          </div>
+
+          <label className="exclude-own-filter">
+            <input
+              type="checkbox"
+              checked={excludeOwnBooks}
+              onChange={(event) => setExcludeOwnBooks(event.target.checked)}
+            />
+            <span>{t('category_page.exclude_own_books')}</span>
+          </label>
+        </div>
+      )}
 
       {/* --- SELECTOR DE EVENTOS PRÓXIMOS / EXPIRADOS --- */}
       {type === 'events' && (
@@ -143,7 +181,13 @@ const CategoryPage: React.FC = () => {
                   onClick={() => navigate(`/libros/${item._id}`)}
                   style={{ cursor: 'pointer' }}
                 >
-                  <div className="card-image-placeholder">📚</div>
+                  <div className={`category-book-image ${item.imageUrl ? 'has-image' : ''}`}>
+                    {item.imageUrl ? (
+                      <img src={item.imageUrl} alt={item.title || 'Portada del libro'} />
+                    ) : (
+                      <span>Sin imagen</span>
+                    )}
+                  </div>
                   <div className="card-info">
                     <span className="card-title">{item.title || item.description}</span>
 

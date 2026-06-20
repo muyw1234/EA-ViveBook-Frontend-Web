@@ -226,8 +226,15 @@ const BookDetail: React.FC = () => {
       </button>
 
       <section className="book-detail-layout">
-        <div className="book-detail-cover" aria-label={t('detail_cover_alt')}>
-          <span>{t('detail_cover_text')}</span>
+        <div
+          className={`book-detail-cover ${book.imageUrl ? 'has-image' : ''}`}
+          aria-label={t('detail_cover_alt')}
+        >
+          {book.imageUrl ? (
+            <img src={book.imageUrl} alt={book.title || t('detail_cover_alt')} />
+          ) : (
+            <span>{t('detail_cover_text')}</span>
+          )}
         </div>
 
         <div className="book-detail-info">

@@ -10,6 +10,11 @@ export interface Token {
   signature: string;
 }
 
+export interface RemoteImageUploadResult {
+  imageUrl: string;
+  publicId?: string;
+}
+
 /**
  * @brief Obtiene el token para subir la imagen a cloudinary
  * @returns El token
@@ -52,4 +57,9 @@ async function upload(data: FormData): Promise<string | undefined> {
   }
 }
 
-export default { upload };
+async function uploadRemote(imageUrl: string): Promise<string> {
+  const response = await api.post<RemoteImageUploadResult>('/image/upload-remote', { imageUrl });
+  return response.data.imageUrl;
+}
+
+export default { upload, uploadRemote };

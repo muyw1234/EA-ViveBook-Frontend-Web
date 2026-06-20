@@ -1,15 +1,25 @@
 import api from '../../api';
 import type ILibro from '../../Models/Libro';
 import { normalizeLibro, normalizeLibros } from '../../utils/libro';
+import { unwrapApiData } from '../../utils/apiResponse';
 //import Matomo from './Matomo';
+
+export type LibroMetadataByIsbn = {
+  isbn: string;
+  title: string;
+  authors: string[];
+  imageUrl?: string;
+};
 
 const getAllLibros = async (
   page: number = 1,
   limit: number = 10,
   type?: string,
+  excludeOwn: boolean = false,
 ): Promise<ILibro[]> => {
   try {
-    const response = await api.get('/libros', { params: { page, limit, type } });
+    const endpoint = type ? `/libros/type/${type}` : '/libros';
+    const response = await api.get(endpoint, { params: { page, limit, excludeOwn } });
     return normalizeLibros(response.data);
   } catch (error) {
     console.error('Error fetching books:', error);
@@ -35,6 +45,16 @@ async function addLibroByIsbn(isbn: string) {
     return normalizeLibro(response.data);
   } catch (error) {
     console.error('Error adding book by ISBN:', error);
+    throw error;
+  }
+}
+
+async function getLibroMetadataByIsbn(isbn: string): Promise<LibroMetadataByIsbn> {
+  try {
+    const response = await api.get(`/libros/isbn/${isbn}/metadata`);
+    return unwrapApiData<LibroMetadataByIsbn>(response.data);
+  } catch (error) {
+    console.error('Error fetching book metadata by ISBN:', error);
     throw error;
   }
 }
@@ -72,5 +92,6 @@ export default {
   getLibroById,
   addLibroListing,
   addLibroByIsbn,
+  getLibroMetadataByIsbn,
   searchLibro,
 };

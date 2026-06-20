@@ -12,6 +12,10 @@ type RawAuthor =
 type RawLibro = Omit<Partial<ILibro>, 'authors'> & {
   authors?: RawAuthor[];
   author?: string;
+  coverUrl?: string;
+  image?: string;
+  imagen?: string;
+  portada?: string;
   price?: string | number;
   state?: string;
   status?: string;
@@ -63,6 +67,9 @@ export const normalizeLibro = (payload: unknown): ILibro => {
     type: raw?.type === 'ALQUILER' ? 'ALQUILER' : 'VENTA',
     precio: toNumber(raw?.precio ?? raw?.price) ?? 0,
     estado: String(raw?.estado || raw?.state || raw?.status || ''),
+    imageUrl: String(
+      raw?.imageUrl || raw?.imagen || raw?.image || raw?.coverUrl || raw?.portada || '',
+    ),
   };
 };
 
