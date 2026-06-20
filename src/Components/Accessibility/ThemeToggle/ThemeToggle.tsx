@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export default function ThemeToggle() {
+  const { t } = useTranslation();
   const [highContrast, setHighContrast] = useState<boolean>(() => {
     return localStorage.getItem('high-contrast') === 'true';
   });
@@ -19,9 +21,11 @@ export default function ThemeToggle() {
     <button
       onClick={() => setHighContrast(!highContrast)}
       aria-pressed={highContrast}
-      style={{ padding: '8px 12px', cursor: 'pointer' }}
+      className="a11y-toggle-btn"
     >
-      {highContrast ? 'Disable High Contrast' : 'Enable High Contrast Mode'}
+      {highContrast
+        ? `${t('close') || 'Desactivar'} ${t('toggle_high_contrast')}`
+        : t('toggle_high_contrast')}
     </button>
   );
 }

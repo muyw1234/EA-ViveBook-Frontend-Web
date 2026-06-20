@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import api from '../../api';
 import { getApiCollection, unwrapApiData } from '../../utils/apiResponse';
 import './Discover.css';
 
+// Mantenemos las claves base idénticas para mapear con el JSON de i18n
 const ALL_CATEGORIES = [
   'Terror',
   'Misterio',
@@ -30,6 +32,8 @@ const PREDEFINED_AUTHORS = [
 
 const Discover: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [users, setUsers] = useState<any[]>([]);
@@ -49,7 +53,6 @@ const Discover: React.FC = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      // Fetch profile
       const profileRes = await api.get('/auth/profile');
       const profile = unwrapApiData<any>(profileRes.data);
       setCurrentUser(profile);
@@ -57,10 +60,9 @@ const Discover: React.FC = () => {
       setFavoriteCategories(profile.favoriteCategories || []);
       setFollowingUsers((profile.followingUsers || []).map((u: any) => u._id || u));
 
-      // Fetch users and authors
       const [usersRes, authorsRes] = await Promise.all([
         api.get('/usuarios'),
-        api.get('/autores/all?limit=20').catch(() => ({ data: [] })), // fallback if failed
+        api.get('/autores/all?limit=20').catch(() => ({ data: [] })),
       ]);
 
       if (usersRes.data) {
@@ -102,7 +104,7 @@ const Discover: React.FC = () => {
       navigate('/');
     } catch (error) {
       console.error('Error saving discover preferences:', error);
-      setMessage('Error al guardar tus preferencias');
+      setMessage(t('discover.error_save'));
     }
   };
 
@@ -119,7 +121,7 @@ const Discover: React.FC = () => {
       setFavoriteAuthors((prev) => prev.filter((a) => a !== authorName));
     } else {
       if (favoriteAuthors.length >= 5) {
-        alert('Límite de autores alcanzado. Puedes seleccionar hasta 5 autores.');
+        alert(t('discover.alert_limit'));
         return;
       }
       setFavoriteAuthors((prev) => [...prev, authorName]);
@@ -138,7 +140,7 @@ const Discover: React.FC = () => {
     return (
       <div className="discover-loading">
         <div className="spinner"></div>
-        <p>Cargando descubrimientos...</p>
+        <p>{t('discover.loading')}</p>
       </div>
     );
   }
@@ -146,21 +148,16 @@ const Discover: React.FC = () => {
   return (
     <div className="discover-container">
       <div className="discover-card">
-        <h1 className="discover-title">Descubre ViveBook</h1>
-        <p className="discover-subtitle">
-          Personaliza tu experiencia seleccionando las categorías, autores y lectores que más te
-          interesen.
-        </p>
+        <h1 className="discover-title">{t('discover.title')}</h1>
+        <p className="discover-subtitle">{t('discover.subtitle')}</p>
 
         {message && <div className="discover-message error">{message}</div>}
 
         <div className="discover-sections-grid">
           {/* Categories Section */}
           <div className="discover-section">
-            <h2 className="discover-section-title">Mis Categorías Favoritas</h2>
-            <p className="discover-section-desc">
-              Selecciona los géneros literarios que más te gusta leer.
-            </p>
+            <h2 className="discover-section-title">{t('discover.categories_title')}</h2>
+            <p className="discover-section-desc">{t('discover.categories_desc')}</p>
             <div className="categories-grid">
               {ALL_CATEGORIES.map((cat) => {
                 const isSelected = favoriteCategories.includes(cat);
@@ -170,7 +167,8 @@ const Discover: React.FC = () => {
                     onClick={() => toggleCategory(cat)}
                     className={`category-chip ${isSelected ? 'selected' : ''}`}
                   >
-                    {cat}
+                    {/* Traduce la categoría dinámicamente dinámicamente usando su clave interna */}
+                    {t(`discover.categories.${cat}`)}
                   </button>
                 );
               })}
@@ -179,13 +177,13 @@ const Discover: React.FC = () => {
 
           {/* Authors Section */}
           <div className="discover-section">
-            <h2 className="discover-section-title">Autores que me interesan</h2>
-            <p className="discover-section-desc">Sigue a tus autores favoritos (máximo 5).</p>
+            <h2 className="discover-section-title">{t('discover.authors_title')}</h2>
+            <p className="discover-section-desc">{t('discover.authors_desc')}</p>
 
             <div className="author-input-wrapper">
               <input
                 type="text"
-                placeholder="Añadir autor manualmente..."
+                placeholder={t('discover.author_placeholder')}
                 value={newAuthor}
                 onChange={(e) => setNewAuthor(e.target.value)}
                 className="discover-input"
@@ -199,7 +197,7 @@ const Discover: React.FC = () => {
                 }}
                 className="discover-add-btn"
               >
-                Añadir
+                {t('discover.btn_add')}
               </button>
             </div>
 
@@ -218,7 +216,7 @@ const Discover: React.FC = () => {
                       onClick={() => toggleAuthor(authorName)}
                       className={`follow-btn ${isFollowing ? 'following' : ''}`}
                     >
-                      {isFollowing ? 'Siguiendo' : 'Seguir'}
+                      {isFollowing ? t('discover.btn_following') : t('discover.btn_follow')}
                     </button>
                   </div>
                 );
@@ -228,10 +226,8 @@ const Discover: React.FC = () => {
 
           {/* Users Section */}
           <div className="discover-section">
-            <h2 className="discover-section-title">Comunidad de Lectores</h2>
-            <p className="discover-section-desc">
-              Conecta con otros entusiastas de la lectura en ViveBook.
-            </p>
+            <h2 className="discover-section-title">{t('discover.community_title')}</h2>
+            <p className="discover-section-desc">{t('discover.community_desc')}</p>
 
             <div className="items-list">
               {users.length > 0 ? (
@@ -254,17 +250,17 @@ const Discover: React.FC = () => {
                           onClick={() => toggleUser(u._id)}
                           className={`follow-btn ${isFollowing ? 'following' : ''}`}
                         >
-                          {isFollowing ? 'Siguiendo' : 'Seguir'}
+                          {isFollowing ? t('discover.btn_following') : t('discover.btn_follow')}
                         </button>
                         <button onClick={() => navigate(`/profile/${u._id}`)} className="view-btn">
-                          Ver Perfil
+                          {t('discover.btn_view_profile')}
                         </button>
                       </div>
                     </div>
                   );
                 })
               ) : (
-                <p className="empty-text">No hay otros usuarios registrados actualmente.</p>
+                <p className="empty-text">{t('discover.community_empty')}</p>
               )}
             </div>
           </div>
@@ -272,7 +268,7 @@ const Discover: React.FC = () => {
 
         <div className="discover-footer">
           <button onClick={handleSaveAndContinue} className="finish-btn">
-            Guardar y finalizar
+            {t('discover.btn_finish')}
           </button>
         </div>
       </div>

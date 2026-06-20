@@ -1,6 +1,7 @@
 import api from '../../api';
 import type ILibro from '../../Models/Libro';
 import { normalizeLibro, normalizeLibros } from '../../utils/libro';
+//import Matomo from './Matomo';
 
 const getAllLibros = async (
   page: number = 1,
@@ -28,7 +29,9 @@ const getLibroById = async (id: string) => {
 
 async function addLibroByIsbn(isbn: string) {
   try {
+    //console.log(`Trying to create book with ISBN.`);
     const response = await api.get(`/libros/isbn/${isbn}`);
+    //console.log(`${JSON.stringify(response.data)}`);
     return normalizeLibro(response.data);
   } catch (error) {
     console.error('Error adding book by ISBN:', error);

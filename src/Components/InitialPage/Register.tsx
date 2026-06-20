@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import UsuarioService from '../Services/Usuario';
 import { Link, useNavigate } from 'react-router-dom';
-import { environment } from '../../config/environment';
+import { useTranslation } from 'react-i18next';
+import UsuarioService from '../Services/Usuario';
 import './Auth.css';
 
 const Register: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
@@ -76,6 +77,10 @@ const Register: React.FC = () => {
   const [mockEmail, setMockEmail] = useState('');
   const [mockLoading, setMockLoading] = useState(false);
 
+  // Helper para capitalizar el nombre del proveedor
+  const getProviderName = (provider: string) =>
+    provider.charAt(0).toUpperCase() + provider.slice(1);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
@@ -91,11 +96,11 @@ const Register: React.FC = () => {
     try {
       const newUser = await UsuarioService.createUser(formData);
       console.log('Usuario creado:', newUser);
-      setMessage('¡Registro exitoso! Ya puedes iniciar sesión.');
+      setMessage(t('register.success_message'));
       setFormData({ name: '', email: '', password: '' });
       setTimeout(() => navigate('/'), 1500);
     } catch (error: any) {
-      const errorMsg = error.response?.data?.message || 'Error al registrar usuario';
+      const errorMsg = error.response?.data?.message || t('register.error_default');
       setMessage(`Error: ${errorMsg}`);
     } finally {
       setLoading(false);
@@ -115,8 +120,9 @@ const Register: React.FC = () => {
     setMessage('');
 
     try {
-      const name =
-        mockName || (mockProvider === 'google' ? 'Usuario de Google' : 'Usuario de Apple');
+      const providerName = getProviderName(mockProvider);
+      const name = mockName || t('register.mock.default_user', { provider: providerName });
+
       // Format: mock_email_name_sub
       const token = `mock_${mockEmail}_${encodeURIComponent(name)}_${mockEmail.split('@')[0]}`;
 
@@ -129,7 +135,7 @@ const Register: React.FC = () => {
       setShowMockModal(false);
       navigate('/');
     } catch (err: any) {
-      const errorMsg = err.response?.data?.message || 'Error en inicio de sesión social';
+      const errorMsg = err.response?.data?.message || t('register.error_social');
       setMessage(`Error: ${errorMsg}`);
       console.error(err);
     } finally {
@@ -140,12 +146,12 @@ const Register: React.FC = () => {
   return (
     <div className="auth-container">
       <div className="auth-card">
-        <h2 className="auth-title">Únete a ViveBook</h2>
-        <p className="auth-subtitle">Crea tu cuenta y empieza a leer hoy.</p>
+        <h2 className="auth-title">{t('register.title')}</h2>
+        <p className="auth-subtitle">{t('register.subtitle')}</p>
 
         <form className="auth-form" onSubmit={handleSubmit}>
           <div className="input-group">
-            <label>Nombre de Usuario</label>
+            <label>{t('register.username')}</label>
             <input
               type="text"
               name="name"
@@ -153,12 +159,12 @@ const Register: React.FC = () => {
               onChange={handleChange}
               required
               className="auth-input"
-              placeholder="Ej: Laura Pérez"
+              placeholder={t('register.username_placeholder')}
             />
           </div>
 
           <div className="input-group">
-            <label>Email</label>
+            <label>{t('register.email')}</label>
             <input
               type="email"
               name="email"
@@ -166,12 +172,12 @@ const Register: React.FC = () => {
               onChange={handleChange}
               required
               className="auth-input"
-              placeholder="laura@ejemplo.com"
+              placeholder={t('register.email_placeholder')}
             />
           </div>
 
           <div className="input-group">
-            <label>Contraseña</label>
+            <label>{t('register.password')}</label>
             <input
               type="password"
               name="password"
@@ -179,63 +185,55 @@ const Register: React.FC = () => {
               onChange={handleChange}
               required
               className="auth-input"
-              placeholder="Mínimo 6 caracteres"
+              placeholder={t('register.password_placeholder')}
             />
           </div>
 
           <button type="submit" className="auth-button" disabled={loading}>
-            {loading ? 'Registrando...' : 'Crear cuenta'}
+            {loading ? t('register.loading_btn') : t('register.submit_btn')}
           </button>
 
           <div style={{ marginTop: '1rem', fontSize: '0.9rem', color: '#64748b' }}>
-            ¿Ya tienes cuenta?{' '}
+            {t('register.have_account')}{' '}
             <Link
               to="/"
               style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: '600' }}
             >
-              Inicia sesión aquí
+              {t('register.login_here')}
             </Link>
           </div>
         </form>
 
-        <div className="auth-divider">o registrarse con</div>
+        <div className="auth-divider">{t('register.divider')}</div>
 
-        <div
-          className="social-buttons"
-          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}
-        >
-          {environment.googleClientId ? (
-            <div
-              id="google-signup-button"
-              style={{ width: '100%', display: 'flex', justifyContent: 'center' }}
-            ></div>
-          ) : (
-            <button
-              type="button"
-              onClick={() => handleSocialClick('google')}
-              className="social-button google"
-            >
-              <svg className="social-icon" viewBox="0 0 24 24">
-                <path
-                  fill="#4285F4"
-                  d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v3.92h6.69c-.29 1.5-.1.88-1.54 2.11v2.54h2.49c1.45-1.34 2.29-3.3 2.29-5.65z"
-                />
-                <path
-                  fill="#34A853"
-                  d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-2.49-2.54c-.69.46-1.57.74-2.55.74-1.95 0-3.6-1.32-4.19-3.1H3.29v2.6C5.27 20.85 8.43 24 12 24z"
-                />
-                <path
-                  fill="#FBBC05"
-                  d="M7.81 16.19c-.15-.46-.24-.95-.24-1.46s.09-1 .24-1.46v-2.6H3.29C2.47 12.3 2 14.1 2 16s.47 3.7 1.29 5.27l4.52-2.6z"
-                />
-                <path
-                  fill="#EA4335"
-                  d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.43-3.43C17.95 1.19 15.24 0 12 0 8.43 0 5.27 3.15 3.29 7.18l4.52 2.6c.59-1.78 2.24-3.1 4.19-3.1z"
-                />
-              </svg>
-              Continuar con Google (Prueba)
-            </button>
-          )}
+        <div className="social-buttons">
+          <button onClick={() => handleSocialClick('google')} className="social-button google">
+            <svg className="social-icon" viewBox="0 0 24 24">
+              <path
+                fill="#4285F4"
+                d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v3.92h6.69c-.29 1.5-.1.88-1.54 2.11v2.54h2.49c1.45-1.34 2.29-3.3 2.29-5.65z"
+              />
+              <path
+                fill="#34A853"
+                d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-2.49-2.54c-.69.46-1.57.74-2.55.74-1.95 0-3.6-1.32-4.19-3.1H3.29v2.6C5.27 20.85 8.43 24 12 24z"
+              />
+              <path
+                fill="#FBBC05"
+                d="M7.81 16.19c-.15-.46-.24-.95-.24-1.46s.09-1 .24-1.46v-2.6H3.29C2.47 12.3 2 14.1 2 16s.47 3.7 1.29 5.27l4.52-2.6z"
+              />
+              <path
+                fill="#EA4335"
+                d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.43-3.43C17.95 1.19 15.24 0 12 0 8.43 0 5.27 3.15 3.29 7.18l4.52 2.6c.59-1.78 2.24-3.1 4.19-3.1z"
+              />
+            </svg>
+            {t('register.continue_with', { provider: 'Google' })}
+          </button>
+          <button onClick={() => handleSocialClick('apple')} className="social-button apple">
+            <svg className="social-icon" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.82M15.97 4.17c.66-.81 1.11-1.93.99-3.06-.96.04-2.13.64-2.82 1.45-.6.69-1.12 1.83-.98 2.94 1.07.08 2.15-.52 2.81-1.33z" />
+            </svg>
+            {t('register.continue_with', { provider: 'Apple' })}
+          </button>
         </div>
 
         {message && (
@@ -249,17 +247,17 @@ const Register: React.FC = () => {
       {showMockModal && (
         <div className="mock-modal-overlay">
           <div className="mock-modal">
-            <h3>Registrarse con {mockProvider === 'google' ? 'Google' : 'Apple'} (Prueba)</h3>
-            <p>Introduce los datos para simular el registro con red social.</p>
+            <h3>{t('register.mock.title', { provider: getProviderName(mockProvider) })}</h3>
+            <p>{t('register.mock.subtitle')}</p>
             <form
               onSubmit={handleSocialSubmit}
               style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}
             >
               <div className="input-group">
-                <label>Nombre Completo</label>
+                <label>{t('register.mock.full_name')}</label>
                 <input
                   type="text"
-                  placeholder="Ej: Marc Test"
+                  placeholder={t('register.mock.full_name_placeholder')}
                   value={mockName}
                   onChange={(e) => setMockName(e.target.value)}
                   className="auth-input"
@@ -267,10 +265,10 @@ const Register: React.FC = () => {
                 />
               </div>
               <div className="input-group">
-                <label>Email de la cuenta</label>
+                <label>{t('register.mock.account_email')}</label>
                 <input
                   type="email"
-                  placeholder="ejemplo@correo.com"
+                  placeholder={t('register.mock.account_email_placeholder')}
                   value={mockEmail}
                   onChange={(e) => setMockEmail(e.target.value)}
                   className="auth-input"
@@ -284,7 +282,7 @@ const Register: React.FC = () => {
                   className="auth-button"
                   style={{ background: '#cbd5e1', color: '#334155', flex: 1, boxShadow: 'none' }}
                 >
-                  Cancelar
+                  {t('register.mock.cancel')}
                 </button>
                 <button
                   type="submit"
@@ -292,7 +290,7 @@ const Register: React.FC = () => {
                   className="auth-button"
                   style={{ flex: 2, margin: 0 }}
                 >
-                  {mockLoading ? 'Cargando...' : 'Registrar'}
+                  {mockLoading ? t('register.mock.loading') : t('register.mock.submit')}
                 </button>
               </div>
             </form>

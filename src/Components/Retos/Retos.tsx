@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import RetoService from '../Services/Reto';
 import type IReto from '../../Models/Reto';
 import { calculateUserLevel } from '../../utils/levelHelper';
@@ -7,16 +8,8 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './Retos.css';
 
-const TYPE_TRANSLATIONS: { [key: string]: string } = {
-  COMPRAR_LIBROS: 'Comprar libros',
-  ALQUILAR_LIBROS: 'Alquilar libros',
-  SEGUIR_USUARIOS: 'Seguir usuarios',
-  RECIBIR_VALORACIONES: 'Recibir valoraciones',
-  ASISTIR_EVENTOS: 'Asistir a eventos',
-  SUBIR_LIBROS: 'Subir libros',
-};
-
 export default function Retos() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [retos, setRetos] = useState<IReto[]>([]);
   const [loading, setLoading] = useState(true);
@@ -32,11 +25,11 @@ export default function Retos() {
     } catch (err: any) {
       console.error('Error fetching user retos:', err);
       if (err.response?.status === 401) {
-        toast.error('Sesión expirada o no iniciada. Redirigiendo...');
+        toast.error(t('retos.messages.sessionExpired'));
         setTimeout(() => navigate('/login'), 1500);
       } else {
-        setError('No se pudieron cargar tus retos en este momento.');
-        toast.error('Error al cargar los retos');
+        setError(t('retos.messages.loadError'));
+        toast.error(t('retos.messages.toastError'));
       }
     } finally {
       setLoading(false);
@@ -101,7 +94,7 @@ export default function Retos() {
     return (
       <div className="retos-loading">
         <div className="spinner"></div>
-        <p>Cargando tus retos y progreso...</p>
+        <p>{t('retos.loading')}</p>
       </div>
     );
   }
@@ -109,10 +102,10 @@ export default function Retos() {
   if (error) {
     return (
       <div className="retos-error">
-        <h3>Error al cargar</h3>
+        <h3>{t('retos.errorTitle')}</h3>
         <p>{error}</p>
         <button onClick={fetchRetos} className="retry-btn">
-          Reintentar
+          {t('retos.retryBtn')}
         </button>
       </div>
     );
@@ -128,17 +121,13 @@ export default function Retos() {
             <span className="level-medal-emoji">{userLevel.medal || '❔'}</span>
           </div>
           <div className="level-info-details">
-            <span className="level-label">Nivel Actual</span>
+            <span className="level-label">{t('retos.levelLabel')}</span>
             <h2 className="level-title">{userLevel.levelName}</h2>
             <p className="level-desc-text">
-              {userLevel.levelName === 'Oro' &&
-                '¡Felicidades! Has completado todos los retos de la comunidad. ¡Eres una leyenda! 🌟'}
-              {userLevel.levelName === 'Plata' &&
-                '¡Buen trabajo! Has completado la mayoría de los retos. ¡Sigue así! 🚀'}
-              {userLevel.levelName === 'Bronce' &&
-                '¡Vas por muy buen camino! Completa más retos para ascender de nivel. 🌱'}
-              {userLevel.levelName === 'Sin nivel' &&
-                'Completa retos para desbloquear tu primera medalla en la comunidad. 📖'}
+              {userLevel.levelName === 'Oro' && t('retos.levels.oro')}
+              {userLevel.levelName === 'Plata' && t('retos.levels.plata')}
+              {userLevel.levelName === 'Bronce' && t('retos.levels.bronce')}
+              {userLevel.levelName === 'Sin nivel' && t('retos.levels.sinNivel')}
             </p>
           </div>
         </div>
@@ -148,17 +137,17 @@ export default function Retos() {
           <div className="progress-summary-info">
             <div className="progress-stat">
               <span className="stat-value">{completedCount}</span>
-              <span className="stat-label">Completados</span>
+              <span className="stat-label">{t('retos.stats.completed')}</span>
             </div>
             <div className="progress-stat-divider"></div>
             <div className="progress-stat">
               <span className="stat-value">{totalCount}</span>
-              <span className="stat-label">Retos Totales</span>
+              <span className="stat-label">{t('retos.stats.total')}</span>
             </div>
           </div>
           <div className="progress-gauge-wrapper">
             <div className="progress-gauge-label">
-              <span>Progreso de Logros</span>
+              <span>{t('retos.stats.gaugeLabel')}</span>
               <span>{Math.round(overallPercentage)}%</span>
             </div>
             <div className="progress-gauge-bar-bg">
@@ -176,35 +165,33 @@ export default function Retos() {
         <div className="all-completed-banner">
           <span className="celebrate-icon">🎉</span>
           <div className="banner-text">
-            <h3>¡Todos los retos completados!</h3>
-            <p>
-              Has conquistado todos los objetivos disponibles. ¡Próximamente añadiremos más retos!
-            </p>
+            <h3>{t('retos.banner.title')}</h3>
+            <p>{t('retos.banner.desc')}</p>
           </div>
         </div>
       )}
 
       {/* Section Divider & Filters */}
       <div className="challenges-section-header">
-        <h2 className="section-title-retos">Objetivos de la Comunidad</h2>
+        <h2 className="section-title-retos">{t('retos.sectionTitle')}</h2>
         <div className="filter-row">
           <button
             className={`filter-tab ${filter === 'all' ? 'active' : ''}`}
             onClick={() => setFilter('all')}
           >
-            Todos
+            {t('retos.filters.all')}
           </button>
           <button
             className={`filter-tab ${filter === 'pending' ? 'active' : ''}`}
             onClick={() => setFilter('pending')}
           >
-            Pendientes
+            {t('retos.filters.pending')}
           </button>
           <button
             className={`filter-tab ${filter === 'completed' ? 'active' : ''}`}
             onClick={() => setFilter('completed')}
           >
-            Completados
+            {t('retos.filters.completed')}
           </button>
         </div>
       </div>
@@ -214,9 +201,7 @@ export default function Retos() {
         <div className="empty-container">
           <span className="empty-emoji">🔍</span>
           <p className="empty-text">
-            {filter === 'completed'
-              ? 'Todavía no has completado ningún reto.'
-              : 'No se encontraron retos que coincidan con el filtro seleccionado.'}
+            {filter === 'completed' ? t('retos.empty.completed') : t('retos.empty.filtered')}
           </p>
         </div>
       ) : (
@@ -236,15 +221,15 @@ export default function Retos() {
                     {getIcon(reto.type)}
                   </div>
                   {reto.completado ? (
-                    <span className="reto-status-badge completed">Completado</span>
+                    <span className="reto-status-badge completed">{t('retos.card.completed')}</span>
                   ) : (
-                    <span className="reto-status-badge pending">En progreso</span>
+                    <span className="reto-status-badge pending">{t('retos.card.pending')}</span>
                   )}
                 </div>
 
                 <div className="reto-card-body">
                   <span className="reto-card-category">
-                    {TYPE_TRANSLATIONS[reto.type] || reto.type}
+                    {t(`retos.types.${reto.type}`, { defaultValue: reto.type })}
                   </span>
                   <h3 className="reto-card-title">{reto.title}</h3>
                   {reto.description && <p className="reto-card-desc">{reto.description}</p>}
@@ -252,7 +237,7 @@ export default function Retos() {
 
                 <div className="reto-card-footer">
                   <div className="progress-info">
-                    <span className="progress-label">Progreso</span>
+                    <span className="progress-label">{t('retos.card.progress')}</span>
                     <span className="progress-value">
                       {reto.progresoActual} / {reto.objetivo}
                     </span>
@@ -265,7 +250,9 @@ export default function Retos() {
                   </div>
                   {reto.completado && reto.fechaCompletado && (
                     <span className="completion-date">
-                      Completado el {new Date(reto.fechaCompletado).toLocaleDateString()}
+                      {t('retos.card.completedOn', {
+                        date: new Date(reto.fechaCompletado).toLocaleDateString(),
+                      })}
                     </span>
                   )}
                 </div>

@@ -1,7 +1,8 @@
 // import axios from "axios";
 
 import { toast } from 'react-toastify';
-import api, { cloudinary_api } from '../../api';
+import api from '../../api';
+import { environment } from '../../config/environment';
 import axios from 'axios';
 
 export interface Token {
@@ -29,7 +30,7 @@ async function getToken(): Promise<Token | undefined> {
 async function upload(data: FormData): Promise<string | undefined> {
   const token: Token = (await getToken())!;
   // data.append('file',fileObject); // se supone que ya lo tiene
-  data.append('api_key', cloudinary_api);
+  data.append('api_key', environment.cloudinary_api);
   data.append('timestamp', `${token.timestamp}`);
   data.append('signature', token.signature);
   try {

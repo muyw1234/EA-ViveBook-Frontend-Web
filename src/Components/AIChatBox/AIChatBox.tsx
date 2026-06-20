@@ -1,4 +1,5 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState } from 'react'; //useEffect
+import { useTranslation } from 'react-i18next';
 import RecomendacionService, { type RecommendationContextItem } from '../Services/Recomendacion';
 import './AIChatBox.css';
 
@@ -8,24 +9,25 @@ type ChatMessage = {
   content: string;
   context?: RecommendationContextItem[];
   model?: string;
+  isWelcomeMessage?: boolean;
 };
 
-const initialMessages: ChatMessage[] = [
-  {
-    id: 1,
-    role: 'assistant',
-    content:
-      'Hola, soy el asistente de recomendaciones. Dime qué tipo de libro estás buscando y revisaré los libros disponibles.',
-  },
-];
-
 const AIChatBox: React.FC = () => {
-  const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
+  const { t } = useTranslation();
   const [query, setQuery] = useState('');
   const [limit, setLimit] = useState(5);
   const [isLoading, setIsLoading] = useState(false);
   const nextId = useRef(2);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const [messages, setMessages] = useState<ChatMessage[]>(() => [
+    {
+      id: 1,
+      role: 'assistant',
+      content: '',
+      isWelcomeMessage: true,
+    },
+  ]);
 
   const scrollToBottom = () => {
     setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 80);
@@ -65,9 +67,7 @@ const AIChatBox: React.FC = () => {
       ]);
     } catch (error: any) {
       const errorMessage =
-        error.response?.data?.message ||
-        error.response?.data?.error?.message ||
-        'No se pudo contactar con el servicio de IA.';
+        error.response?.data?.message || error.response?.data?.error?.message || t('chat_ai_error');
 
       setMessages((currentMessages) => [
         ...currentMessages,
@@ -85,14 +85,14 @@ const AIChatBox: React.FC = () => {
 
   return (
     <main className="ai-chat-page">
-      <section className="ai-chat-shell" aria-label="Chat de recomendaciones con IA">
+      <section className="ai-chat-shell" aria-label={t('chat_ai_title')}>
         <header className="ai-chat-header">
           <div>
-            <span className="ai-chat-kicker">ViveBook IA</span>
-            <h1>Asistente de recomendaciones</h1>
+            <span className="ai-chat-kicker">{t('chat_ai_kicker')}</span>
+            <h1>{t('chat_ai_title')}</h1>
           </div>
           <label className="ai-limit-control">
-            <span>Resultados</span>
+            <span>{t('chat_ai_results')}</span>
             <input
               type="number"
               min={1}
@@ -107,17 +107,23 @@ const AIChatBox: React.FC = () => {
           {messages.map((message) => (
             <article key={message.id} className={`ai-message ${message.role}`}>
               <div className="ai-message-bubble">
-                <p>{message.content}</p>
+                <p>{message.isWelcomeMessage ? t('chat_ai_welcome') : message.content}</p>
 
-                {message.model && <span className="ai-message-meta">Modelo: {message.model}</span>}
+                {message.model && (
+                  <span className="ai-message-meta">
+                    {t('chat_ai_model')}: {message.model}
+                  </span>
+                )}
 
                 {message.context && message.context.length > 0 && (
                   <details className="ai-context-details">
-                    <summary>Contexto usado ({message.context.length})</summary>
+                    <summary>
+                      {t('chat_ai_context')} ({message.context.length})
+                    </summary>
                     <ul>
                       {message.context.map((item, index) => (
                         <li key={`${item.title || 'context'}-${index}`}>
-                          <strong>{item.title || `Referencia ${index + 1}`}</strong>
+                          <strong>{item.title || `${t('chat_ai_reference')} ${index + 1}`}</strong>
                           <span>{item.text}</span>
                         </li>
                       ))}
@@ -144,12 +150,16 @@ const AIChatBox: React.FC = () => {
         <form className="ai-chat-input-area" onSubmit={handleSendMessage}>
           <input
             type="text"
-            placeholder="Ej: Quiero un libro barato de programación en buen estado"
+            placeholder={t('chat_ai_placeholder')}
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             disabled={isLoading}
           />
-          <button type="submit" disabled={!query.trim() || isLoading} aria-label="Enviar consulta">
+          <button
+            type="submit"
+            disabled={!query.trim() || isLoading}
+            aria-label={t('chat_ai_send')}
+          >
             <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
               <path fill="currentColor" d="M2.01 21 23 12 2.01 3 2 10l15 2-15 2z" />
             </svg>

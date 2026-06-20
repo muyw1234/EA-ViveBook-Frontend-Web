@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import socket from '../../Services/socket';
 import api from '../../api';
 import UsuarioService from '../Services/Usuario';
@@ -7,6 +8,7 @@ import './ChatGlobal.css';
 const CHAT_ID = '000000000000000000000001';
 
 const ChatGlobal: React.FC = () => {
+  const { t } = useTranslation();
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [user, setUser] = useState<any>(null);
@@ -68,14 +70,14 @@ const ChatGlobal: React.FC = () => {
   return (
     <div className="chat-global-container">
       <div className="chat-header">
-        <h3>Chat Global 🌍</h3>
-        <span className="online-indicator">Online</span>
+        <h3>{t('chat_global.title')}</h3>
+        <span className="online-indicator">{t('chat_global.status_online')}</span>
       </div>
 
       <div className="messages-list">
         {messages.map((msg, index) => {
           const isMine = msg.sender?._id === user?._id || msg.sender === user?._id;
-          const senderName = msg.sender?.name || 'Usuario';
+          const senderName = msg.sender?.name || t('chat_global.user_fallback');
 
           return (
             <div key={msg._id || index} className={`message-wrapper ${isMine ? 'mine' : 'theirs'}`}>
@@ -98,7 +100,7 @@ const ChatGlobal: React.FC = () => {
       <form className="chat-input-area" onSubmit={handleSendMessage}>
         <input
           type="text"
-          placeholder="Escribe un mensaje..."
+          placeholder={t('chat_global.input_placeholder')}
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
         />

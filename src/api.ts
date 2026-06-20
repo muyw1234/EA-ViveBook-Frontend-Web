@@ -54,6 +54,4 @@ api.interceptors.response.use(
   },
 );
 
-export const cloudinary_api: string = '991611377853644'; // clave publica
-
 export default api;
