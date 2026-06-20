@@ -1,0 +1,515 @@
+/* --- Retos.css (Premium Web Dashboard format) --- */
+.retos-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 3rem 4% 5rem;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: left;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.retos-loading {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 50vh;
+  gap: 1rem;
+  color: var(--text);
+}
+
+.retos-loading .spinner {
+  width: 45px;
+  height: 45px;
+  border: 4px solid rgba(209, 131, 186, 0.2);
+  border-top: 4px solid var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.retos-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 40vh;
+  gap: 1rem;
+  text-align: center;
+}
+
+/* --- Dashboard Header (2 columns on Desktop) --- */
+.retos-dashboard-header {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 2rem;
+  align-items: stretch;
+}
+
+/* Left Card: Level Summary */
+.level-summary-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  transition: transform 0.2s ease;
+}
+
+.level-summary-card:hover {
+  transform: translateY(-2px);
+}
+
+.level-medal-wrapper {
+  width: 90px;
+  height: 90px;
+  background: linear-gradient(135deg, #fdf4ff 0%, #fae8ff 100%);
+  border: 1px solid rgba(209, 131, 186, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.level-medal-emoji {
+  font-size: 3.5rem;
+}
+
+.level-info-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.level-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.level-title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--text-h);
+  margin: 0;
+}
+
+.level-desc-text {
+  font-size: 0.95rem;
+  color: var(--text);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Right Card: Overall statistics & Progress Gauge */
+.progress-summary-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.progress-summary-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  background: #fafafa;
+  border: 1px solid #f1f5f9;
+  border-radius: 1rem;
+  padding: 1rem;
+}
+
+.progress-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.stat-value {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--text-h);
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.progress-stat-divider {
+  width: 1px;
+  height: 40px;
+  background-color: var(--border);
+}
+
+.progress-gauge-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.progress-gauge-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-h);
+}
+
+.progress-gauge-bar-bg {
+  background-color: #f1f5f9;
+  height: 10px;
+  border-radius: 99px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.progress-gauge-bar-fill {
+  background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --- Success Banner --- */
+.all-completed-banner {
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  border: 1px solid #a7f3d0;
+  border-radius: 1.25rem;
+  padding: 1.5rem 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  box-shadow: var(--shadow);
+}
+
+.celebrate-icon {
+  font-size: 2.5rem;
+}
+
+.banner-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.banner-text h3 {
+  color: #065f46;
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin: 0;
+}
+
+.banner-text p {
+  color: #047857;
+  font-size: 0.95rem;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* --- Section Title and Filters (Clean header alignment) --- */
+.challenges-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #f1f5f9;
+  padding-bottom: 1.25rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.section-title-retos {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--text-h);
+  margin: 0;
+}
+
+.filter-row {
+  display: flex;
+  background-color: #f1f5f9;
+  border-radius: 99px;
+  padding: 0.25rem;
+  align-items: center;
+}
+
+.filter-tab {
+  background: none;
+  border: none;
+  padding: 0.5rem 1.25rem;
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #64748b;
+  border-radius: 99px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.filter-tab.active {
+  background-color: white;
+  color: var(--text-h);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.filter-tab:hover:not(.active) {
+  color: var(--primary);
+}
+
+/* --- Responsive Challenges Grid --- */
+.retos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2rem;
+}
+
+/* Challenge Card */
+.reto-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 1.25rem;
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1.25rem;
+  transition:
+    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.reto-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 24px rgba(61, 26, 60, 0.08);
+}
+
+.reto-card.completed {
+  border-color: rgba(16, 185, 129, 0.25);
+  background-color: rgba(243, 255, 248, 0.25);
+}
+
+/* Card Header */
+.reto-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.reto-card-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+}
+
+.reto-status-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.65rem;
+  border-radius: 99px;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.reto-status-badge.completed {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.reto-status-badge.pending {
+  background-color: #f1f5f9;
+  color: #475569;
+}
+
+/* Card Body */
+.reto-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  flex: 1;
+}
+
+.reto-card-category {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text);
+  opacity: 0.6;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.reto-card-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-h);
+  margin: 0;
+  line-height: 1.3;
+}
+
+.reto-card-desc {
+  font-size: 0.88rem;
+  color: var(--text);
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Card Footer */
+.reto-card-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  border-top: 1px solid #f8fafc;
+  padding-top: 1rem;
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.progress-label {
+  color: var(--text);
+  opacity: 0.8;
+}
+
+.progress-value {
+  color: var(--text-h);
+  font-weight: 700;
+}
+
+.progress-bar-bg {
+  background-color: #e2e8f0;
+  height: 6px;
+  border-radius: 99px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  background-color: var(--primary);
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.5s ease-out;
+}
+
+.progress-bar-fill.completed {
+  background-color: #10b981;
+}
+
+.completion-date {
+  font-size: 0.75rem;
+  color: #10b981;
+  font-weight: 700;
+  margin-top: 0.25rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* --- Empty State --- */
+.empty-container {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 1.5rem;
+  box-shadow: var(--shadow);
+}
+
+.empty-emoji {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.empty-text {
+  font-size: 1.05rem;
+  color: var(--text);
+  font-style: italic;
+  margin: 0;
+}
+
+/* --- Responsive Media Queries --- */
+@media (max-width: 900px) {
+  .retos-dashboard-header {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .retos-container {
+    padding: 1.5rem 1rem 4rem;
+    gap: 1.5rem;
+  }
+
+  .level-summary-card {
+    flex-direction: column;
+    text-align: center;
+    gap: 1.25rem;
+  }
+
+  .level-medal-wrapper {
+    width: 80px;
+    height: 80px;
+  }
+
+  .level-medal-emoji {
+    font-size: 3rem;
+  }
+
+  .challenges-section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .filter-row {
+    width: 100%;
+  }
+
+  .filter-tab {
+    flex: 1;
+  }
+
+  .retos-grid {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+}

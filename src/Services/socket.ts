@@ -1,10 +1,8 @@
 import { io } from 'socket.io-client';
+import { environment } from '../config/environment';
 
-// Ajusta la URL según tu entorno (IP de tu servidor backend)
-const SOCKET_URL = 'http://localhost:1337';
-
-const socket = io(SOCKET_URL, {
-    autoConnect: false
+const socket = io(environment.socketUrl, {
+  autoConnect: false,
 });
 
 export default socket;

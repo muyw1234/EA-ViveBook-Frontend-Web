@@ -29,7 +29,9 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .mybooks-header {
@@ -54,6 +56,59 @@
   color: var(--text);
   font-size: 1.1rem;
   margin: 0;
+}
+
+/* Search bar in MyBooks */
+.mybooks-search-container {
+  display: flex;
+  align-items: center;
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+  margin-bottom: 0.5rem;
+}
+
+.mybooks-search-input {
+  width: 100%;
+  padding: 0.8rem 2.5rem 0.8rem 1.2rem;
+  font-size: 0.95rem;
+  border: 2px solid var(--outline);
+  border-radius: 0.75rem;
+  background-color: var(--surface);
+  color: var(--text-h);
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.mybooks-search-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(209, 131, 186, 0.15);
+}
+
+.clear-search-btn {
+  position: absolute;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  color: var(--text);
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.clear-search-btn:hover {
+  background-color: var(--outline);
+  color: var(--text-h);
 }
 
 /* Tabs */
@@ -88,7 +143,7 @@
 }
 
 .tab-btn.active::after {
-  content: "";
+  content: '';
   position: absolute;
   bottom: -0.6rem;
   left: 0;
@@ -164,7 +219,9 @@
   flex-direction: column;
   justify-content: space-between;
   gap: 1.25rem;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .mybooks-card:hover {
@@ -189,7 +246,7 @@
   border: 1px solid var(--accent-border);
 }
 
-.book-badge[data-type="ALQUILER"] {
+.book-badge[data-type='ALQUILER'] {
   background-color: #e0f2fe;
   color: #0369a1;
   border: 1px solid rgba(3, 105, 161, 0.2);
@@ -290,7 +347,7 @@
 
 /* Rental Status Box */
 .rental-status-box {
-  background-color: #FAF6FA;
+  background-color: #faf6fa;
   padding: 1rem;
   border-radius: 0.5rem;
   display: flex;
@@ -477,7 +534,9 @@
   font-size: 2.5rem;
   cursor: pointer;
   color: #e2e8f0;
-  transition: transform 0.2s ease, color 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    color 0.2s ease;
 }
 
 .star-select-btn.selected {
@@ -486,4 +545,54 @@
 
 .star-select-btn:hover {
   transform: scale(1.15);
+}
+
+/* Wishlist Actions style */
+.wishlist-actions {
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.action-view-btn {
+  flex: 2;
+  padding: 0.8rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  background-color: var(--primary);
+  color: white;
+  border: none;
+}
+
+.action-view-btn:hover {
+  background-color: var(--secondary);
+}
+
+.action-remove-wishlist-btn {
+  flex: 1;
+  padding: 0.8rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  background: none;
+  border: 1px solid #fca5a5;
+  color: var(--error);
+}
+
+.action-remove-wishlist-btn:hover {
+  background-color: #fee2e2;
+  border-color: var(--error);
 }

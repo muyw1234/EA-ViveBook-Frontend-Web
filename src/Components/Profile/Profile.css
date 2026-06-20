@@ -326,6 +326,30 @@
   padding: 0.3rem 0.75rem;
 }
 
+.tag-chip.wishlist-chip {
+  background-color: #e0f2fe; /* Light sky blue */
+  color: #0369a1; /* Dark sky blue text */
+  border: 1px solid rgba(3, 105, 161, 0.2);
+  transition: all 0.2s ease;
+}
+
+.tag-chip.wishlist-chip:hover {
+  background-color: #bae6fd;
+  transform: translateY(-1px);
+}
+
+.tag-chip.favorite-chip {
+  background-color: #fef3c7; /* Light amber yellow */
+  color: #b45309; /* Dark amber text */
+  border: 1px solid rgba(180, 83, 9, 0.2);
+  transition: all 0.2s ease;
+}
+
+.tag-chip.favorite-chip:hover {
+  background-color: #fde68a;
+  transform: translateY(-1px);
+}
+
 .chip-remove {
   background: none;
   border: none;
@@ -363,7 +387,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
 }
 
 .dropdown-item {
@@ -577,4 +601,9 @@
 
 .text-center {
   text-align: center;
+}
+
+/* User Level Badge Box */
+.level-badge-box .stat-num {
+  color: var(--primary);
 }

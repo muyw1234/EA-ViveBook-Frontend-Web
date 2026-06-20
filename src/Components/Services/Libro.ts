@@ -1,109 +1,76 @@
-import type { AxiosResponse } from "axios";
-import api from "../../api";
-import type { ILibro } from "../../Models/Libro";
-import type { Dispatch, SetStateAction } from "react";
-import { toast } from "react-toastify";
+import api from '../../api';
+import type ILibro from '../../Models/Libro';
+import { normalizeLibro, normalizeLibros } from '../../utils/libro';
+//import Matomo from './Matomo';
 
-const getAllLibros = async () => {
-    try {
-        const response = await api.get("/libros");
-        const data = response.data;
-
-        if (Array.isArray(data)) {
-            return data;
-        }
-
-        if (data && Array.isArray(data.data)) {
-            return data.data;
-        }
-
-        return [];
-    } catch (error) {
-        console.error("Error fetching books:", error);
-        throw error;
-    }
+const getAllLibros = async (
+  page: number = 1,
+  limit: number = 10,
+  type?: string,
+): Promise<ILibro[]> => {
+  try {
+    const response = await api.get('/libros', { params: { page, limit, type } });
+    return normalizeLibros(response.data);
+  } catch (error) {
+    console.error('Error fetching books:', error);
+    throw error;
+  }
 };
 
 const getLibroById = async (id: string) => {
-    try {
-        const response = await api.get(`/libros/${id}`);
-        
-        if (response.data && response.data.success) {
-            return response.data.data; 
-        }
-        return response.data;
-    } catch (error) {
-        console.error("Error fetching book by id:", error);
-        throw error;
-    }
+  try {
+    const response = await api.get(`/libros/${id}`);
+    return normalizeLibro(response.data);
+  } catch (error) {
+    console.error('Error fetching book by id:', error);
+    throw error;
+  }
 };
 
 async function addLibroByIsbn(isbn: string) {
-    try {
-        const response = await api.post(`/libros/isbn/${isbn}`);
-        
-        if (response.data && response.data.success) {
-            return response.data.data;
-        }
-        return response.data;
-    } catch (error) {
-        console.error("Error adding book by ISBN:", error);
-        throw error;
-    }
+  try {
+    //console.log(`Trying to create book with ISBN.`);
+    const response = await api.get(`/libros/isbn/${isbn}`);
+    //console.log(`${JSON.stringify(response.data)}`);
+    return normalizeLibro(response.data);
+  } catch (error) {
+    console.error('Error adding book by ISBN:', error);
+    throw error;
+  }
 }
 
 const addLibroListing = async (bookData: {
-    isbn: string;
-    title: string;
-    authors: string[];
-    type: string;
-    precio: number;
-    estado: string;
+  isbn: string;
+  title: string;
+  authors: string[];
+  type: string;
+  precio: number;
+  estado: string;
+  imageUrl?: string | null;
 }) => {
-    try {
-        const response = await api.post("/libros", bookData);
-        
-        if (response.data && response.data.success) {
-            return response.data.data; 
-        }
-        return response.data;
-    } catch (error: any) {
-        if (error.response) {
-            console.error("Error adding book listing (Server Response):", error.response.data);
-        } else {
-            console.error("Error adding book listing:", error);
-        }
-        throw error; 
+  try {
+    const response = await api.post('/libros', bookData);
+    /* await Matomo.AddingBook(bookData as Partial<ILibro>); // observer o event dispatcher o callback, llamalo como quieras. */
+    return normalizeLibro(response.data);
+  } catch (error: any) {
+    if (error.response) {
+      console.error('Error adding book listing (Server Response):', error.response.data);
+    } else {
+      console.error('Error adding book listing:', error);
     }
+    throw error;
+  }
 };
 
-async function searchLibro(
-    term: string, 
-    setter: Dispatch<SetStateAction<Partial<ILibro>[]>>, 
-    page: number = 1, 
-    limit: number = 10
-) {
-    api.get('/libros/search', { params: { term, page, limit } })
-        .then((res: AxiosResponse<any>) => {
-            // ? No lo compliques, el componente ya se da cuenta de que el array esta vacio
-            // if (res.data && res.data.success) {
-            //     setter(res.data.data); 
-            // } else {
-            //     setter(Array.isArray(res.data) ? res.data : []);
-            // } 
-            toast.success(`${res.data.data} items has been found.`)
-            setter(res.data.data);
-        })
-        .catch((error) => {
-            const errorMsg = error.response?.data?.message || "Error en la búsqueda";
-            toast.error(errorMsg);
-        });
+async function searchLibro(term: string, page: number = 1, limit: number = 10): Promise<ILibro[]> {
+  const response = await api.get('/libros/search', { params: { term, page, limit } });
+  return normalizeLibros(response.data);
 }
 
 export default {
-    getAllLibros,
-    getLibroById,
-    addLibroListing,
-    addLibroByIsbn,
-    searchLibro
+  getAllLibros,
+  getLibroById,
+  addLibroListing,
+  addLibroByIsbn,
+  searchLibro,
 };

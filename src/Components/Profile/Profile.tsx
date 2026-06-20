@@ -1,67 +1,88 @@
-import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import api from "../../api";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import "./Profile.css";
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import api from '../../api';
+import { toast } from 'react-toastify'; //ToastContainer
+import 'react-toastify/dist/ReactToastify.css';
+import './Profile.css';
+import RetoService from '../Services/Reto';
+import { calculateUserLevel, type UserLevelInfo } from '../../utils/levelHelper';
+import type IUsuario from '../../Models/Usuario';
+import AvatarFrame from './AvatarFrame';
+import Usuario from '../Services/Usuario';
+import { unwrapApiData } from '../../utils/apiResponse';
+import { clearSession } from '../../utils/session';
+import socket from '../../Services/socket';
 
 export default function Profile() {
+  const { t } = useTranslation();
   const { userId } = useParams();
   const navigate = useNavigate();
 
   const [currentUser, setCurrentUser] = useState<any>(null);
-  const [profileUser, setProfileUser] = useState<any>(null);
+  const [profileUser, setProfileUser] = useState<Partial<IUsuario>>({});
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [description, setDescription] = useState("");
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [description, setDescription] = useState('');
   const [updating, setUpdating] = useState(false);
   const [isMyProfile, setIsMyProfile] = useState(true);
+  const [userLevel, setUserLevel] = useState<UserLevelInfo | null>(null);
   const [reviews, setReviews] = useState<any[]>([]);
   const [stats, setStats] = useState({ averageRating: 0, totalReviews: 0 });
   const [followers, setFollowers] = useState<any[]>([]);
-  
+
   // Follow/following state for viewing another user
   const [isFollowing, setIsFollowing] = useState(false);
 
   // Favorites state
   const [favoriteAuthors, setFavoriteAuthors] = useState<string[]>([]);
-  const [favoriteBooks, setFavoriteBooks] = useState<string[]>([]);
+  const [favoriteBooks, setFavoriteBooks] = useState<any[]>([]);
   const [favoriteCategories, setFavoriteCategories] = useState<string[]>([]);
-  
-  const [newAuthor, setNewAuthor] = useState("");
-  const [newBook, setNewBook] = useState("");
+
+  const [followedEvents, setFollowedEvents] = useState<any[]>([]);
+
+  const [newAuthor, setNewAuthor] = useState('');
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
 
   // Delete Modal State
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [deleteStep, setDeleteStep] = useState<"menu" | "confirm_soft" | "confirm_perm">("menu");
+  const [deleteStep, setDeleteStep] = useState<'menu' | 'confirm_soft' | 'confirm_perm'>('menu');
   const [deleting, setDeleting] = useState(false);
 
   const ALL_CATEGORIES = [
-    "Terror", "Misterio", "Aventura", "Juvenil", "Policíaco",
-    "Infantil", "Autoayuda", "Novela", "Biografías", "Cómics", "Otros"
+    'Terror',
+    'Misterio',
+    'Aventura',
+    'Juvenil',
+    'Policíaco',
+    'Infantil',
+    'Autoayuda',
+    'Novela',
+    'Biografías',
+    'Cómics',
+    'Otros',
   ];
 
   const fetchProfile = async () => {
     setLoading(true);
     try {
       let loggedInUser: any = null;
-      
+
       // 1. Get logged-in user profile
       try {
-        const profileRes = await api.get("/auth/profile");
-        loggedInUser = profileRes.data.data || profileRes.data;
+        const profileRes = await api.get('/auth/profile');
+        loggedInUser = unwrapApiData<any>(profileRes.data);
         setCurrentUser(loggedInUser);
       } catch (err) {
-        console.error("Error reading current user profile:", err);
+        console.error('Error reading current user profile:', err);
       }
 
       const activeUserId = userId || loggedInUser?._id;
       if (!activeUserId) {
-        toast.error("No se ha podido identificar el perfil a mostrar");
-        navigate("/");
+        toast.error(t('profile.toasts.id_error'));
+        navigate('/');
         return;
       }
 
@@ -73,24 +94,34 @@ export default function Profile() {
       let response;
       if (myProfile) {
         response = { data: loggedInUser };
+        try {
+          const retosRes = await RetoService.getMisRetos();
+          const computedLevel = calculateUserLevel(retosRes);
+          setUserLevel(computedLevel);
+        } catch (err) {
+          console.error('Error fetching user retos for profile:', err);
+        }
       } else {
         response = await api.get(`/usuarios/${activeUserId}`);
+        setUserLevel(null);
       }
 
-      const u = response.data.data || response.data;
+      const u = unwrapApiData<Partial<IUsuario>>(response.data);
       setProfileUser(u);
-      setName(u.name);
-      setEmail(u.email);
-      setDescription(u.description || "");
+      setName(u.name!);
+      setEmail(u.email!);
+      setDescription(u.description || '');
       setFavoriteAuthors(Array.isArray(u.favoriteAuthors) ? u.favoriteAuthors : []);
       setFavoriteBooks(Array.isArray(u.favoriteBooks) ? u.favoriteBooks : []);
       setFavoriteCategories(Array.isArray(u.favoriteCategories) ? u.favoriteCategories : []);
+
+      setFollowedEvents(Array.isArray(u.eventos) ? u.eventos : []);
 
       // 3. Fetch reviews & followers count
       if (activeUserId && activeUserId.length === 24) {
         const [reviewsRes, followersRes] = await Promise.all([
           api.get(`/valoraciones/received/${activeUserId}`),
-          api.get(`/usuarios/${activeUserId}/followers`)
+          api.get(`/usuarios/${activeUserId}/followers`),
         ]);
         setReviews(Array.isArray(reviewsRes.data.valoraciones) ? reviewsRes.data.valoraciones : []);
         setStats(reviewsRes.data.stats || { averageRating: 0, totalReviews: 0 });
@@ -104,10 +135,9 @@ export default function Profile() {
           : [];
         setIsFollowing(followingList.includes(activeUserId));
       }
-
     } catch (error: any) {
-      console.error("Error fetching profile:", error);
-      toast.error("Error al cargar la información del perfil");
+      console.error('Error fetching profile:', error);
+      toast.error(t('profile.toasts.load_error'));
     } finally {
       setLoading(false);
     }
@@ -120,7 +150,7 @@ export default function Profile() {
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !email) {
-      toast.warn("El nombre y el correo electrónico son obligatorios");
+      toast.warn(t('profile.toasts.required_fields'));
       return;
     }
 
@@ -131,20 +161,22 @@ export default function Profile() {
         email,
         description,
         favoriteAuthors,
-        favoriteBooks,
-        favoriteCategories
+        favoriteBooks: favoriteBooks
+          .map((b: any) => (typeof b === 'object' && b !== null ? b._id : b))
+          .filter((id: any) => typeof id === 'string' && /^[0-9a-fA-F]{24}$/.test(id)),
+        favoriteCategories,
       };
 
-      const response = await api.put(`/usuarios/${profileUser._id}`, payload);
+      const response = await Usuario.updateUsuario(profileUser, payload);
       if (response.status === 200) {
         setProfileUser(response.data);
         setIsEditing(false);
-        toast.success("Perfil actualizado correctamente");
+        toast.success(t('profile.toasts.update_success'));
         fetchProfile();
       }
     } catch (error: any) {
-      console.error("Error updating profile:", error);
-      toast.error("Error al guardar los cambios del perfil");
+      console.error('Error updating profile:', error);
+      toast.error(t('profile.toasts.update_error'));
     } finally {
       setUpdating(false);
     }
@@ -152,7 +184,7 @@ export default function Profile() {
 
   const handleToggleFollow = async () => {
     if (!currentUser) {
-      toast.warn("Debes iniciar sesión para seguir a otros usuarios");
+      toast.warn(t('profile.toasts.login_required_follow'));
       return;
     }
 
@@ -165,45 +197,47 @@ export default function Profile() {
         updatedFollowing = updatedFollowing.filter((id: string) => id !== profileUser._id);
         setIsFollowing(false);
         setFollowers((prev) => prev.filter((item) => item._id !== currentUser._id));
-        toast.success(`Has dejado de seguir a ${profileUser.name}`);
+        toast.success(t('profile.toasts.unfollow_success', { name: profileUser.name }));
       } else {
         updatedFollowing.push(profileUser._id);
         setIsFollowing(true);
         setFollowers((prev) => [...prev, currentUser]);
-        toast.success(`Ahora sigues a ${profileUser.name}`);
+        toast.success(t('profile.toasts.follow_success', { name: profileUser.name }));
       }
 
       await api.put(`/usuarios/${currentUser._id}`, {
-        followingUsers: updatedFollowing
+        followingUsers: updatedFollowing,
       });
-      
-      // Update local storage user profile cache
+
       const updatedUser = { ...currentUser, followingUsers: updatedFollowing };
       setCurrentUser(updatedUser);
     } catch (error) {
-      console.error("Error toggling follow:", error);
-      toast.error("No se pudo procesar la acción de seguimiento");
+      console.error('Error toggling follow:', error);
+      toast.error(t('profile.toasts.follow_error'));
     }
   };
 
   const logout = () => {
-    localStorage.removeItem("token");
-    navigate("/");
+    clearSession();
+    if (socket.connected) {
+      socket.disconnect();
+    }
+    navigate('/');
   };
 
   const executeSoftDelete = async () => {
     setDeleting(true);
     try {
       await api.delete(`/usuarios/${profileUser._id}`);
-      toast.success("Tu cuenta ha sido desactivada con éxito");
+      toast.success(t('profile.toasts.vacation_success'));
       logout();
     } catch (error) {
-      console.error("Error deleting profile (soft):", error);
-      toast.error("No se pudo desactivar tu cuenta");
+      console.error('Error deleting profile (soft):', error);
+      toast.error(t('profile.toasts.vacation_error'));
     } finally {
       setDeleting(false);
       setDeleteModalOpen(false);
-      setDeleteStep("menu");
+      setDeleteStep('menu');
     }
   };
 
@@ -211,15 +245,15 @@ export default function Profile() {
     setDeleting(true);
     try {
       await api.delete(`/usuarios/permanent/${profileUser._id}`);
-      toast.success("Tu cuenta ha sido eliminada de forma permanente");
+      toast.success(t('profile.toasts.delete_success'));
       logout();
     } catch (error) {
-      console.error("Error deleting profile (permanent):", error);
-      toast.error("No se pudo eliminar permanentemente tu cuenta");
+      console.error('Error deleting profile (permanent):', error);
+      toast.error(t('profile.toasts.delete_error'));
     } finally {
       setDeleting(false);
       setDeleteModalOpen(false);
-      setDeleteStep("menu");
+      setDeleteStep('menu');
     }
   };
 
@@ -227,23 +261,11 @@ export default function Profile() {
     const author = newAuthor.trim();
     if (author && !favoriteAuthors.includes(author)) {
       if (favoriteAuthors.length >= 5) {
-        toast.warn("Límite de 5 autores favoritos alcanzado");
+        toast.warn(t('profile.toasts.author_limit'));
         return;
       }
       setFavoriteAuthors([...favoriteAuthors, author]);
-      setNewAuthor("");
-    }
-  };
-
-  const handleAddBook = () => {
-    const book = newBook.trim();
-    if (book && !favoriteBooks.includes(book)) {
-      if (favoriteBooks.length >= 5) {
-        toast.warn("Límite de 5 libros favoritos alcanzado");
-        return;
-      }
-      setFavoriteBooks([...favoriteBooks, book]);
-      setNewBook("");
+      setNewAuthor('');
     }
   };
 
@@ -259,7 +281,7 @@ export default function Profile() {
     return (
       <div className="profile-loading">
         <div className="spinner"></div>
-        <p>Cargando información del perfil...</p>
+        <p>{t('profile.loading')}</p>
       </div>
     );
   }
@@ -267,72 +289,86 @@ export default function Profile() {
   if (!profileUser) {
     return (
       <div className="profile-error">
-        <h3>Error al cargar</h3>
-        <p>No se pudo cargar el perfil del usuario solicitado.</p>
-        <button onClick={fetchProfile} className="retry-btn">Reintentar</button>
+        <h3>{t('profile.error_title')}</h3>
+        <p>{t('profile.error_desc')}</p>
+        <button onClick={fetchProfile} className="retry-btn">
+          {t('profile.retry')}
+        </button>
       </div>
     );
   }
 
   return (
     <div className="profile-container">
-      {/* Top Banner Profile Details */}
       <div className="profile-header-card">
-        <div className="profile-avatar">
-          {(name || "U").substring(0, 2).toUpperCase()}
-        </div>
+        <AvatarFrame avatar={profileUser.avatar} name={name} />
         <div className="profile-main-info">
           <h1>{name}</h1>
           <p className="profile-email">✉ {email}</p>
           <div className="profile-stats-row">
             <div className="stat-box">
               <span className="stat-num">{followers.length}</span>
-              <span className="stat-label">Seguidores</span>
+              <span className="stat-label">{t('profile.followers')}</span>
             </div>
             {stats.totalReviews > 0 && (
               <div className="stat-box">
                 <span className="stat-num rating">
-                  {"★".repeat(Math.max(0, Math.round(stats.averageRating)))}{"☆".repeat(Math.max(0, 5 - Math.round(stats.averageRating)))} {stats.averageRating}
+                  {'★'.repeat(Math.max(0, Math.round(stats.averageRating)))}
+                  {'☆'.repeat(Math.max(0, 5 - Math.round(stats.averageRating)))}{' '}
+                  {stats.averageRating}
                 </span>
-                <span className="stat-label">({stats.totalReviews} Valoraciones)</span>
+                <span className="stat-label">
+                  ({stats.totalReviews} {t('profile.ratings')})
+                </span>
+              </div>
+            )}
+            {isMyProfile && userLevel && (
+              <div className="stat-box level-badge-box">
+                <span className="stat-num">
+                  {userLevel.medal || '❔'} {userLevel.levelName}
+                </span>
+                <span className="stat-label">
+                  {t('profile.level', {
+                    completed: userLevel.completedCount,
+                    total: userLevel.totalCount,
+                  })}
+                </span>
               </div>
             )}
           </div>
         </div>
 
-        {/* Action Button: Follow or Edit */}
         <div className="profile-header-actions">
           {isMyProfile ? (
             <div className="profile-my-actions">
               {!isEditing && (
                 <button className="edit-profile-btn" onClick={() => setIsEditing(true)}>
-                  ✏️ Editar Perfil
+                  ✏️ {t('profile.edit_profile')}
                 </button>
               )}
               <button className="edit-profile-btn" onClick={logout}>
-                🚪 Cerrar Sesión
+                🚪 {t('profile.logout')}
               </button>
             </div>
           ) : (
             <button
-              className={`follow-profile-btn ${isFollowing ? "following" : ""}`}
+              className={`follow-profile-btn ${isFollowing ? 'following' : ''}`}
               onClick={handleToggleFollow}
             >
-              {isFollowing ? "👥 Siguiendo" : "👤 Seguir"}
+              {isFollowing ? `👥 ${t('profile.following')}` : `👤 ${t('profile.follow')}`}
             </button>
           )}
         </div>
       </div>
 
       <div className="profile-content-grid">
-        {/* Left Card: Info & Favorites */}
         <div className="profile-details-card">
           {isEditing ? (
             <form onSubmit={handleUpdate} className="profile-edit-form">
-              <h3>Editar mi Información</h3>
-              
+              <h3>{t('profile.edit_info')}</h3>
+
               <div className="form-group">
-                <label>Nombre</label>
+                <label>{t('profile.name')}</label>
                 <input
                   type="text"
                   value={name}
@@ -341,8 +377,10 @@ export default function Profile() {
                 />
               </div>
 
+              <div className="form-group"></div>
+
               <div className="form-group">
-                <label>Correo Electrónico</label>
+                <label>{t('profile.email')}</label>
                 <input
                   type="email"
                   value={email}
@@ -351,30 +389,52 @@ export default function Profile() {
                 />
               </div>
 
+              <div className="form-group container">
+                <input
+                  className="form-control"
+                  type="file"
+                  src="./"
+                  id="imageSelector"
+                  alt={t('profile.change_avatar')}
+                  onChange={(e) => {
+                    async function update(data: FormData) {
+                      const user = await Usuario.changeAvatar(data, profileUser);
+                      setProfileUser(user!);
+                    }
+                    const file = e.target.files![0];
+                    const formData: FormData = new FormData();
+                    formData.append('file', file);
+                    update(formData);
+                  }}
+                />
+              </div>
+
               <div className="form-group">
-                <label>Sobre Mí (Biografía)</label>
+                <label>{t('profile.about_me_title')}</label>
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Cuéntanos un poco sobre ti, tus gustos de lectura, etc..."
+                  placeholder={t('profile.bio_placeholder')}
                   rows={4}
                 />
               </div>
 
               <hr />
 
-              <h4 className="favorites-heading">Mis Preferencias & Favoritos</h4>
+              <h4 className="favorites-heading">{t('profile.my_favorites')}</h4>
 
               <div className="form-group">
-                <label>Autores Favoritos (Máx 5)</label>
+                <label>{t('profile.fav_authors_max')}</label>
                 <div className="input-with-btn">
                   <input
                     type="text"
-                    placeholder="Añadir un autor..."
+                    placeholder={t('profile.add_author_placeholder')}
                     value={newAuthor}
                     onChange={(e) => setNewAuthor(e.target.value)}
                   />
-                  <button type="button" onClick={handleAddAuthor}>+</button>
+                  <button type="button" onClick={handleAddAuthor}>
+                    +
+                  </button>
                 </div>
                 <div className="chips-row">
                   {favoriteAuthors.map((author, index) => (
@@ -383,7 +443,9 @@ export default function Profile() {
                       <button
                         type="button"
                         className="chip-remove"
-                        onClick={() => setFavoriteAuthors(favoriteAuthors.filter((_, i) => i !== index))}
+                        onClick={() =>
+                          setFavoriteAuthors(favoriteAuthors.filter((_, i) => i !== index))
+                        }
                       >
                         ×
                       </button>
@@ -393,42 +455,49 @@ export default function Profile() {
               </div>
 
               <div className="form-group">
-                <label>Libros Favoritos (Máx 5)</label>
-                <div className="input-with-btn">
-                  <input
-                    type="text"
-                    placeholder="Añadir un libro..."
-                    value={newBook}
-                    onChange={(e) => setNewBook(e.target.value)}
-                  />
-                  <button type="button" onClick={handleAddBook}>+</button>
-                </div>
+                <label>{t('profile.fav_books_manage')}</label>
+                <p
+                  className="favorites-helper-text"
+                  style={{
+                    fontSize: '0.85rem',
+                    color: 'var(--text)',
+                    opacity: 0.8,
+                    margin: '0 0 0.5rem 0',
+                  }}
+                >
+                  {t('profile.fav_books_desc')}
+                </p>
                 <div className="chips-row">
-                  {favoriteBooks.map((book, index) => (
-                    <span key={`book-${index}`} className="tag-chip">
-                      {book}
-                      <button
-                        type="button"
-                        className="chip-remove"
-                        onClick={() => setFavoriteBooks(favoriteBooks.filter((_, i) => i !== index))}
-                      >
-                        ×
-                      </button>
-                    </span>
-                  ))}
+                  {favoriteBooks.map((book, index) => {
+                    const bookTitle = typeof book === 'object' && book !== null ? book.title : book;
+                    return (
+                      <span key={`book-${index}`} className="tag-chip static favorite-chip">
+                        ⭐ {bookTitle}
+                        <button
+                          type="button"
+                          className="chip-remove"
+                          onClick={() =>
+                            setFavoriteBooks(favoriteBooks.filter((_, i) => i !== index))
+                          }
+                        >
+                          ×
+                        </button>
+                      </span>
+                    );
+                  })}
                 </div>
               </div>
 
               <div className="form-group">
-                <label>Categorías Literarias Favoritas</label>
+                <label>{t('profile.fav_categories_label')}</label>
                 <button
                   type="button"
                   className="dropdown-toggle-btn"
                   onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
                 >
-                  Seleccionar categorías {categoryDropdownOpen ? "▲" : "▼"}
+                  {t('profile.select_categories')} {categoryDropdownOpen ? '▲' : '▼'}
                 </button>
-                
+
                 {categoryDropdownOpen && (
                   <div className="categories-dropdown">
                     {ALL_CATEGORIES.map((cat) => {
@@ -440,7 +509,7 @@ export default function Profile() {
                             checked={isSelected}
                             onChange={() => handleToggleCategory(cat)}
                           />
-                          {cat}
+                          {t(`profile.categories.${cat}`)}
                         </label>
                       );
                     })}
@@ -450,11 +519,13 @@ export default function Profile() {
                 <div className="chips-row margin-top">
                   {favoriteCategories.map((cat) => (
                     <span key={cat} className="tag-chip category">
-                      {cat}
+                      {t(`profile.categories.${cat}`)}
                       <button
                         type="button"
                         className="chip-remove"
-                        onClick={() => setFavoriteCategories(favoriteCategories.filter((c) => c !== cat))}
+                        onClick={() =>
+                          setFavoriteCategories(favoriteCategories.filter((c) => c !== cat))
+                        }
                       >
                         ×
                       </button>
@@ -468,11 +539,11 @@ export default function Profile() {
                   type="button"
                   className="delete-acc-btn"
                   onClick={() => {
-                    setDeleteStep("menu");
+                    setDeleteStep('menu');
                     setDeleteModalOpen(true);
                   }}
                 >
-                  🗑️ Borrar Cuenta
+                  🗑️ {t('profile.delete_account_btn')}
                 </button>
                 <div className="right-btn-group">
                   <button
@@ -480,18 +551,18 @@ export default function Profile() {
                     className="edit-cancel-btn"
                     onClick={() => {
                       setIsEditing(false);
-                      setName(profileUser.name);
-                      setEmail(profileUser.email);
-                      setDescription(profileUser.description || "");
+                      setName(profileUser.name!);
+                      setEmail(profileUser.email!);
+                      setDescription(profileUser.description || '');
                       setFavoriteAuthors(profileUser.favoriteAuthors || []);
                       setFavoriteBooks(profileUser.favoriteBooks || []);
                       setFavoriteCategories(profileUser.favoriteCategories || []);
                     }}
                   >
-                    Cancelar
+                    {t('profile.cancel')}
                   </button>
                   <button type="submit" className="edit-save-btn" disabled={updating}>
-                    {updating ? "Guardando..." : "Guardar cambios"}
+                    {updating ? t('profile.saving') : t('profile.save_changes')}
                   </button>
                 </div>
               </div>
@@ -499,57 +570,137 @@ export default function Profile() {
           ) : (
             <div className="profile-details-view">
               <div className="details-section">
-                <h3>Sobre Mí</h3>
+                <h3>{t('profile.about_me_title')}</h3>
                 <p className="description-text">
-                  {profileUser.description || "Este lector aún no ha escrito una biografía."}
+                  {profileUser.description || 'Este lector aún no ha escrito una biografía.'}
                 </p>
               </div>
 
               <hr />
 
-              {((Array.isArray(profileUser.favoriteAuthors) && profileUser.favoriteAuthors.length > 0) ||
-                (Array.isArray(profileUser.favoriteBooks) && profileUser.favoriteBooks.length > 0) ||
-                (Array.isArray(profileUser.favoriteCategories) && profileUser.favoriteCategories.length > 0)) ? (
+              {(Array.isArray(profileUser.favoriteAuthors) &&
+                profileUser.favoriteAuthors.length > 0) ||
+              (Array.isArray(profileUser.favoriteBooks) && profileUser.favoriteBooks.length > 0) ||
+              (Array.isArray(profileUser.favoriteCategories) &&
+                profileUser.favoriteCategories.length > 0) ? (
                 <div className="details-section">
-                  <h3>Mis Favoritos</h3>
+                  <h3>{t('profile.my_favorites')}</h3>
 
-                  {Array.isArray(profileUser.favoriteAuthors) && profileUser.favoriteAuthors.length > 0 && (
-                    <div className="fav-subset">
-                      <span className="fav-label">✍️ Autores favoritos</span>
-                      <p className="fav-value">{profileUser.favoriteAuthors.join(", ")}</p>
-                    </div>
-                  )}
-
-                  {Array.isArray(profileUser.favoriteBooks) && profileUser.favoriteBooks.length > 0 && (
-                    <div className="fav-subset">
-                      <span className="fav-label">📚 Libros favoritos</span>
-                      <p className="fav-value">{profileUser.favoriteBooks.join(", ")}</p>
-                    </div>
-                  )}
-
-                  {Array.isArray(profileUser.favoriteCategories) && profileUser.favoriteCategories.length > 0 && (
-                    <div className="fav-subset">
-                      <span className="fav-label">🏷️ Géneros favoritos</span>
-                      <div className="chips-row">
-                        {profileUser.favoriteCategories.map((cat: string) => (
-                          <span key={cat} className="tag-chip static">{cat}</span>
-                        ))}
+                  {Array.isArray(profileUser.favoriteAuthors) &&
+                    profileUser.favoriteAuthors.length > 0 && (
+                      <div className="fav-subset">
+                        <span className="fav-label">✍️ {t('profile.fav_authors')}</span>
+                        <p className="fav-value">{profileUser.favoriteAuthors.join(', ')}</p>
                       </div>
-                    </div>
-                  )}
+                    )}
+
+                  {Array.isArray(profileUser.favoriteBooks) &&
+                    profileUser.favoriteBooks.length > 0 && (
+                      <div className="fav-subset">
+                        <span className="fav-label">📚 {t('profile.fav_books')}</span>
+                        <div className="chips-row" style={{ marginTop: '0.5rem' }}>
+                          {profileUser.favoriteBooks.map((book: any) => {
+                            const bookTitle =
+                              typeof book === 'object' && book !== null ? book.title : 'Libro';
+                            const bookId =
+                              typeof book === 'object' && book !== null ? book._id : book;
+                            return (
+                              <span
+                                key={bookId}
+                                className="tag-chip static favorite-chip"
+                                onClick={() => navigate(`/libros/${bookId}`)}
+                                style={{ cursor: 'pointer' }}
+                                title="Haga clic para ver el detalle del libro"
+                              >
+                                ⭐ {bookTitle}
+                              </span>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                  {Array.isArray(profileUser.favoriteCategories) &&
+                    profileUser.favoriteCategories.length > 0 && (
+                      <div className="fav-subset">
+                        <span className="fav-label">🏷️ {t('profile.fav_genres')}</span>
+                        <div className="chips-row">
+                          {profileUser.favoriteCategories.map((cat: string) => (
+                            <span key={cat} className="tag-chip static">
+                              {t(`profile.categories.${cat}`)}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                 </div>
               ) : (
-                <p className="no-favs-yet">Este lector aún no ha seleccionado favoritos.</p>
+                <p className="no-favs-yet">{t('profile.no_favs_yet')}</p>
               )}
+
+              <hr />
+              <div className="details-section">
+                <h3>{t('profile.wishlist')}</h3>
+                {Array.isArray(profileUser.wishlist) && profileUser.wishlist.length > 0 ? (
+                  <div className="chips-row">
+                    {profileUser.wishlist.map((book: any) => {
+                      const bookTitle = typeof book === 'object' ? book.title : 'Libro';
+                      const bookId = typeof book === 'object' ? book._id : book;
+                      return (
+                        <span
+                          key={bookId}
+                          className="tag-chip static wishlist-chip"
+                          onClick={() => navigate(`/libros/${bookId}`)}
+                          style={{ cursor: 'pointer' }}
+                          title="Haga clic para ver el detalle del libro"
+                        >
+                          📖 {bookTitle}
+                        </span>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="no-favs-yet">{t('profile.no_wishlist')}</p>
+                )}
+              </div>
+
+              <hr />
+              <div className="details-section">
+                <h3>{t('profile.followed_events')}</h3>
+                {followedEvents.length > 0 ? (
+                  <div className="chips-row">
+                    {followedEvents.map((evento: any) => {
+                      const eventTitle = typeof evento === 'object' ? evento.title : 'Evento';
+                      const eventId = typeof evento === 'object' ? evento._id : evento;
+                      return (
+                        <span
+                          key={eventId}
+                          className="tag-chip static followed-event-chip"
+                          onClick={() => navigate(`/eventos/${eventId}`)}
+                          style={{
+                            cursor: 'pointer',
+                            backgroundColor: '#e3f2fd',
+                            color: '#0d47a1',
+                          }}
+                          title="Haga clic para ver el detalle del evento"
+                        >
+                          📅 {eventTitle}
+                        </span>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="no-favs-yet">{t('profile.no_events')}</p>
+                )}
+              </div>
             </div>
           )}
         </div>
 
-        {/* Right Card: Reviews Received */}
         <div className="profile-reviews-card">
-          <h2>Valoraciones como vendedor</h2>
+          <h2>{t('profile.seller_ratings')}</h2>
           {reviews.length === 0 ? (
-            <p className="no-reviews-msg">Este usuario aún no ha recibido valoraciones como vendedor.</p>
+            <p className="no-reviews-msg">{t('profile.no_seller_ratings')}</p>
           ) : (
             <div className="reviews-feed">
               {reviews.map((rev) => (
@@ -557,16 +708,20 @@ export default function Profile() {
                   <div className="review-item-header">
                     <span className="reviewer-name">{rev.usuarioAutor?.name}</span>
                     <span className="review-stars">
-                      {"★".repeat(Math.max(0, rev.puntuacion || 0)) + "☆".repeat(Math.max(0, 5 - (rev.puntuacion || 0)))}
+                      {'★'.repeat(Math.max(0, rev.puntuacion || 0)) +
+                        '☆'.repeat(Math.max(0, 5 - (rev.puntuacion || 0)))}
                     </span>
                   </div>
                   {rev.libro && (
                     <span className="review-book-title">
-                      Libro: {rev.libro.title} {rev.tipoOperacion ? `(${rev.tipoOperacion.toLowerCase()})` : ""}
+                      {t('profile.book_label')}: {rev.libro.title}{' '}
+                      {rev.tipoOperacion ? `(${rev.tipoOperacion.toLowerCase()})` : ''}
                     </span>
                   )}
-                  {rev.comentario && <p className="review-text">"{rev.comentario}"</p>}
-                  <span className="review-date">{new Date(rev.createdAt).toLocaleDateString()}</span>
+                  {rev.comentario && <p className="review-text">&quot;{rev.comentario}&quot;</p>}
+                  <span className="review-date">
+                    {new Date(rev.createdAt).toLocaleDateString()}
+                  </span>
                 </div>
               ))}
             </div>
@@ -574,84 +729,75 @@ export default function Profile() {
         </div>
       </div>
 
-      {/* Account Deletion Modal */}
       {deleteModalOpen && (
         <div className="modal-overlay" onClick={() => setDeleteModalOpen(false)}>
           <div className="modal-content text-center" onClick={(e) => e.stopPropagation()}>
-            {deleteStep === "menu" && (
+            {deleteStep === 'menu' && (
               <>
-                <h2>Eliminar Cuenta</h2>
-                <p className="delete-warning-text">
-                  ¿Qué tipo de eliminación deseas realizar? Puedes suspender tu cuenta temporalmente o eliminarla permanentemente.
-                </p>
+                <h2>{t('profile.modal.title')}</h2>
+                <p className="delete-warning-text">{t('profile.modal.desc')}</p>
                 <div className="delete-actions-column">
-                  <button
-                    className="temp-delete-btn"
-                    onClick={() => setDeleteStep("confirm_soft")}
-                  >
-                    Desactivar Temporalmente
+                  <button className="temp-delete-btn" onClick={() => setDeleteStep('confirm_soft')}>
+                    🌴 {t('profile.modal.vacation_btn')}
                   </button>
-                  <button
-                    className="perm-delete-btn"
-                    onClick={() => setDeleteStep("confirm_perm")}
-                  >
-                    Eliminar Permanentemente
+                  <button className="perm-delete-btn" onClick={() => setDeleteStep('confirm_perm')}>
+                    🗑️ {t('profile.modal.perm_delete_btn')}
                   </button>
                   <button
                     className="modal-cancel-btn full-width"
                     onClick={() => setDeleteModalOpen(false)}
                   >
-                    Cancelar
+                    {t('profile.cancel')}
                   </button>
                 </div>
               </>
             )}
 
-            {deleteStep === "confirm_soft" && (
+            {deleteStep === 'confirm_soft' && (
               <>
-                <h2>Confirmar Desactivación Temporal</h2>
-                <p className="delete-warning-text">
-                  Tu cuenta será desactivada. Tus libros subidos no se verán en el catálogo público, pero podrás reactivarla cuando inicies sesión de nuevo.
-                </p>
+                <h2>{t('profile.modal.confirm_vacation_title')}</h2>
+                <p className="delete-warning-text">{t('profile.modal.confirm_vacation_desc')}</p>
                 <div className="delete-actions-column">
                   <button
                     className="temp-delete-confirm-btn"
                     onClick={executeSoftDelete}
                     disabled={deleting}
                   >
-                    {deleting ? "Desactivando..." : "Sí, Desactivar temporalmente"}
+                    {deleting
+                      ? t('profile.modal.activating')
+                      : t('profile.modal.confirm_vacation_action')}
                   </button>
                   <button
                     className="modal-cancel-btn full-width"
-                    onClick={() => setDeleteStep("menu")}
+                    onClick={() => setDeleteStep('menu')}
                     disabled={deleting}
                   >
-                    Volver atrás
+                    {t('profile.modal.go_back')}
                   </button>
                 </div>
               </>
             )}
 
-            {deleteStep === "confirm_perm" && (
+            {deleteStep === 'confirm_perm' && (
               <>
-                <h2>⚠️ ALERTA: Confirmar Borrado Permanente</h2>
-                <p className="delete-warning-text danger">
-                  Esta acción eliminará de forma irreversible tus valoraciones, biblioteca, chats y datos personales de nuestro sistema.
-                </p>
+                <h2>{t('profile.modal.confirm_perm_title')}</h2>
+                <p className="delete-warning-text danger">{t('profile.modal.confirm_perm_desc')}</p>
                 <div className="delete-actions-column">
                   <button
                     className="perm-delete-confirm-btn"
                     onClick={executePermanentDelete}
                     disabled={deleting}
                   >
-                    {deleting ? "Eliminando..." : "Sí, borrar definitivamente"}
+                    {deleting
+                      ? t('profile.modal.deleting')
+                      : t('profile.modal.confirm_perm_action')}
                   </button>
                   <button
                     className="modal-cancel-btn full-width"
-                    onClick={() => setDeleteStep("menu")}
+                    onClick={() => setDeleteStep('menu')}
                     disabled={deleting}
                   >
-                    Volver atrás
+                    {t('profile.modal.go_back')}
                   </button>
                 </div>
               </>
@@ -659,7 +805,6 @@ export default function Profile() {
           </div>
         </div>
       )}
-      <ToastContainer />
     </div>
   );
 }
