@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import UsuarioService from '../Services/Usuario';
 import './Auth.css';
+import { environment } from '../../config/environment';
 
 const Register: React.FC = () => {
   const { t } = useTranslation();

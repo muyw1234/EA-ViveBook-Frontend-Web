@@ -103,7 +103,7 @@ const Home: React.FC = () => {
 
   function AddingBookInput(data: Partial<ILibro>) {
     const { trackEvent } = useMatomo();
-    function callback(e: React.MouseEvent<HTMLInputElement, MouseEvent>) {
+    function callback(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
       console.log('Sending metrics of Adding Book to Matomo.');
       trackEvent('Libro', 'Adding Book', data.type as string);
       handleAddBookSubmit(e);
