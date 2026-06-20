@@ -49,6 +49,8 @@ const BookDetail: React.FC = () => {
   const [showContactModal, setShowContactModal] = useState(false);
   const [initialMessage, setInitialMessage] = useState('');
   const [submittingContact, setSubmittingContact] = useState(false);
+  const [submittingBuy, setSubmittingBuy] = useState(false);
+  const [submittingRent, setSubmittingRent] = useState(false);
 
   const formatPrice = (price?: string | number) => {
     if (price === undefined || price === null || price === '') {
@@ -204,6 +206,54 @@ const BookDetail: React.FC = () => {
     }
   };
 
+  const handleBuy = async () => {
+    const token = getSessionToken();
+    if (!token) {
+      toast.warn(t('toast_login_buy'));
+      return;
+    }
+    if (!id) return;
+
+    setSubmittingBuy(true);
+    try {
+      await LibroService.buyLibro(id);
+      toast.success(t('toast_buy_success'));
+      setTimeout(() => {
+        navigate('/mis-libros');
+      }, 1500);
+    } catch (err: any) {
+      console.error(err);
+      const msg = err.response?.data?.message || t('toast_buy_error');
+      toast.error(msg);
+    } finally {
+      setSubmittingBuy(false);
+    }
+  };
+
+  const handleRent = async () => {
+    const token = getSessionToken();
+    if (!token) {
+      toast.warn(t('toast_login_rent'));
+      return;
+    }
+    if (!id) return;
+
+    setSubmittingRent(true);
+    try {
+      await LibroService.rentLibro(id);
+      toast.success(t('toast_rent_success'));
+      setTimeout(() => {
+        navigate('/mis-libros');
+      }, 1500);
+    } catch (err: any) {
+      console.error(err);
+      const msg = err.response?.data?.message || t('toast_rent_error');
+      toast.error(msg);
+    } finally {
+      setSubmittingRent(false);
+    }
+  };
+
   if (loading) {
     return <div className="book-detail-page">{t('detail_loading')}</div>;
   }
@@ -286,6 +336,24 @@ const BookDetail: React.FC = () => {
               <span className="owner-listing-tag">{t('detail_own_listing')}</span>
             ) : (
               <>
+                {book.type === 'VENTA' ? (
+                  <button
+                    className="buy-btn"
+                    onClick={handleBuy}
+                    disabled={submittingBuy}
+                  >
+                    {submittingBuy ? t('modal_contact_sending') : t('btn_buy')}
+                  </button>
+                ) : (
+                  <button
+                    className="rent-btn"
+                    onClick={handleRent}
+                    disabled={submittingRent}
+                  >
+                    {submittingRent ? t('modal_contact_sending') : t('btn_rent')}
+                  </button>
+                )}
+
                 <button
                   className="reserve-btn"
                   onClick={handleReserve}

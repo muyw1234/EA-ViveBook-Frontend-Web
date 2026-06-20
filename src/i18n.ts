@@ -51,6 +51,8 @@ const resources: Resource = {
       btn_reserve_request: 'Solicitar Reserva',
       btn_reserve_requested: 'Reserva Solicitada',
       btn_contact_seller: 'Contactar Vendedor',
+      btn_buy: 'Comprar Libro',
+      btn_rent: 'Alquilar Libro',
 
       toast_login_wishlist: 'Debes iniciar sesión para añadir libros a tu lista de deseos.',
       toast_wishlist_success: '¡Libro añadido a tu lista de deseos!',
@@ -65,6 +67,12 @@ const resources: Resource = {
       toast_reserve_error: 'Error al realizar la reserva',
       toast_contact_success: '¡Solicitud de contacto enviada con éxito!',
       toast_contact_error: 'Error al enviar la solicitud de mensaje',
+      toast_login_buy: 'Debes iniciar sesión para comprar un libro.',
+      toast_login_rent: 'Debes iniciar sesión para alquilar un libro.',
+      toast_buy_success: '¡Libro comprado con éxito!',
+      toast_buy_error: 'Error al comprar el libro',
+      toast_rent_success: '¡Libro alquilado con éxito!',
+      toast_rent_error: 'Error al alquilar el libro',
 
       // Contact Modal
       modal_contact_title: 'Contactar al Vendedor',
@@ -760,6 +768,8 @@ const resources: Resource = {
       btn_reserve_request: 'Sol·licitar Reserva',
       btn_reserve_requested: 'Reserva Sol·licitada',
       btn_contact_seller: 'Contactar Venedor',
+      btn_buy: 'Comprar Llibre',
+      btn_rent: 'Llogar Llibre',
 
       toast_login_wishlist: "Has d'iniciar sessió per afegir llibres a la teva llista de desitjos.",
       toast_wishlist_success: '¡Llibre afegit a la teva llista de desitjos!',
@@ -774,6 +784,12 @@ const resources: Resource = {
       toast_reserve_error: 'Error en realitzar la reserva',
       toast_contact_success: '¡Sol·licitud de contacte enviada amb èxit!',
       toast_contact_error: 'Error en enviar la sol·licitud de missatge',
+      toast_login_buy: "Has d'iniciar sessió per comprar un llibre.",
+      toast_login_rent: "Has d'iniciar sessió per llogar un llibre.",
+      toast_buy_success: '¡Llibre comprat amb èxit!',
+      toast_buy_error: 'Error en comprar el llibre',
+      toast_rent_success: '¡Llibre llogat amb èxit!',
+      toast_rent_error: 'Error en llogar el llibre',
 
       // Contact Modal
       modal_contact_title: 'Contactar amb el Venedor',
@@ -1467,6 +1483,8 @@ const resources: Resource = {
       btn_reserve_request: 'Request Reservation',
       btn_reserve_requested: 'Reservation Requested',
       btn_contact_seller: 'Contact Seller',
+      btn_buy: 'Buy Book',
+      btn_rent: 'Rent Book',
 
       toast_login_wishlist: 'You must log in to add books to your wishlist.',
       toast_wishlist_success: 'Book added to your wishlist!',
@@ -1481,6 +1499,12 @@ const resources: Resource = {
       toast_reserve_error: 'Error creating reservation request',
       toast_contact_success: 'Contact request sent successfully!',
       toast_contact_error: 'Error sending message request',
+      toast_login_buy: 'You must log in to buy a book.',
+      toast_login_rent: 'You must log in to rent a book.',
+      toast_buy_success: 'Book successfully purchased!',
+      toast_buy_error: 'Error purchasing book',
+      toast_rent_success: 'Book successfully rented!',
+      toast_rent_error: 'Error renting book',
 
       // Contact Modal
       modal_contact_title: 'Contact Seller',

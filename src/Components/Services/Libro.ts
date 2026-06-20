@@ -87,6 +87,26 @@ async function searchLibro(term: string, page: number = 1, limit: number = 10): 
   return normalizeLibros(response.data);
 }
 
+const buyLibro = async (id: string) => {
+  try {
+    const response = await api.post(`/libros/buy/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error buying book:', error);
+    throw error;
+  }
+};
+
+const rentLibro = async (id: string) => {
+  try {
+    const response = await api.post(`/libros/rent/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error renting book:', error);
+    throw error;
+  }
+};
+
 export default {
   getAllLibros,
   getLibroById,
@@ -94,4 +114,6 @@ export default {
   addLibroByIsbn,
   getLibroMetadataByIsbn,
   searchLibro,
+  buyLibro,
+  rentLibro,
 };
