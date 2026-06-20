@@ -29,13 +29,13 @@ import { MatomoProvider } from 'matomo-tracker-for-react';
 
 // Configuración de Firebase que ya tenías definida
 const firebaseConfig = {
-  apiKey: "AIzaSyAFB9g4-Sn0b93oYoTpc_HaGLcCV-fgK4w",
-  authDomain: "ea-vivebook-frontend-web.firebaseapp.com",
-  projectId: "ea-vivebook-frontend-web",
-  storageBucket: "ea-vivebook-frontend-web.firebasestorage.app",
-  messagingSenderId: "870483568720",
-  appId: "1:870483568720:web:dd4452b22e2c47ae82c955",
-  measurementId: "G-DNXTF3D8MB"
+  apiKey: 'AIzaSyAFB9g4-Sn0b93oYoTpc_HaGLcCV-fgK4w',
+  authDomain: 'ea-vivebook-frontend-web.firebaseapp.com',
+  projectId: 'ea-vivebook-frontend-web',
+  storageBucket: 'ea-vivebook-frontend-web.firebasestorage.app',
+  messagingSenderId: '870483568720',
+  appId: '1:870483568720:web:dd4452b22e2c47ae82c955',
+  measurementId: 'G-DNXTF3D8MB',
 };
 
 // Inicializar Firebase
@@ -44,7 +44,7 @@ const messaging = getMessaging(firebaseApp);
 
 function Navigation() {
   const { t } = useTranslation();
-  useLocation(); 
+  useLocation();
   const token = useSessionToken();
 
   const handleLogout = () => {
@@ -54,23 +54,45 @@ function Navigation() {
 
   return (
     <nav className="main-nav">
-      <Link to="/" className="nav-link">{t('nav.home')}</Link>
-      <Link to="/categorias/sales" className="nav-link">{t('nav.books')}</Link>
-      <Link to="/categorias/events" className="nav-link">{t('nav.events')}</Link>
+      <Link to="/" className="nav-link">
+        {t('nav.home')}
+      </Link>
+      <Link to="/categorias/sales" className="nav-link">
+        {t('nav.books')}
+      </Link>
+      <Link to="/categorias/events" className="nav-link">
+        {t('nav.events')}
+      </Link>
 
       {!token ? (
         <>
-          <Link to="/register" className="nav-link">{t('nav.register')}</Link>
-          <Link to="/login" className="nav-link">{t('nav.login')}</Link>
+          <Link to="/register" className="nav-link">
+            {t('nav.register')}
+          </Link>
+          <Link to="/login" className="nav-link">
+            {t('nav.login')}
+          </Link>
         </>
       ) : (
         <>
-          <Link to="/discover" className="nav-link">{t('nav.discover')}</Link>
-          <Link to="/buzon" className="nav-link">{t('nav.mailbox')}</Link>
-          <Link to="/my-books" className="nav-link">{t('nav.myBooks')}</Link>
-          <Link to="/retos" className="nav-link">{t('nav.challenges')}</Link>
-          <Link to="/profile" className="nav-link">{t('nav.profile')}</Link>
-          <Link to="/ia" className="nav-link highlight">{t('nav.ai')}</Link>
+          <Link to="/discover" className="nav-link">
+            {t('nav.discover')}
+          </Link>
+          <Link to="/buzon" className="nav-link">
+            {t('nav.mailbox')}
+          </Link>
+          <Link to="/my-books" className="nav-link">
+            {t('nav.myBooks')}
+          </Link>
+          <Link to="/retos" className="nav-link">
+            {t('nav.challenges')}
+          </Link>
+          <Link to="/profile" className="nav-link">
+            {t('nav.profile')}
+          </Link>
+          <Link to="/ia" className="nav-link highlight">
+            {t('nav.ai')}
+          </Link>
 
           <button
             onClick={handleLogout}
@@ -104,15 +126,16 @@ function App() {
         const permission = await Notification.requestPermission();
         if (permission === 'granted') {
           // Obtener el Token Web. Reemplaza 'TU_CLAVE_VAPID_PUBLICA' con tu par de claves web de la consola de Firebase.
-          const tokenWeb = await getToken(messaging, { 
-            vapidKey: 'BIcoahhckzky0gMhRfx-3bqMJ8d7tMBfVLto8nlUa-Uvh3ueD7H8Bhi2dUF47esdOkj3-c2e7PvX7w6nsdCeSdA' 
+          const tokenWeb = await getToken(messaging, {
+            vapidKey:
+              'BIcoahhckzky0gMhRfx-3bqMJ8d7tMBfVLto8nlUa-Uvh3ueD7H8Bhi2dUF47esdOkj3-c2e7PvX7w6nsdCeSdA',
           });
-          console.log("👉 TU TOKEN WEB FCM:", tokenWeb);
+          console.log('👉 TU TOKEN WEB FCM:', tokenWeb);
         } else {
-          console.log("❌ Permiso de notificaciones denegado.");
+          console.log('❌ Permiso de notificaciones denegado.');
         }
       } catch (error) {
-        console.error("❌ Error al configurar FCM Web:", error);
+        console.error('❌ Error al configurar FCM Web:', error);
       }
     };
 
@@ -120,7 +143,7 @@ function App() {
 
     // Capturar mensajes cuando el usuario tiene la pestaña abierta e interactuando
     const unsubscribe = onMessage(messaging, (payload) => {
-      console.log("📨 Mensaje recibido en primer plano (Web):", payload);
+      console.log('📨 Mensaje recibido en primer plano (Web):', payload);
       alert(`Notificación: ${payload.notification?.title}\n${payload.notification?.body}`);
     });
 
