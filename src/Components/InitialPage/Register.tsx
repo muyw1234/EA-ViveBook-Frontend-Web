@@ -13,6 +13,7 @@ const Register: React.FC = () => {
     email: '',
     password: '',
   });
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
@@ -91,6 +92,10 @@ const Register: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (formData.password !== confirmPassword) {
+      setMessage(t('register.error_password_mismatch', 'Las contraseñas no coinciden'));
+      return;
+    }
     setLoading(true);
     setMessage('');
 
@@ -99,6 +104,7 @@ const Register: React.FC = () => {
       console.log('Usuario creado:', newUser);
       setMessage(t('register.success_message'));
       setFormData({ name: '', email: '', password: '' });
+      setConfirmPassword('');
       setTimeout(() => navigate('/'), 1500);
     } catch (error: any) {
       const errorMsg = error.response?.data?.message || t('register.error_default');
@@ -187,6 +193,19 @@ const Register: React.FC = () => {
               required
               className="auth-input"
               placeholder={t('register.password_placeholder')}
+            />
+          </div>
+
+          <div className="input-group">
+            <label>{t('register.password_confirm', 'Confirmar Contraseña')}</label>
+            <input
+              type="password"
+              name="confirmPassword"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              className="auth-input"
+              placeholder={t('register.password_confirm_placeholder', 'Repite tu contraseña')}
             />
           </div>
 
