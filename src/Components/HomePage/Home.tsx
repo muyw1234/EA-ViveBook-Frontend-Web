@@ -11,6 +11,11 @@ import ImageService from '../Services/Image';
 import 'leaflet/dist/leaflet.css';
 import { useTranslation } from 'react-i18next';
 
+//import {
+//  solicitarPermisosYObtenerToken,
+//  escucharNotificacionesActivas,
+//} from '../Services/NotificacionService';
+
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 
 import L from 'leaflet';
@@ -269,6 +274,7 @@ const Home: React.FC = () => {
               authors,
             }
           : {
+              ...newBookResponse,
               _id: Date.now().toString(),
               title: newBookTitle,
               authors,
