@@ -19,6 +19,7 @@ RUN npm ci
 COPY . .
 
 # Compilamos la aplicación de Vite
+RUN npm run typecheck
 RUN npm run build
 
 # ETAPA 2: Servidor de producción (Nginx)
