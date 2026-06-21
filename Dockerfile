@@ -5,6 +5,7 @@ WORKDIR /app
 
 ARG VITE_API_URL=http://localhost:1337
 ARG VITE_SOCKET_URL=http://localhost:1337
+ARG VITE_SOCKET_URL="820483348384-d9bpf9nncdi8trv4rvks9lembim7dhat.apps.googleusercontent.com"
 
 ENV VITE_API_URL=$VITE_API_URL
 ENV VITE_SOCKET_URL=$VITE_SOCKET_URL

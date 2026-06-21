@@ -32,6 +32,7 @@ jobs:
         env:
           VITE_API_URL: ${{ vars.VITE_API_URL }}
           VITE_SOCKET_URL: ${{ vars.VITE_SOCKET_URL }}
+          VITE_GOOGLE_CLIENT_ID: ${{ vars.VITE_GOOGLE_CLIENT_ID }}
         run: |
           test -n "$VITE_API_URL" || (echo "Missing repository variable VITE_API_URL" && exit 1)
           test -n "$VITE_SOCKET_URL" || (echo "Missing repository variable VITE_SOCKET_URL" && exit 1)
@@ -53,6 +54,7 @@ jobs:
           build-args: |
             VITE_API_URL=${{ vars.VITE_API_URL }}
             VITE_SOCKET_URL=${{ vars.VITE_SOCKET_URL }}
+            VITE_GOOGLE_CLIENT_ID=${{ vars.VITE_GOOGLE_CLIENT_ID }}
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
