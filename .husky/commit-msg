@@ -3,7 +3,8 @@ COMMIT_MSG=$(head -n 1 "$1")
 case "$COMMIT_MSG" in
   v*|V*)
     echo "Commit de versión detectado. Ejecutando tests..."
-    npm run test
+    npm run test:run
+    npm run test:e2e
     ;;
   *)
     echo "Commit normal. No se ejecutan los tests."

@@ -337,19 +337,11 @@ const BookDetail: React.FC = () => {
             ) : (
               <>
                 {book.type === 'VENTA' ? (
-                  <button
-                    className="buy-btn"
-                    onClick={handleBuy}
-                    disabled={submittingBuy}
-                  >
+                  <button className="buy-btn" onClick={handleBuy} disabled={submittingBuy}>
                     {submittingBuy ? t('modal_contact_sending') : t('btn_buy')}
                   </button>
                 ) : (
-                  <button
-                    className="rent-btn"
-                    onClick={handleRent}
-                    disabled={submittingRent}
-                  >
+                  <button className="rent-btn" onClick={handleRent} disabled={submittingRent}>
                     {submittingRent ? t('modal_contact_sending') : t('btn_rent')}
                   </button>
                 )}
