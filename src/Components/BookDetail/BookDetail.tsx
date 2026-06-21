@@ -219,7 +219,7 @@ const BookDetail: React.FC = () => {
       await LibroService.buyLibro(id);
       toast.success(t('toast_buy_success'));
       setTimeout(() => {
-        navigate('/mis-libros');
+        navigate('/my-books');
       }, 1500);
     } catch (err: any) {
       console.error(err);
@@ -243,7 +243,7 @@ const BookDetail: React.FC = () => {
       await LibroService.rentLibro(id);
       toast.success(t('toast_rent_success'));
       setTimeout(() => {
-        navigate('/mis-libros');
+        navigate('/my-books');
       }, 1500);
     } catch (err: any) {
       console.error(err);
